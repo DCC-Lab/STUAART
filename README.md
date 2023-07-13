@@ -1,3 +1,3 @@
 # IntelligentCage
 
-Repo of the intelligent cage project, created 12 July 2023
+Repo of the intelligent cage project, created July 12 2023, Nathan Bérubé
