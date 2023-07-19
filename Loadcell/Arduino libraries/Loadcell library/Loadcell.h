@@ -49,6 +49,10 @@ public:
 
         long read_average();
 
+        long read_tare_average();
+
+        long read_scale_coeff_average();
+
         double get_value();
 
         float get_weight();

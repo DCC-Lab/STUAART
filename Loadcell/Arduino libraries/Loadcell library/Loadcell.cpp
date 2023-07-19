@@ -197,6 +197,28 @@ long Loadcell::read_average() {
 	return sum / times;
 }
 
+long Loadcell::read_tare_average() {
+  byte times = get_tare_n_readings();
+  long sum = 0;
+
+	for (byte i = 0; i < times; i++) {
+		sum += read();
+		delay(0);
+	}
+	return sum / times;
+}
+
+long Loadcell::read_scale_coeff_average() {
+  byte times = get_scale_coeff_n_readings();
+  long sum = 0;
+
+	for (byte i = 0; i < times; i++) {
+		sum += read();
+		delay(0);
+	}
+	return sum / times;
+}
+
 double Loadcell::get_value() {
   return read_average() - get_offset();
 }
@@ -206,7 +228,7 @@ float Loadcell::get_weight() {
 }
 
 void Loadcell::tare() {
-  double offset = read_average();
+  double offset = read_tare_average();
   set_offset(offset);
 }
 

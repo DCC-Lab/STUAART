@@ -3,14 +3,13 @@
 #include <Arduino.h>
 #include "HX711.h"
 #include "Loadcell.h"
-#include <assert.h>
 
 class Loadcell_controller {
-
-public: 
+protected:
         Loadcell* loadcells[10];
         int n_loadcell = 0;
 
+public: 
         Loadcell_controller();
 
         void add_loadcell(Loadcell &loadcell);
@@ -57,14 +56,14 @@ public:
                                 bool save_offset_eeprom=false,
                                 bool save_scale_eeprom=false,
                                 float tare_offset=0,
-                                float scale_coeff=0,
+                                float scale_coeff=0
                                 );
 
         void save_offset_eeprom(int loadcell_num);
 
         void save_scale_eeprom(int loadcell_num);
 
-        float read_offset_from_eeprom(int loadcell_num);
+        long read_offset_from_eeprom(int loadcell_num);
 
         float read_scale_from_eeprom(int loadcell_num);
 
@@ -113,6 +112,8 @@ public:
         void set_all_loadcells_scale_coeff_n_readings(int n_readings);
 
         void set_all_loadcells_weight_n_readings(int n_readings);
+
+        byte number_of_loadcells();
 
         bool is_loadcell_num_in_range(int loadcell_num);
 
