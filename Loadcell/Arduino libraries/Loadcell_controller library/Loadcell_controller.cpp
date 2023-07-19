@@ -39,12 +39,9 @@ int Loadcell_controller::easy_start_with_params(
                             );
 
     Loadcell* loadcell_ptr = loadcells[loadcell_num - 1];
-    
-    //(*loadcell_ptr).begin(dout, pd_sck, gain);
+
     loadcell_ptr->begin(dout, pd_sck, gain);
 
-    //set_offset_adress(eeprom_offset_adress);
-    //set_scale_adress(eeprom_scale_adress);
     loadcell_ptr->set_offset(tare_offset);
     loadcell_ptr->set_scale(scale_coeff);
 
@@ -75,7 +72,7 @@ void Loadcell_controller::easy_read_from_eeprom_with_params(byte loadcell_num, b
         // float offset = read_offset_from_eeprom(loadcell_num);
         // float scale = read_scale_from_eeprom(loadcell_num);
         loadcell_ptr->set_offset(read_offset_from_eeprom(loadcell_num));
-        loadcell_ptr->set_scale(read_scale_from_eeprom(loadcell_num));
+        loadcell_ptr->set_scale(read_scale_coeff_from_eeprom(loadcell_num));
         Serial.println(F("Offset and scale coefficient read from EEPROM"));
         Serial.print(F("Offset: "));
         Serial.println(loadcell_ptr->get_offset());
@@ -93,7 +90,7 @@ void Loadcell_controller::easy_read_from_eeprom_with_params(byte loadcell_num, b
     }
     else if (!read_offset_eeprom && read_scale_eeprom) {
         // float scale = read_scale_from_eeprom(loadcell_num);
-        loadcell_ptr->set_scale(read_scale_from_eeprom(loadcell_num));
+        loadcell_ptr->set_scale(read_scale_coeff_from_eeprom(loadcell_num));
         Serial.println(F("---------***---------"));
         Serial.println(F("Scale coefficient read from EEPROM"));
         Serial.print(F("Scale coefficient: "));
@@ -123,7 +120,7 @@ void Loadcell_controller::easy_save_to_eeprom_with_params(byte loadcell_num, boo
 
     if (save_offset && save_scale) {
         save_offset_eeprom(loadcell_num);
-        save_scale_eeprom(loadcell_num);
+        save_scale_coeff_eeprom(loadcell_num);
         Serial.println(F("---------***---------"));
         Serial.println(F("Offset and scale coefficient saved to EEPROM."));
         Serial.print(F("Offset: "));
@@ -139,7 +136,7 @@ void Loadcell_controller::easy_save_to_eeprom_with_params(byte loadcell_num, boo
         Serial.println(loadcell_ptr->get_offset());
     }
     else if (!save_offset && save_scale) {
-        save_scale_eeprom(loadcell_num);
+        save_scale_coeff_eeprom(loadcell_num);
         Serial.println(F("---------***---------"));
         Serial.println(F("Scale coefficient saved to EEPROM."));
         Serial.print(F("Scale coefficient: "));
@@ -257,7 +254,7 @@ void Loadcell_controller::save_offset_eeprom(byte loadcell_num) {
     EEPROM.put(get_offset_adress(loadcell_num), offset);
 }
 
-void Loadcell_controller::save_scale_eeprom(byte loadcell_num) {
+void Loadcell_controller::save_scale_coeff_eeprom(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
@@ -270,7 +267,7 @@ void Loadcell_controller::save_scale_eeprom(byte loadcell_num) {
 
     Loadcell* loadcell_ptr = loadcells[loadcell_num - 1];
     double scale = loadcell_ptr->get_scale(); // since loadcell.get_offset() returns an float, it needs to be converted to double before calling EEPROM.put()
-    EEPROM.put(get_scale_adress(loadcell_num), scale);
+    EEPROM.put(get_scale_coeff_adress(loadcell_num), scale);
 }
 
 long Loadcell_controller::read_offset_from_eeprom(byte loadcell_num) {
@@ -289,7 +286,7 @@ long Loadcell_controller::read_offset_from_eeprom(byte loadcell_num) {
     return offset;
 }
 
-float Loadcell_controller::read_scale_from_eeprom(byte loadcell_num) {
+float Loadcell_controller::read_scale_coeff_from_eeprom(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
@@ -301,7 +298,7 @@ float Loadcell_controller::read_scale_from_eeprom(byte loadcell_num) {
     }
 
     float scale;
-    EEPROM.get(get_scale_adress(loadcell_num), scale);
+    EEPROM.get(get_scale_coeff_adress(loadcell_num), scale);
     return scale;
 }
 
@@ -540,7 +537,7 @@ void Loadcell_controller::set_scale_adress(byte loadcell_num, int adress) {
     // }
 }
 
-int Loadcell_controller::get_scale_adress(byte loadcell_num) {
+int Loadcell_controller::get_scale_coeff_adress(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
@@ -727,7 +724,7 @@ byte Loadcell_controller::number_of_loadcells() {
 }
 
 bool Loadcell_controller::is_loadcell_num_in_range(byte loadcell_num) {
-    return loadcell_num > 0 && loadcell_num <= n_loadcell;
+    return loadcell_num > 0 && loadcell_num <= number_of_loadcells();
 }
 
 void Loadcell_controller::clear_eeprom(int start=0, int end=1024) {

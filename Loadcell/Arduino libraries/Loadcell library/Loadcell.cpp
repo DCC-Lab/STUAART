@@ -1,10 +1,9 @@
 /**
+ * 
  *
- * HX711 library for Arduino
- * https://github.com/bogde/HX711
+ * HX711 library for Arduino derived from: https://github.com/bogde/HX711
  *
- * MIT License
- * (c) 2018 Bogdan Necula
+ * 2023 Nathan Bérubé
  *
 **/
 #include <Arduino.h>
@@ -70,7 +69,6 @@ uint8_t shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
 #define DOUT_MODE INPUT_PULLUP
 #endif
 
-// tout ce qui est au-dessus est au début du fichier .ccp de la librarie HX711 de laquelle Loadcell est dérivée.
 
 
 Loadcell::Loadcell() {
