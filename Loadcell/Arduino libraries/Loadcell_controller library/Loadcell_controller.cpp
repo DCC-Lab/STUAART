@@ -4,7 +4,6 @@
 #include "Loadcell_controller.h"
 
 Loadcell_controller::Loadcell_controller() {
-
 }
 
 void Loadcell_controller::add_loadcell(Loadcell &loadcell) {
@@ -13,7 +12,7 @@ void Loadcell_controller::add_loadcell(Loadcell &loadcell) {
 }
 
 int Loadcell_controller::easy_start_with_params(
-                                            int loadcell_num,
+                                            byte loadcell_num,
                                             byte dout,
                                             byte pd_sck,
                                             bool calibrate_offset=false,
@@ -66,10 +65,10 @@ int Loadcell_controller::easy_start_with_params(
                                     save_offset_eeprom,
                                     save_scale_eeprom
                                     ); // set offset and scale with calibration or with value
-    Serial.println("---------***---------");
+    Serial.println(F("---------***---------"));
 }
 
-void Loadcell_controller::easy_read_from_eeprom_with_params(int loadcell_num, bool read_offset_eeprom, bool read_scale_eeprom) {
+void Loadcell_controller::easy_read_from_eeprom_with_params(byte loadcell_num, bool read_offset_eeprom, bool read_scale_eeprom) {
     Loadcell* loadcell_ptr = loadcells[loadcell_num - 1];
 
     if (read_offset_eeprom && read_scale_eeprom) {
@@ -102,7 +101,7 @@ void Loadcell_controller::easy_read_from_eeprom_with_params(int loadcell_num, bo
     }
 }
 
-void Loadcell_controller::easy_calibration_with_params(int loadcell_num, bool calibrate_offset, bool calibrate_scale) {
+void Loadcell_controller::easy_calibration_with_params(byte loadcell_num, bool calibrate_offset, bool calibrate_scale) {
     Loadcell* loadcell_ptr = loadcells[loadcell_num - 1];
     if (calibrate_offset && calibrate_scale) {
         calibrate_both_params(loadcell_num); // set offset and scale
@@ -113,47 +112,42 @@ void Loadcell_controller::easy_calibration_with_params(int loadcell_num, bool ca
     }
     else if (calibrate_offset && !calibrate_scale) {
         calibrate_tare_offset(loadcell_num);     // set offset
-        Serial.print("Offset: ");
-        Serial.println(loadcell_ptr->get_offset());
     }
     else if (!calibrate_offset && calibrate_scale) {
         calibrate_scale_coeff(loadcell_num);    // set scale
-        Serial.print("Scale coefficient: ");
-        Serial.println(loadcell_ptr->get_scale());
     }
 }
 
-
-void Loadcell_controller::easy_save_to_eeprom_with_params(int loadcell_num, bool save_offset, bool save_scale) {
+void Loadcell_controller::easy_save_to_eeprom_with_params(byte loadcell_num, bool save_offset, bool save_scale) {
     Loadcell* loadcell_ptr = loadcells[loadcell_num - 1];
 
     if (save_offset && save_scale) {
         save_offset_eeprom(loadcell_num);
         save_scale_eeprom(loadcell_num);
-        Serial.println("---------***---------");
-        Serial.println("Offset and scale coefficient saved to EEPROM.");
-        Serial.print("Offset: ");
+        Serial.println(F("---------***---------"));
+        Serial.println(F("Offset and scale coefficient saved to EEPROM."));
+        Serial.print(F("Offset: "));
         Serial.println(loadcell_ptr->get_offset());
-        Serial.print("Scale coefficient: ");
+        Serial.print(F("Scale coefficient: "));
         Serial.println(loadcell_ptr->get_scale());
     }
     else if (save_offset && !save_scale) {
         save_offset_eeprom(loadcell_num);
-        Serial.println("---------***---------");
-        Serial.println("Offset saved to EEPROM.");
-        Serial.print("Offset: ");
+        Serial.println(F("---------***---------"));
+        Serial.println(F("Offset saved to EEPROM."));
+        Serial.print(F("Offset: "));
         Serial.println(loadcell_ptr->get_offset());
     }
     else if (!save_offset && save_scale) {
         save_scale_eeprom(loadcell_num);
-        Serial.println("---------***---------");
-        Serial.println("Scale coefficient saved to EEPROM.");
-        Serial.print("Scale coefficient: ");
+        Serial.println(F("---------***---------"));
+        Serial.println(F("Scale coefficient saved to EEPROM."));
+        Serial.print(F("Scale coefficient: "));
         Serial.println(loadcell_ptr->get_scale());
     }
 }
 
-void Loadcell_controller::easy_calibration_with_questions(int loadcell_num, bool calibrate_offset, bool calibrate_scale) {
+void Loadcell_controller::easy_calibration_with_questions(byte loadcell_num, bool calibrate_offset, bool calibrate_scale) {
     // if (calibrate_offset && calibrate_scale) {
     //     calibrate_all();
     // }
@@ -169,7 +163,7 @@ void Loadcell_controller::easy_calibration_with_questions(int loadcell_num, bool
 }
 
 void Loadcell_controller::easy_handle_exceptions(
-                                            int loadcell_num,
+                                            byte loadcell_num,
                                             bool calibrate_offset=false,
                                             bool calibrate_scale=false,
                                             bool read_offset_eeprom=false,
@@ -241,18 +235,18 @@ void Loadcell_controller::easy_handle_exceptions(
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.println("ERROR 9 easy_start(): cannot read scale from EEPROM and specify a scale coeff.");
+        Serial.println(F("ERROR 9 easy_start(): cannot read scale from EEPROM and specify a scale coeff."));
         while(1);
     }
 }
 
 
-void Loadcell_controller::save_offset_eeprom(int loadcell_num) {
+void Loadcell_controller::save_offset_eeprom(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 save_offset_eeprom(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 save_offset_eeprom(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -263,12 +257,12 @@ void Loadcell_controller::save_offset_eeprom(int loadcell_num) {
     EEPROM.put(get_offset_adress(loadcell_num), offset);
 }
 
-void Loadcell_controller::save_scale_eeprom(int loadcell_num) {
+void Loadcell_controller::save_scale_eeprom(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 save_scale_eeprom(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 save_scale_eeprom(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -279,12 +273,12 @@ void Loadcell_controller::save_scale_eeprom(int loadcell_num) {
     EEPROM.put(get_scale_adress(loadcell_num), scale);
 }
 
-long Loadcell_controller::read_offset_from_eeprom(int loadcell_num) {
+long Loadcell_controller::read_offset_from_eeprom(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 read_offset_from_eeprom(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 read_offset_from_eeprom(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -295,12 +289,12 @@ long Loadcell_controller::read_offset_from_eeprom(int loadcell_num) {
     return offset;
 }
 
-float Loadcell_controller::read_scale_from_eeprom(int loadcell_num) {
+float Loadcell_controller::read_scale_from_eeprom(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 read_of_scale_from_eeprom(int loadcell_num): loadcell number ."));
+        Serial.print(F("ERROR 1 read_of_scale_from_eeprom(byte loadcell_num): loadcell number ."));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -311,12 +305,12 @@ float Loadcell_controller::read_scale_from_eeprom(int loadcell_num) {
     return scale;
 }
 
-void Loadcell_controller::calibrate_both_params(int loadcell_num) {
+void Loadcell_controller::calibrate_both_params(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 calibrate_both_params(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 calibrate_both_params(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -329,16 +323,15 @@ void Loadcell_controller::calibrate_both_params(int loadcell_num) {
     delay(500);
     calibrate_scale_coeff(loadcell_num);
     delay(500);
-    Serial.println(F("Calibration of tare offset and scale coeff is done."));
     Serial.println();
 }
 
-void Loadcell_controller::calibrate_tare_offset(int loadcell_num) {
+void Loadcell_controller::calibrate_tare_offset(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 calibrate_tare_offset(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 calibrate_tare_offset(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -349,12 +342,12 @@ void Loadcell_controller::calibrate_tare_offset(int loadcell_num) {
     loadcell_ptr->set_offset(tare_offset);
 }
 
-void Loadcell_controller::calibrate_scale_coeff(int loadcell_num) {
+void Loadcell_controller::calibrate_scale_coeff(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 calibrate_scale_coeff(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 calibrate_scale_coeff(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -365,19 +358,19 @@ void Loadcell_controller::calibrate_scale_coeff(int loadcell_num) {
     loadcell_ptr->set_scale(scale_coeff);
 }
 
-float Loadcell_controller::determine_offset(int loadcell_num) {
+float Loadcell_controller::determine_offset(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 determine_offset(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 determine_offset(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
     }
 
     Loadcell* loadcell_ptr = loadcells[loadcell_num - 1];
-    float tare_offset;
+    long tare_offset;
 
     Serial.println(F("---------***---------"));
     Serial.print(F("Determination of the tare offset of loadcell #"));
@@ -394,7 +387,7 @@ float Loadcell_controller::determine_offset(int loadcell_num) {
                 Serial.println(F("Reading..."));
                 // byte times = loadcell_ptr->get_tare_n_readings();
                 tare_offset = loadcell_ptr->read_scale_coeff_average();
-                Serial.print(F("Tare offset is "));
+                Serial.print(F("Offset: "));
                 Serial.println(tare_offset);
                 _resume = true;
             }
@@ -403,12 +396,12 @@ float Loadcell_controller::determine_offset(int loadcell_num) {
     return tare_offset;
 }
 
-float Loadcell_controller::determine_scale_coeff(int loadcell_num) {
+float Loadcell_controller::determine_scale_coeff(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 determine_scale_coeff(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 determine_scale_coeff(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -420,7 +413,7 @@ float Loadcell_controller::determine_scale_coeff(int loadcell_num) {
     Serial.print(F("Determination of the scale coeff of loadcell #"));
     Serial.println(loadcell_num);
     Serial.println();
-    Serial.println(F("Send with the serial monitor how many weights will be used to calibrate the loadcell."));
+    Serial.println(F("How many weights will be used to calibrate the loadcell ?"));
     int num_weights = 0;
     bool _resume = false;
     while(_resume == false){
@@ -455,6 +448,7 @@ float Loadcell_controller::determine_scale_coeff(int loadcell_num) {
             }
         delay(2000); // delay before beginning readings for stabilization of the output
         // byte times = loadcell_ptr->get_scale_coeff_n_readings();
+        Serial.println(F("Reading..."));
         float known_output = loadcell_ptr->read_scale_coeff_average();
         float mass_scale_coeff = calculate_scale_coeff(loadcell_num, known_output, known_mass);
         Serial.print(F("The scale coefficient for this mass is "));
@@ -462,17 +456,17 @@ float Loadcell_controller::determine_scale_coeff(int loadcell_num) {
         scale_coeff_sum += mass_scale_coeff;
     } 
     float scale_coeff = scale_coeff_sum/num_weights;
-    Serial.print(F("Scale calibration coefficient is set to: "));
+    Serial.print(F("Scale coefficient: "));
     Serial.println(scale_coeff);
     return scale_coeff;
 }
 
-float Loadcell_controller::calculate_scale_coeff(int loadcell_num, float output, float mass) {
+float Loadcell_controller::calculate_scale_coeff(byte loadcell_num, float output, float mass) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 calculate_scale_coeff(int loadcell_num, float output, float mass): loadcell number ."));
+        Serial.print(F("ERROR 1 calculate_scale_coeff(byte loadcell_num, float output, float mass): loadcell number ."));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -482,7 +476,7 @@ float Loadcell_controller::calculate_scale_coeff(int loadcell_num, float output,
     return (output - loadcell_ptr->get_offset())/mass;
 }
 
-void Loadcell_controller::set_offset_adress(int loadcell_num, int adress) {
+void Loadcell_controller::set_offset_adress(byte loadcell_num, int adress) {
     // int eeprom_length = EEPROM.length();
     // if (adress != eeprom_scale_adress && adress != eeprom_offset_adress){
     //     if (adress >= eeprom_length){
@@ -507,12 +501,12 @@ void Loadcell_controller::set_offset_adress(int loadcell_num, int adress) {
     // }
 }
 
-int Loadcell_controller::get_offset_adress(int loadcell_num) {
+int Loadcell_controller::get_offset_adress(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 get_offset_adress(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 get_offset_adress(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -521,7 +515,7 @@ int Loadcell_controller::get_offset_adress(int loadcell_num) {
     return 8 * (loadcell_num - 1);
 }
 
-void Loadcell_controller::set_scale_adress(int loadcell_num, int adress) {
+void Loadcell_controller::set_scale_adress(byte loadcell_num, int adress) {
     // int eeprom_length = EEPROM.length();
     // if (adress != eeprom_offset_adress && adress != eeprom_scale_adress){
     //     if (adress >= eeprom_length){
@@ -546,12 +540,12 @@ void Loadcell_controller::set_scale_adress(int loadcell_num, int adress) {
     // }
 }
 
-int Loadcell_controller::get_scale_adress(int loadcell_num) {
+int Loadcell_controller::get_scale_adress(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 get_scale_adress(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 get_scale_adress(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -560,12 +554,12 @@ int Loadcell_controller::get_scale_adress(int loadcell_num) {
     return 8 * (loadcell_num - 1) + 4;
 }
 
-float Loadcell_controller::get_offset(int loadcell_num) {
+float Loadcell_controller::get_offset(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 get_offset(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 get_offset(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -575,12 +569,12 @@ float Loadcell_controller::get_offset(int loadcell_num) {
     return loadcell_ptr->get_offset();
 }
 
-void Loadcell_controller::set_offset(int loadcell_num, float offset) {
+void Loadcell_controller::set_offset(byte loadcell_num, float offset) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 set_offset(int loadcell_num, float offset): loadcell number ."));
+        Serial.print(F("ERROR 1 set_offset(byte loadcell_num, float offset): loadcell number ."));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -590,12 +584,12 @@ void Loadcell_controller::set_offset(int loadcell_num, float offset) {
     loadcell_ptr->set_offset(offset);
 }
 
-float Loadcell_controller::get_scale(int loadcell_num) {
+float Loadcell_controller::get_scale(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 get_scale(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 get_scale(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -605,12 +599,12 @@ float Loadcell_controller::get_scale(int loadcell_num) {
     return loadcell_ptr->get_scale();
 }
 
-void Loadcell_controller::set_scale(int loadcell_num, float scale) {
+void Loadcell_controller::set_scale(byte loadcell_num, float scale) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print("ERROR 1 set_scale(int loadcell_num, float scale): loadcell number ");
+        Serial.print("ERROR 1 set_scale(byte loadcell_num, float scale): loadcell number ");
         Serial.print(loadcell_num);
         Serial.println(" is out of range.");
         while(1);
@@ -621,12 +615,12 @@ void Loadcell_controller::set_scale(int loadcell_num, float scale) {
     loadcell_ptr->set_scale(scale);
 }
 
-void Loadcell_controller::set_tare_n_readings(int loadcell_num, int n_readings) {
+void Loadcell_controller::set_tare_n_readings(byte loadcell_num, int n_readings) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 set_tare_n_readings(int loadcell_num, int n_readings): loadcell number "));
+        Serial.print(F("ERROR 1 set_tare_n_readings(byte loadcell_num, int n_readings): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -636,12 +630,12 @@ void Loadcell_controller::set_tare_n_readings(int loadcell_num, int n_readings) 
     loadcell_ptr->set_tare_n_readings(n_readings);
 }
 
-byte Loadcell_controller::get_tare_n_readings(int loadcell_num) {
+byte Loadcell_controller::get_tare_n_readings(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 get_tare_n_readings(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 get_tare_n_readings(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -651,26 +645,26 @@ byte Loadcell_controller::get_tare_n_readings(int loadcell_num) {
     return loadcell_ptr->get_tare_n_readings();
 }
 
-void Loadcell_controller::set_scale_coeff_n_readings(int loadcell_num, int n_readings) {
+void Loadcell_controller::set_scale_coeff_n_readings(byte loadcell_num, int n_readings) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.println(F("ERROR 1 set_scale_coeff_n_readings(int loadcell_num, int n_readings): loadcell number "));
+        Serial.println(F("ERROR 1 set_scale_coeff_n_readings(byte loadcell_num, int n_readings): loadcell number "));
         Serial.print(loadcell_num);
-        Serial.println(" is out of range.");
+        Serial.println(F(" is out of range."));
         while(1);
     }
     Loadcell* loadcell_ptr = loadcells[loadcell_num - 1];
     loadcell_ptr->set_scale_coeff_n_readings(n_readings);
 }
 
-byte Loadcell_controller::get_scale_coeff_n_readings(int loadcell_num) {
+byte Loadcell_controller::get_scale_coeff_n_readings(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.println(F("ERROR 1 get_scale_coeff_n_readings(int loadcell_num): loadcell number "));
+        Serial.println(F("ERROR 1 get_scale_coeff_n_readings(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -680,12 +674,12 @@ byte Loadcell_controller::get_scale_coeff_n_readings(int loadcell_num) {
     return loadcell_ptr->get_scale_coeff_n_readings();
 }
 
-void Loadcell_controller::set_weight_n_readings(int loadcell_num, int n_readings) {
+void Loadcell_controller::set_weight_n_readings(byte loadcell_num, int n_readings) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.println(F("ERROR 1 set_weight_n_readings(int loadcell_num, int n_readings): loadcell number "));
+        Serial.println(F("ERROR 1 set_weight_n_readings(byte loadcell_num, int n_readings): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -695,12 +689,12 @@ void Loadcell_controller::set_weight_n_readings(int loadcell_num, int n_readings
     loadcell_ptr->set_weight_n_readings(n_readings);
 }
 
-byte Loadcell_controller::get_weight_n_readings(int loadcell_num) {
+byte Loadcell_controller::get_weight_n_readings(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 get_weight_n_readings(int loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 get_weight_n_readings(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while(1);
@@ -732,7 +726,7 @@ byte Loadcell_controller::number_of_loadcells() {
     return n_loadcell;
 }
 
-bool Loadcell_controller::is_loadcell_num_in_range(int loadcell_num) {
+bool Loadcell_controller::is_loadcell_num_in_range(byte loadcell_num) {
     return loadcell_num > 0 && loadcell_num <= n_loadcell;
 }
 
