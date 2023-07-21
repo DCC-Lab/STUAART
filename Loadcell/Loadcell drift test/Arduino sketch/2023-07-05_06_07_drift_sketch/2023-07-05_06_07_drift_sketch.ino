@@ -19,7 +19,7 @@
 #endif
 
 // *** File parameters ***
-bool file_writing = true; // set to true to write in a file
+bool file_writing = false; // set to true to write in a file
 char file[] = "testd_j5.csv"; // name of the file to write readings in
 
 // *** drift parameters ***
@@ -49,14 +49,16 @@ File myFile; // initialize the file
 void setup() {
   Serial.begin(57600);
   Serial.println();
-  scale_1.start(LOADCELL_DOUT_PIN_1, LOADCELL_SCK_PIN_1);
-  scale_2.start(LOADCELL_DOUT_PIN_2, LOADCELL_SCK_PIN_2);
-  scale_3.start(LOADCELL_DOUT_PIN_3, LOADCELL_SCK_PIN_3);
+  scale_1.begin(LOADCELL_DOUT_PIN_1, LOADCELL_SCK_PIN_1);
+  scale_2.begin(LOADCELL_DOUT_PIN_2, LOADCELL_SCK_PIN_2);
+  scale_3.begin(LOADCELL_DOUT_PIN_3, LOADCELL_SCK_PIN_3);
   Serial.println("Connection to the loadcell...");
   scale_1.wait_ready(1000); // wait for scale to be ready before starting calibration
   scale_2.wait_ready(1000);
   scale_3.wait_ready(1000);
-  //scale_1.calibrate_all();
+  scale_1.set_weight_n_readings(50);
+  scale_2.set_weight_n_readings(50);
+  scale_3.set_weight_n_readings(50);
   Serial.println("start");
 }
 
@@ -73,9 +75,9 @@ void loop() {
     // waiting for scale to be ready
     delay(500);
   }
-    double raw_1 = scale_1.read_average(50);
-    double raw_2 = scale_2.read_average(50);
-    double raw_3 = scale_3.read_average(50);
+    double raw_1 = scale_1.read_raw_average();
+    double raw_2 = scale_2.read_raw_average();
+    double raw_3 = scale_3.read_raw_average();
     int chk = DHT.read22(DHT22_PIN); 
       switch (chk)
       {

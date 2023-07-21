@@ -16,39 +16,38 @@
 #endif
 
 // *** File parameters ***
-bool file_writing = true; // set to true to write in a file
+bool file_writing = false; // set to true to write in a file
 char file[] = "testd15.csv"; // name of the file to write readings in
 
 // *** Pin numbers ***
-const int LOADCELL_DOUT_PIN = 6;
-const int LOADCELL_SCK_PIN = 5;
+const int LOADCELL_DOUT_PIN = 8;
+const int LOADCELL_SCK_PIN = 9;
 const int SS_pin = 4;
 const int cal_coeff_eepromAdress = 0; // EEPROM adress of the calibration value for the loadcell
 
-Loadcell Scale; // initialize the scale
+Loadcell scale; // initialize the scale
 File myFile; // initialize the file
 
 void setup() {
   Serial.begin(57600);
   Serial.println();
   Serial.println("Starting...");
-  Scale.start(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN, 128, true);
+  scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
   Serial.println("Connection to the loadcell...");
-  Scale.wait_ready(1000); // wait for scale to be ready before starting calibration
-  //Scale.calibrate_all();
-  Scale.set_weight_n_readings(5);
-  //Serial.println(Scale.get_offset());
-  //Serial.println(Scale.get_scale());
-  Scale.set_offset(853686);
-  Scale.set_scale(-16127.08);
+  scale.wait_ready(1000); // wait for scale to be ready before starting calibration
+  scale.set_weight_n_readings(5);
+  //Serial.println(scale.get_offset());
+  //Serial.println(scale.get_scale());
+  scale.set_offset(853686);
+  scale.set_scale(-16127.08);
 }
 
 void loop() {
-  while (!Scale.is_ready()) {
+  while (!scale.is_ready()) {
     // waiting for scale to be ready
     delay(500);
   }
-    float reading = Scale.get_units(Scale.get_weight_n_readings()); 
+    float reading = scale.get_weight(); 
     Serial.print("Loadcell reading: ");
     Serial.println(reading);
     if (file_writing){

@@ -38,11 +38,10 @@ void setup() {
   Serial.begin(57600);
   Serial.println();
   Serial.println("Starting...");
-  scale.start(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN, 128, true);
+  scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
   Serial.println("Connection to the loadcell...");
   scale.wait_ready(1000); // wait for scale to be ready before starting calibration
-  scale.calibrate_all();
-  //scale.set_weight_n_readings(40);
+  scale.set_weight_n_readings(50);
 }
 
 void loop() {
@@ -50,7 +49,8 @@ void loop() {
     // waiting for scale to be ready
     delay(500);
   }
-    float raw = scale.read_average(scale.get_weight_n_readings()); 
+    float raw = scale.read_raw_average();
+    float mass = scale.get_weight(); 
     int chk = DHT.read22(DHT22_PIN);
       switch (chk)
       {
@@ -81,7 +81,7 @@ void loop() {
     Serial.print("\t");
     Serial.println();
     if (file_writing){
-      file_write(raw, temp, humidity);
+      file_write(raw, mass, temp, humidity);
     }
     Serial.println("***");
 }

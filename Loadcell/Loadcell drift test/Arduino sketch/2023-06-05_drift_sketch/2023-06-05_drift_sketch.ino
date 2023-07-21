@@ -14,30 +14,30 @@
 #include <SPI.h>
 #include <SD.h>
 
-const int tare_n_readings = 20; // number of readings averaged to determine tare offset, a high value provides mores precision
-const int scale_n_readings = 50; // number of readings averaged to determine scale calibration coefficient, a high value provides mores precision
-const int LOADCELL_DOUT_PIN = 6;
-const int LOADCELL_SCK_PIN = 5;
+//const int tare_n_readings = 20; // number of readings averaged to determine tare offset, a high value provides mores precision
+//const int scale_n_readings = 50; // number of readings averaged to determine scale calibration coefficient, a high value provides mores precision
+const int LOADCELL_DOUT_PIN = 8;
+const int LOADCELL_SCK_PIN = 9;
 const int SS_pin = 4;
 
-HX711 Scale;
+HX711 scale;
 File myFile;
 
 void setup() {
   Serial.begin(57600);
   Serial.println();
   Serial.println("Starting...");
-  Scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+  scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
   Serial.println("Connection to the loadcell...");
-  Scale.wait_ready(1000); // wait for scale to be ready before starting calibration
+  scale.wait_ready(1000); // wait for scale to be ready before starting calibration
 }
 
 void loop() {
-  if (Scale.is_ready()) {
-    float reading = Scale.read();
+  if (scale.is_ready()) {
+    float reading = scale.read();
     Serial.print("Loadcell reading: ");
     Serial.println(reading);
-    filewrite(reading);
+    //filewrite(reading); // uncomment to write in sd card
   } else {
     Serial.println("HX711 not found.");
   }

@@ -74,7 +74,7 @@ uint8_t shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
 Loadcell::Loadcell() {
 }
 
-long Loadcell::read_average() {
+long Loadcell::read_raw_average() {
   byte times = get_weight_n_readings();
   long sum = 0;
 
@@ -107,7 +107,7 @@ long Loadcell::read_scale_coeff_average() {
 	return sum / times;
 }
 
-double Loadcell::get_value() {
+double Loadcell::get_raw_value() {
   return read_average() - get_offset();
 }
 

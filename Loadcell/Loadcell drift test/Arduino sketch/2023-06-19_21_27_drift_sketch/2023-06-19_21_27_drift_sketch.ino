@@ -19,7 +19,7 @@
 #endif
 
 // *** File parameters ***
-bool file_writing = true; // set to true to write in a file
+bool file_writing = false; // set to true to write in a file
 char file[] = "testd27.csv"; // name of the file to write readings in
 
 // *** drift parameters ***
@@ -27,12 +27,12 @@ float drift_slope = 114.18;
 double threshold = 24;
 float initial_offset = 1428674;
 // *** Pin numbers ***
-const int LOADCELL_DOUT_PIN = 6;
-const int LOADCELL_SCK_PIN = 5;
+const int LOADCELL_DOUT_PIN = 8;
+const int LOADCELL_SCK_PIN = 9;
 const int SS_pin = 4;
 
 dht DHT;
-#define DHT22_PIN 3
+#define DHT22_PIN 7
 
 Loadcell scale; // initialize the scale
 File myFile; // initialize the file
@@ -41,15 +41,14 @@ void setup() {
   Serial.begin(57600);
   Serial.println();
   Serial.println("Starting...");
-  scale.start(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN, 128, true);
+  scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
   Serial.println("Connection to the loadcell...");
   scale.wait_ready(1000); // wait for scale to be ready before starting calibration
-  scale.calibrate_all();
   //scale.set_weight_n_readings(40);
   //scale.set_scale_coeff_n_readings(50);
   //scale.set_tare_n_readings(50);
-  //scale.set_offset(initial_offset);
-  //scale.set_scale(-12529.68);
+  scale.set_offset(initial_offset);
+  scale.set_scale(-12529.68);
 }
 
 void loop() {
@@ -57,8 +56,8 @@ void loop() {
     // waiting for scale to be ready
     delay(500);
   }
-    float raw = scale.read_average(scale.get_weight_n_readings());
-    float mass = scale.get_units(scale.get_weight_n_readings()); 
+    float raw = scale.read_raw_average();
+    float mass = scale.get_weight(); 
     int chk = DHT.read22(DHT22_PIN);
       switch (chk)
       {

@@ -11,13 +11,13 @@ protected:
 public:
         Loadcell();
 
-        long read_average();
+        long read_raw_average();
 
         long read_tare_average();
 
         long read_scale_coeff_average();
 
-        double get_value();
+        double get_raw_value();
 
         float get_weight();
 
