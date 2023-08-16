@@ -1,0 +1,284 @@
+\doxysection{Load\+Cell Class Reference}
+\hypertarget{class_load_cell}{}\label{class_load_cell}\index{LoadCell@{LoadCell}}
+
+
+This library extends the functionality of the HX711 to make it compatible with the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} library.  
+
+
+
+
+{\ttfamily \#include $<$Load\+Cell.\+h$>$}
+
+Inheritance diagram for Load\+Cell\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_load_cell}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_load_cell_a7e809cbcfdce2dafc77fdc745198dfbd}\label{class_load_cell_a7e809cbcfdce2dafc77fdc745198dfbd} 
+{\bfseries Load\+Cell} ()
+\begin{DoxyCompactList}\small\item\em Construct a \doxylink{class_load_cell}{Load\+Cell} object. \end{DoxyCompactList}\item 
+long \mbox{\hyperlink{class_load_cell_a0b6c60bd4092b6140a43c58a67fd8174}{read\+\_\+raw\+\_\+average}} ()
+\begin{DoxyCompactList}\small\item\em Read the output of the \doxylink{class_load_cell}{Load\+Cell} and average \doxylink{class_load_cell_a261cc201c085970a3fa13c315f17f37f}{weight\+\_\+n\+\_\+readings} readings. \end{DoxyCompactList}\item 
+long \mbox{\hyperlink{class_load_cell_ac1f877356ba945c0cc6d0588710910c3}{read\+\_\+tare\+\_\+average}} ()
+\begin{DoxyCompactList}\small\item\em Read the output of the \doxylink{class_load_cell}{Load\+Cell} and average \doxylink{class_load_cell_a2a3ab8183e8e440dda6382d200cc3ca0}{tare\+\_\+n\+\_\+readings} readings. \end{DoxyCompactList}\item 
+long \mbox{\hyperlink{class_load_cell_aa27617fd64d0ca2e977249b204f20269}{read\+\_\+scale\+\_\+coeff\+\_\+average}} ()
+\begin{DoxyCompactList}\small\item\em Read the output of the \doxylink{class_load_cell}{Load\+Cell} and average \doxylink{class_load_cell_ab09b66dfec4b114b88a22718edc97acc}{scale\+\_\+coeff\+\_\+n\+\_\+readings} readings. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{class_load_cell_aa972debb5cf76d24a8329bf9f2b9dbf6}{get\+\_\+raw\+\_\+value}} ()
+\begin{DoxyCompactList}\small\item\em Read the raw output of the \doxylink{class_load_cell}{Load\+Cell} and substracts the offset. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{class_load_cell_a637c8df1b382e3a2184c2911d5093e0d}{get\+\_\+weight}} ()
+\begin{DoxyCompactList}\small\item\em Read the weight of the object currently on the \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_a96b0c615da4998114c227fdce5849cac}{tare}} ()
+\begin{DoxyCompactList}\small\item\em Read the raw output of the \doxylink{class_load_cell}{Load\+Cell} and set this value to the offset. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_a88e0dc03dfc2675babf588af879eb3fb}{set\+\_\+tare\+\_\+n\+\_\+readings}} (int \mbox{\hyperlink{class_load_cell_a2a3ab8183e8e440dda6382d200cc3ca0}{tare\+\_\+n\+\_\+readings}})
+\begin{DoxyCompactList}\small\item\em Set the number of readings averaged for the determination of the tare offset. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_load_cell_a249af93b87dc2dc5658d4b16427906cb}{get\+\_\+tare\+\_\+n\+\_\+readings}} ()
+\begin{DoxyCompactList}\small\item\em Get the number of readings averaged for the determination of the tare offset. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_a374db0a3e0f5e5d86605dd2e95e3daad}{set\+\_\+scale\+\_\+coeff\+\_\+n\+\_\+readings}} (int \mbox{\hyperlink{class_load_cell_ab09b66dfec4b114b88a22718edc97acc}{scale\+\_\+coeff\+\_\+n\+\_\+readings}})
+\begin{DoxyCompactList}\small\item\em Set the number of readings averaged for the determination of the scale coefficient. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_load_cell_a0e44af6f82edfa11fc6b3994bf3b8cda}{get\+\_\+scale\+\_\+coeff\+\_\+n\+\_\+readings}} ()
+\begin{DoxyCompactList}\small\item\em Get the number of readings averaged for the determination of the scale coefficient. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_a65dafb2cba0eb8f064e80357b5ba49e6}{set\+\_\+weight\+\_\+n\+\_\+readings}} (int \mbox{\hyperlink{class_load_cell_a261cc201c085970a3fa13c315f17f37f}{weight\+\_\+n\+\_\+readings}})
+\begin{DoxyCompactList}\small\item\em Set the number of readings averaged for a weight reading. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_load_cell_a8958de8fc4409210b95a2e81db8a282d}{get\+\_\+weight\+\_\+n\+\_\+readings}} ()
+\begin{DoxyCompactList}\small\item\em Get the number of readings averaged for a weight reading. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_load_cell_a2a3ab8183e8e440dda6382d200cc3ca0}\label{class_load_cell_a2a3ab8183e8e440dda6382d200cc3ca0} 
+byte {\bfseries tare\+\_\+n\+\_\+readings} = 50
+\begin{DoxyCompactList}\small\item\em Number of readings averaged to determine the tare offset. \end{DoxyCompactList}\item 
+\Hypertarget{class_load_cell_ab09b66dfec4b114b88a22718edc97acc}\label{class_load_cell_ab09b66dfec4b114b88a22718edc97acc} 
+byte {\bfseries scale\+\_\+coeff\+\_\+n\+\_\+readings} = 50
+\begin{DoxyCompactList}\small\item\em Number of readings averaged to determine the scale coefficient. \end{DoxyCompactList}\item 
+\Hypertarget{class_load_cell_a261cc201c085970a3fa13c315f17f37f}\label{class_load_cell_a261cc201c085970a3fa13c315f17f37f} 
+byte {\bfseries weight\+\_\+n\+\_\+readings} = 5
+\begin{DoxyCompactList}\small\item\em Number of readings averaged for a weight reading. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This library extends the functionality of the HX711 to make it compatible with the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} library. 
+
+This Arduino library allows to specify the number of readings averaged for the three possible situations\+:
+\begin{DoxyItemize}
+\item Weight reading
+\item Output reading for offset calibration
+\item Output reading for scale coefficient calibration
+\end{DoxyItemize}
+
+The encapsulation of these parameters requires the rewriting of a few member functions of the HX711 library. They do the same thing but, with the encapsulation of the three paramters listed above, they don\textquotesingle{}t require any arguments.
+
+Most importantly, the encapsulation of these parameters is useful for the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} library, which will control many Load\+Cells.
+
+HX711 library\+: \href{https://github.com/bogde/HX711}{\texttt{ https\+://github.\+com/bogde/\+HX711}}
+
+\doxylink{class_load_cell_controller}{Load\+Cell\+Controller} library\+:
+
+\begin{DoxyAuthor}{Author}
+Nathan Bérubé 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+August 14, 2023 
+\end{DoxyDate}
+\begin{DoxyVersion}{Version}
+1.\+0.\+0 
+\end{DoxyVersion}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_load_cell_aa972debb5cf76d24a8329bf9f2b9dbf6}\label{class_load_cell_aa972debb5cf76d24a8329bf9f2b9dbf6} 
+\index{LoadCell@{LoadCell}!get\_raw\_value@{get\_raw\_value}}
+\index{get\_raw\_value@{get\_raw\_value}!LoadCell@{LoadCell}}
+\doxysubsubsection{\texorpdfstring{get\_raw\_value()}{get\_raw\_value()}}
+{\footnotesize\ttfamily double Load\+Cell\+::get\+\_\+raw\+\_\+value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Read the raw output of the \doxylink{class_load_cell}{Load\+Cell} and substracts the offset. 
+
+This function reads the average of readings of the \doxylink{class_load_cell}{Load\+Cell} raw output with \doxylink{class_load_cell_a0b6c60bd4092b6140a43c58a67fd8174}{read\+\_\+raw\+\_\+average()} then substracts the offset accessed with get\+\_\+offset().
+
+\begin{DoxyReturn}{Returns}
+The raw averaged reading of the \doxylink{class_load_cell}{Load\+Cell} difference with the offset. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_a0e44af6f82edfa11fc6b3994bf3b8cda}\label{class_load_cell_a0e44af6f82edfa11fc6b3994bf3b8cda} 
+\index{LoadCell@{LoadCell}!get\_scale\_coeff\_n\_readings@{get\_scale\_coeff\_n\_readings}}
+\index{get\_scale\_coeff\_n\_readings@{get\_scale\_coeff\_n\_readings}!LoadCell@{LoadCell}}
+\doxysubsubsection{\texorpdfstring{get\_scale\_coeff\_n\_readings()}{get\_scale\_coeff\_n\_readings()}}
+{\footnotesize\ttfamily int Load\+Cell\+::get\+\_\+scale\+\_\+coeff\+\_\+n\+\_\+readings (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Get the number of readings averaged for the determination of the scale coefficient. 
+
+This function returns the member variable \doxylink{class_load_cell_ab09b66dfec4b114b88a22718edc97acc}{scale\+\_\+coeff\+\_\+n\+\_\+readings}.
+
+\begin{DoxyReturn}{Returns}
+The number of readgings averaged for the determination of the tare offset. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_a249af93b87dc2dc5658d4b16427906cb}\label{class_load_cell_a249af93b87dc2dc5658d4b16427906cb} 
+\index{LoadCell@{LoadCell}!get\_tare\_n\_readings@{get\_tare\_n\_readings}}
+\index{get\_tare\_n\_readings@{get\_tare\_n\_readings}!LoadCell@{LoadCell}}
+\doxysubsubsection{\texorpdfstring{get\_tare\_n\_readings()}{get\_tare\_n\_readings()}}
+{\footnotesize\ttfamily int Load\+Cell\+::get\+\_\+tare\+\_\+n\+\_\+readings (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Get the number of readings averaged for the determination of the tare offset. 
+
+This function returns the member variable \doxylink{class_load_cell_a2a3ab8183e8e440dda6382d200cc3ca0}{tare\+\_\+n\+\_\+readings}.
+
+\begin{DoxyReturn}{Returns}
+The number of readgings averaged for the determination of the tare offset. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_a637c8df1b382e3a2184c2911d5093e0d}\label{class_load_cell_a637c8df1b382e3a2184c2911d5093e0d} 
+\index{LoadCell@{LoadCell}!get\_weight@{get\_weight}}
+\index{get\_weight@{get\_weight}!LoadCell@{LoadCell}}
+\doxysubsubsection{\texorpdfstring{get\_weight()}{get\_weight()}}
+{\footnotesize\ttfamily float Load\+Cell\+::get\+\_\+weight (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Read the weight of the object currently on the \doxylink{class_load_cell}{Load\+Cell}. 
+
+This function reads the average of readings of the \doxylink{class_load_cell}{Load\+Cell} raw output with \doxylink{class_load_cell_a0b6c60bd4092b6140a43c58a67fd8174}{read\+\_\+raw\+\_\+average()} before converting this average of raw output to a mass value using the calibration function -\/\texorpdfstring{$>$}{>} output = scale\+\_\+coeff \texorpdfstring{$\ast$}{*} mass + offset.
+
+\begin{DoxyReturn}{Returns}
+The averaged mass of the object on the \doxylink{class_load_cell}{Load\+Cell}. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_a8958de8fc4409210b95a2e81db8a282d}\label{class_load_cell_a8958de8fc4409210b95a2e81db8a282d} 
+\index{LoadCell@{LoadCell}!get\_weight\_n\_readings@{get\_weight\_n\_readings}}
+\index{get\_weight\_n\_readings@{get\_weight\_n\_readings}!LoadCell@{LoadCell}}
+\doxysubsubsection{\texorpdfstring{get\_weight\_n\_readings()}{get\_weight\_n\_readings()}}
+{\footnotesize\ttfamily int Load\+Cell\+::get\+\_\+weight\+\_\+n\+\_\+readings (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Get the number of readings averaged for a weight reading. 
+
+This function returns the member variable \doxylink{class_load_cell_ab09b66dfec4b114b88a22718edc97acc}{scale\+\_\+coeff\+\_\+n\+\_\+readings}.
+
+\begin{DoxyReturn}{Returns}
+The number of readgings averaged for the determination of the tare offset. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_a0b6c60bd4092b6140a43c58a67fd8174}\label{class_load_cell_a0b6c60bd4092b6140a43c58a67fd8174} 
+\index{LoadCell@{LoadCell}!read\_raw\_average@{read\_raw\_average}}
+\index{read\_raw\_average@{read\_raw\_average}!LoadCell@{LoadCell}}
+\doxysubsubsection{\texorpdfstring{read\_raw\_average()}{read\_raw\_average()}}
+{\footnotesize\ttfamily long Load\+Cell\+::read\+\_\+raw\+\_\+average (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Read the output of the \doxylink{class_load_cell}{Load\+Cell} and average \doxylink{class_load_cell_a261cc201c085970a3fa13c315f17f37f}{weight\+\_\+n\+\_\+readings} readings. 
+
+This function does \doxylink{class_load_cell_a261cc201c085970a3fa13c315f17f37f}{weight\+\_\+n\+\_\+readings} readings of the raw output of the \doxylink{class_load_cell}{Load\+Cell} and calculates their average before returning the average raw output.
+
+\begin{DoxyReturn}{Returns}
+The raw averaged reading of the \doxylink{class_load_cell}{Load\+Cell}. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_aa27617fd64d0ca2e977249b204f20269}\label{class_load_cell_aa27617fd64d0ca2e977249b204f20269} 
+\index{LoadCell@{LoadCell}!read\_scale\_coeff\_average@{read\_scale\_coeff\_average}}
+\index{read\_scale\_coeff\_average@{read\_scale\_coeff\_average}!LoadCell@{LoadCell}}
+\doxysubsubsection{\texorpdfstring{read\_scale\_coeff\_average()}{read\_scale\_coeff\_average()}}
+{\footnotesize\ttfamily long Load\+Cell\+::read\+\_\+scale\+\_\+coeff\+\_\+average (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Read the output of the \doxylink{class_load_cell}{Load\+Cell} and average \doxylink{class_load_cell_ab09b66dfec4b114b88a22718edc97acc}{scale\+\_\+coeff\+\_\+n\+\_\+readings} readings. 
+
+This function does \doxylink{class_load_cell_ab09b66dfec4b114b88a22718edc97acc}{scale\+\_\+coeff\+\_\+n\+\_\+readings} readings of the raw output of the \doxylink{class_load_cell}{Load\+Cell} and calculates their average before returning the average raw output. It is useful inside calibration scripts.
+
+\begin{DoxyReturn}{Returns}
+The raw averaged reading of the \doxylink{class_load_cell}{Load\+Cell} for the scale coefficient calibration. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_ac1f877356ba945c0cc6d0588710910c3}\label{class_load_cell_ac1f877356ba945c0cc6d0588710910c3} 
+\index{LoadCell@{LoadCell}!read\_tare\_average@{read\_tare\_average}}
+\index{read\_tare\_average@{read\_tare\_average}!LoadCell@{LoadCell}}
+\doxysubsubsection{\texorpdfstring{read\_tare\_average()}{read\_tare\_average()}}
+{\footnotesize\ttfamily long Load\+Cell\+::read\+\_\+tare\+\_\+average (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Read the output of the \doxylink{class_load_cell}{Load\+Cell} and average \doxylink{class_load_cell_a2a3ab8183e8e440dda6382d200cc3ca0}{tare\+\_\+n\+\_\+readings} readings. 
+
+This function does \doxylink{class_load_cell_a2a3ab8183e8e440dda6382d200cc3ca0}{tare\+\_\+n\+\_\+readings} readings of the raw output of the \doxylink{class_load_cell}{Load\+Cell} and calculates their average before returning the average raw output. It is useful inside calibration scripts.
+
+\begin{DoxyReturn}{Returns}
+The raw averaged reading of the \doxylink{class_load_cell}{Load\+Cell} for the tare offset caibration. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_a374db0a3e0f5e5d86605dd2e95e3daad}\label{class_load_cell_a374db0a3e0f5e5d86605dd2e95e3daad} 
+\index{LoadCell@{LoadCell}!set\_scale\_coeff\_n\_readings@{set\_scale\_coeff\_n\_readings}}
+\index{set\_scale\_coeff\_n\_readings@{set\_scale\_coeff\_n\_readings}!LoadCell@{LoadCell}}
+\doxysubsubsection{\texorpdfstring{set\_scale\_coeff\_n\_readings()}{set\_scale\_coeff\_n\_readings()}}
+{\footnotesize\ttfamily void Load\+Cell\+::set\+\_\+scale\+\_\+coeff\+\_\+n\+\_\+readings (\begin{DoxyParamCaption}\item[{int}]{scale\+\_\+coeff\+\_\+n\+\_\+readings }\end{DoxyParamCaption})}
+
+
+
+Set the number of readings averaged for the determination of the scale coefficient. 
+
+This function sets the member variable scale\+\_\+coeff\+\_\+n\+\_\+readings. It also limits the range of value that is possible for this member variable -\/\texorpdfstring{$>$}{>} \doxylink{class_load_cell_ab09b66dfec4b114b88a22718edc97acc}{scale\+\_\+coeff\+\_\+n\+\_\+readings} ∈ \mbox{[}1, 255\mbox{]}.
+
+Anything below 1 will be set to 1 and anything above 255 will be set to 255 to be able to store in a byte.
+
+
+\begin{DoxyParams}{Parameters}
+{\em scale\+\_\+coeff\+\_\+n\+\_\+readings} & The number of readings averaged for the determination of the tare offset. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_a88e0dc03dfc2675babf588af879eb3fb}\label{class_load_cell_a88e0dc03dfc2675babf588af879eb3fb} 
+\index{LoadCell@{LoadCell}!set\_tare\_n\_readings@{set\_tare\_n\_readings}}
+\index{set\_tare\_n\_readings@{set\_tare\_n\_readings}!LoadCell@{LoadCell}}
+\doxysubsubsection{\texorpdfstring{set\_tare\_n\_readings()}{set\_tare\_n\_readings()}}
+{\footnotesize\ttfamily void Load\+Cell\+::set\+\_\+tare\+\_\+n\+\_\+readings (\begin{DoxyParamCaption}\item[{int}]{tare\+\_\+n\+\_\+readings }\end{DoxyParamCaption})}
+
+
+
+Set the number of readings averaged for the determination of the tare offset. 
+
+This function sets the member variable tare\+\_\+n\+\_\+readings. It also limits the range of value that is possible for this member variable -\/\texorpdfstring{$>$}{>} \doxylink{class_load_cell_a2a3ab8183e8e440dda6382d200cc3ca0}{tare\+\_\+n\+\_\+readings} ∈ \mbox{[}1, 255\mbox{]}.
+
+Anything below 1 will be set to 1 and anything above 255 will be set to 255 to be able to store in a byte.
+
+
+\begin{DoxyParams}{Parameters}
+{\em tare\+\_\+n\+\_\+readings} & The number of readings averaged for the determination of the tare offset. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_a65dafb2cba0eb8f064e80357b5ba49e6}\label{class_load_cell_a65dafb2cba0eb8f064e80357b5ba49e6} 
+\index{LoadCell@{LoadCell}!set\_weight\_n\_readings@{set\_weight\_n\_readings}}
+\index{set\_weight\_n\_readings@{set\_weight\_n\_readings}!LoadCell@{LoadCell}}
+\doxysubsubsection{\texorpdfstring{set\_weight\_n\_readings()}{set\_weight\_n\_readings()}}
+{\footnotesize\ttfamily void Load\+Cell\+::set\+\_\+weight\+\_\+n\+\_\+readings (\begin{DoxyParamCaption}\item[{int}]{weight\+\_\+n\+\_\+readings }\end{DoxyParamCaption})}
+
+
+
+Set the number of readings averaged for a weight reading. 
+
+This function sets the member variable weight\+\_\+n\+\_\+readings. It also limits the range of value that is possible for this member variable -\/\texorpdfstring{$>$}{>} \doxylink{class_load_cell_a261cc201c085970a3fa13c315f17f37f}{weight\+\_\+n\+\_\+readings} ∈ \mbox{[}1, 255\mbox{]}.
+
+Anything below 1 will be set to 1 and anything above 255 will be set to 255 to be able to store in a byte.
+
+
+\begin{DoxyParams}{Parameters}
+{\em weight\+\_\+n\+\_\+readings} & The number of readings averaged for the determination of the tare offset. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_a96b0c615da4998114c227fdce5849cac}\label{class_load_cell_a96b0c615da4998114c227fdce5849cac} 
+\index{LoadCell@{LoadCell}!tare@{tare}}
+\index{tare@{tare}!LoadCell@{LoadCell}}
+\doxysubsubsection{\texorpdfstring{tare()}{tare()}}
+{\footnotesize\ttfamily void Load\+Cell\+::tare (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Read the raw output of the \doxylink{class_load_cell}{Load\+Cell} and set this value to the offset. 
+
+This function does tare\+\_\+n\+\_\+reading readings to get the average for the offset. It then sets this value to the member varibale OFFSET that is private. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Load\+Cell\+Library/\mbox{\hyperlink{_load_cell_8h}{Load\+Cell.\+h}}\item 
+Load\+Cell\+Library/Load\+Cell.\+cpp\end{DoxyCompactItemize}

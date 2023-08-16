@@ -1,13 +1,5 @@
-/**
- * 
- *
- * HX711 library for Arduino derived from: https://github.com/bogde/HX711
- *
- * 2023 Nathan Bérubé
- *
-**/
 #include <Arduino.h>
-#include "Loadcell.h"
+#include "LoadCell.h"
 #include <SPI.h>
 #include <SD.h>
 
@@ -71,10 +63,10 @@ uint8_t shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
 
 
 
-Loadcell::Loadcell() {
+LoadCell::LoadCell() {
 }
 
-long Loadcell::read_raw_average() {
+long LoadCell::read_raw_average() {
   byte times = get_weight_n_readings();
   long sum = 0;
 
@@ -85,7 +77,7 @@ long Loadcell::read_raw_average() {
 	return sum / times;
 }
 
-long Loadcell::read_tare_average() {
+long LoadCell::read_tare_average() {
   byte times = get_tare_n_readings();
   long sum = 0;
 
@@ -96,7 +88,7 @@ long Loadcell::read_tare_average() {
 	return sum / times;
 }
 
-long Loadcell::read_scale_coeff_average() {
+long LoadCell::read_scale_coeff_average() {
   byte times = get_scale_coeff_n_readings();
   long sum = 0;
 
@@ -107,20 +99,20 @@ long Loadcell::read_scale_coeff_average() {
 	return sum / times;
 }
 
-double Loadcell::get_raw_value() {
+double LoadCell::get_raw_value() {
   return read_average() - get_offset();
 }
 
-float Loadcell::get_weight() {
-  return get_value()/get_scale();
+float LoadCell::get_weight() {
+  return get_raw_value()/get_scale();
 }
 
-void Loadcell::tare() {
+void LoadCell::tare() {
   double offset = read_tare_average();
   set_offset(offset);
 }
 
-void Loadcell::set_tare_n_readings(int n_readings){
+void LoadCell::set_tare_n_readings(int n_readings){
   if (n_readings <= 0){
     tare_n_readings = 1;
   }
@@ -130,11 +122,11 @@ void Loadcell::set_tare_n_readings(int n_readings){
   else {tare_n_readings = n_readings;}
 }
 
-int Loadcell::get_tare_n_readings(){
+int LoadCell::get_tare_n_readings(){
   return tare_n_readings;
 }
 
-void Loadcell::set_scale_coeff_n_readings(int n_readings){
+void LoadCell::set_scale_coeff_n_readings(int n_readings){
   if (n_readings <= 0){
     scale_coeff_n_readings = 1;
   }
@@ -144,11 +136,12 @@ void Loadcell::set_scale_coeff_n_readings(int n_readings){
   else {scale_coeff_n_readings = n_readings;}
 }
 
-int Loadcell::get_scale_coeff_n_readings(){
+int LoadCell::get_scale_coeff_n_readings(){
   return scale_coeff_n_readings;
 }
 
-void Loadcell::set_weight_n_readings(int n_readings){
+
+void LoadCell::set_weight_n_readings(int n_readings){
   if (n_readings <= 0){
     weight_n_readings = 1;
   }
@@ -158,6 +151,6 @@ void Loadcell::set_weight_n_readings(int n_readings){
   else {weight_n_readings = n_readings;}
 }
 
-int Loadcell::get_weight_n_readings(){
+int LoadCell::get_weight_n_readings(){
   return weight_n_readings;
 }
