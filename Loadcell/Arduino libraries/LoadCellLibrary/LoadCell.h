@@ -27,7 +27,7 @@
  * 
  * HX711 library: https://github.com/bogde/HX711
  * 
- * LoadCellController library: 
+ * LoadCellController library: https://github.com/DCC-Lab/IntelligentCage/tree/master/Loadcell/Arduino%20libraries/LoadCellControllerlibrary
  *
  * @author Nathan Bérubé
  * @date August 14, 2023
