@@ -2,7 +2,7 @@
  * @mainpage LoadCell and LoadCellController libraries for Arduino
  *
  * Welcome to the documentation of LoadCell and LoadCellController libraries.
- * This page provides an overview of the project and the appropriate documentation.
+ * This documentation provides complete documentation of the libraries.
  */
 
 /**

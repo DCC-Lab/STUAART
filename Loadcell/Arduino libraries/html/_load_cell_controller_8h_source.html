@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.7"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>My Project: LoadCellControllerlibrary/LoadCellController.h Source File</title>
+<title>Arduino code for load cells implementation: LoadCellControllerlibrary/LoadCellController.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">My Project
+   <div id="projectname">Arduino code for load cells implementation
    </div>
   </td>
  </tr>
@@ -77,225 +77,225 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <a href="_load_cell_controller_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="preprocessor">#ifndef LoadCellController_h</span></div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="preprocessor">#define LoadCellController_h</span></div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="preprocessor">#include &lt;Arduino.h&gt;</span></div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="preprocessor">#include &quot;HX711.h&quot;</span></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="preprocessor">#include &quot;<a class="code" href="_load_cell_8h.html">LoadCell.h</a>&quot;</span></div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno"><a class="line" href="class_load_cell_controller.html">   78</a></span><span class="keyword">class </span><a class="code hl_class" href="class_load_cell_controller.html">LoadCellController</a> {</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno"><a class="line" href="class_load_cell_controller.html#abf5e00456c2c776b5048f500c5b0a495">   88</a></span>        <a class="code hl_class" href="class_load_cell.html">LoadCell</a>* <a class="code hl_variable" href="class_load_cell_controller.html#abf5e00456c2c776b5048f500c5b0a495">loadcells</a>[10];</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno"><a class="line" href="class_load_cell_controller.html#a233d1a7d5a09e65b99e68bb7458d7715">   99</a></span>        <span class="keywordtype">int</span> <a class="code hl_variable" href="class_load_cell_controller.html#a233d1a7d5a09e65b99e68bb7458d7715">n_loadcell</a> = 0;</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#ab673a056d39d382982800896c9fa002c">easy_calibration_with_params</a>(</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                                        <span class="keywordtype">byte</span> loadcell_num,</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>                                        <span class="keywordtype">bool</span> cal_tare,</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>                                        <span class="keywordtype">bool</span> cal_scale</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>                                        );</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a23aea4d401f23ec2eff578d8311693d0">easy_save_to_eeprom_with_params</a>(</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>                                <span class="keywordtype">byte</span> loadcell_num,</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>                                <span class="keywordtype">bool</span> save_offset,</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>                                <span class="keywordtype">bool</span> save_scale</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>                                );</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span> </div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span> </div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a2233c8c119912b761a0059a7f7e1dea9">easy_read_from_eeprom_with_params</a>(</div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>                                        <span class="keywordtype">byte</span> loadcell_num,</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>                                        <span class="keywordtype">bool</span> read_offset_eeprom,</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>                                        <span class="keywordtype">bool</span> read_scale_eeprom</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>                                        );</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span> </div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a6085bd3ff4f5ac988817f2d48bd21697">easy_start_with_questions</a>(</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>                                <span class="keywordtype">byte</span> loadcell_num,</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>                                <span class="keywordtype">byte</span> dout,</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>                                <span class="keywordtype">byte</span> pd_sck,</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>                                <span class="keywordtype">byte</span> gain=128</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>                                );</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a0db2e73641bb483ab9790e53939f20bb">easy_handle_exceptions</a>(</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>                                <span class="keywordtype">byte</span> loadcell_num,</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>                                <span class="keywordtype">bool</span> calibrate_offset=<span class="keyword">false</span>,</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>                                <span class="keywordtype">bool</span> calibrate_scale=<span class="keyword">false</span>,</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>                                <span class="keywordtype">bool</span> read_offset_eeprom=<span class="keyword">false</span>,</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>                                <span class="keywordtype">bool</span> read_scale_eeprom=<span class="keyword">false</span>,</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>                                <span class="keywordtype">bool</span> <a class="code hl_function" href="class_load_cell_controller.html#a7bd11dcde93be204e5ff1c29fdcf6009">save_offset_eeprom</a>=<span class="keyword">false</span>,</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>                                <span class="keywordtype">bool</span> save_scale_eeprom=<span class="keyword">false</span>,</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>                                <span class="keywordtype">float</span> tare_offset=0,</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>                                <span class="keywordtype">float</span> scale_coeff=0</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>                                );</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="keyword">public</span>: </div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>        <a class="code hl_function" href="class_load_cell_controller.html#a48feedb2cc775e870f53c9fc5f0ddcfd">LoadCellController</a>();</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>        </div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a81fb15d14c2c3d6dab3769f44d2fb9bd">add_loadcell</a>(<a class="code hl_class" href="class_load_cell.html">LoadCell</a> &amp;loadcell);</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span> </div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#ab541e7609395928262857c32192ebb08">easy_start_with_params</a>(</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>                                <span class="keywordtype">byte</span> loadcell_num,</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>                                <span class="keywordtype">byte</span> dout,</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>                                <span class="keywordtype">byte</span> pd_sck,</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>                                <span class="keywordtype">bool</span> calibrate_offset=<span class="keyword">false</span>,</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>                                <span class="keywordtype">bool</span> calibrate_scale=<span class="keyword">false</span>,</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>                                <span class="keywordtype">bool</span> read_offset_eeprom=<span class="keyword">false</span>,</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>                                <span class="keywordtype">bool</span> read_scale_eeprom=<span class="keyword">false</span>,</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>                                <span class="keywordtype">bool</span> <a class="code hl_function" href="class_load_cell_controller.html#a7bd11dcde93be204e5ff1c29fdcf6009">save_offset_eeprom</a>=<span class="keyword">false</span>,</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>                                <span class="keywordtype">bool</span> save_scale_eeprom=<span class="keyword">false</span>,</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>                                <span class="keywordtype">float</span> tare_offset=0,</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>                                <span class="keywordtype">float</span> scale_coeff=0,</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>                                <span class="keywordtype">byte</span> gain=128</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>                                );</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a7bd11dcde93be204e5ff1c29fdcf6009">save_offset_eeprom</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span> </div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a7becc334c51d732833e24d7dead112af">save_scale_coeff_eeprom</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span> </div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>        <span class="keywordtype">long</span> <a class="code hl_function" href="class_load_cell_controller.html#a85ac0cb7a2f31f3a5f69c2882ad770be">read_offset_from_eeprom</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span> </div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>        <span class="keywordtype">float</span> <a class="code hl_function" href="class_load_cell_controller.html#a673034d59c4b755e39ee7b6b5255c250">read_scale_coeff_from_eeprom</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span> </div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a082df43905d7022983b539325e489440">calibrate_both_params</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> </div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#ac9cb338e189436bf174dd49fa039dc1f">calibrate_tare_offset</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span> </div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a78b8e8c4d11b2c078042225cb5511d55">calibrate_scale_coeff</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span> </div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>        <span class="keywordtype">float</span> <a class="code hl_function" href="class_load_cell_controller.html#a9c4a2a43aa6e032e0cdb03af07882820">determine_offset</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span> </div>
-<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>        <span class="keywordtype">float</span> <a class="code hl_function" href="class_load_cell_controller.html#a6b8f522285770eb5160e961edcdd8de9">determine_scale_coeff</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span> </div>
-<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span> </div>
-<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>        <span class="keywordtype">float</span> calculate_scale_coeff(</div>
-<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>                                <span class="keywordtype">byte</span> loadcell_num,</div>
-<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>                                <span class="keywordtype">float</span> output,</div>
-<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>                                <span class="keywordtype">float</span> mass</div>
-<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>                                );</div>
-<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span> </div>
-<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span> </div>
-<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span>        <span class="keywordtype">int</span> <a class="code hl_function" href="class_load_cell_controller.html#a1b942fa29d1b04bd1e89f7f0621e5c3f">get_offset_adress</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span> </div>
-<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span> </div>
-<div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span>        <span class="keywordtype">int</span> <a class="code hl_function" href="class_load_cell_controller.html#a0ff19e64830b4b9cb1f63a6e5d0ac50b">get_scale_coeff_adress</a>(<span class="keywordtype">byte</span> loadcell_num); </div>
-<div class="line"><a id="l00459" name="l00459"></a><span class="lineno">  459</span> </div>
-<div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span> </div>
-<div class="line"><a id="l00480" name="l00480"></a><span class="lineno">  480</span>        <span class="keywordtype">float</span> <a class="code hl_function" href="group___load_cell.html#ga507c18a07c74ce8493e826566435a1c1">get_offset</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00481" name="l00481"></a><span class="lineno">  481</span> </div>
-<div class="line"><a id="l00482" name="l00482"></a><span class="lineno">  482</span> </div>
-<div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#gac7fa01eae9c33384e1e70b9ba7ec5629">set_offset</a>(<span class="keywordtype">byte</span> loadcell_num, <span class="keywordtype">float</span> offset); </div>
-<div class="line"><a id="l00493" name="l00493"></a><span class="lineno">  493</span> </div>
-<div class="line"><a id="l00494" name="l00494"></a><span class="lineno">  494</span> </div>
-<div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span>        <span class="keywordtype">float</span> <a class="code hl_function" href="group___load_cell.html#ga9b128c21393d8106a6148aea265e48dd">get_scale</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span> </div>
-<div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span> </div>
-<div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#gadc6c08cde6fb690ff4cb5aa1c42f40ef">set_scale</a>(<span class="keywordtype">byte</span> loadcell_num, <span class="keywordtype">float</span> scale); </div>
-<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span> </div>
-<div class="line"><a id="l00518" name="l00518"></a><span class="lineno">  518</span> </div>
-<div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#gaee0ac671ee0cd1c461f92ae70bb0f723">set_tare_n_readings</a>(<span class="keywordtype">byte</span> loadcell_num, <span class="keywordtype">int</span> n_readings);</div>
-<div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span> </div>
-<div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span> </div>
-<div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span>        <span class="keywordtype">byte</span> <a class="code hl_function" href="group___load_cell.html#ga6ceff1432e282f51f1df0b0104747101">get_tare_n_readings</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00541" name="l00541"></a><span class="lineno">  541</span> </div>
-<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span> </div>
-<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga17af209b2de5300346c1a9d921f86522">set_scale_coeff_n_readings</a>(<span class="keywordtype">byte</span> loadcell_num, <span class="keywordtype">int</span> n_readings);</div>
-<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span> </div>
-<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span> </div>
-<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>        <span class="keywordtype">byte</span> <a class="code hl_function" href="group___load_cell.html#ga17148ba2d5bad59f005e830e2da07695">get_scale_coeff_n_readings</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span> </div>
-<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span> </div>
-<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga92c159cf6b6bc3a958a54457a240d057">set_weight_n_readings</a>(<span class="keywordtype">byte</span> loadcell_num, <span class="keywordtype">int</span> n_readings);</div>
-<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span> </div>
-<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span> </div>
-<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>        <span class="keywordtype">byte</span> <a class="code hl_function" href="group___load_cell.html#ga69deb0135206ed73e2ae1ec875137aa9">get_weight_n_readings</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span> </div>
-<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span> </div>
-<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga449f51749d5e27ee19b31a6c70c36c7d">set_all_loadcells_tare_n_readings</a>(<span class="keywordtype">int</span> n_readings);</div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span> </div>
-<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span> </div>
-<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#gad94259d5b2dd994ac1103ab26683bda3">set_all_loadcells_scale_coeff_n_readings</a>(<span class="keywordtype">int</span> n_readings);</div>
-<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span> </div>
-<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span> </div>
-<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga5be448b9aab6eb72c95ae49bbb879f23">set_all_loadcells_weight_n_readings</a>(<span class="keywordtype">int</span> n_readings);</div>
-<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span> </div>
-<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span> </div>
-<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>        <span class="keywordtype">long</span> <a class="code hl_function" href="group___load_cell.html#gad886961c39a7276ce169db187d52c4d1">read_raw_average</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span> </div>
-<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span> </div>
-<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span>        <span class="keywordtype">long</span> <a class="code hl_function" href="group___load_cell.html#ga8a9063b14499f23adf2fa8da92acd8d6">read_tare_average</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span> </div>
-<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>        <span class="keywordtype">long</span> <a class="code hl_function" href="group___load_cell.html#ga596e9234d568399c3f8a42b9256fc47d">read_scale_coeff_average</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span> </div>
-<div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span> </div>
-<div class="line"><a id="l00672" name="l00672"></a><span class="lineno">  672</span>        <span class="keywordtype">double</span> <a class="code hl_function" href="group___load_cell.html#ga0d0b0bfd07a1c17a46d1504d04dba226">get_raw_value</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span> </div>
-<div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span> </div>
-<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>        <span class="keywordtype">float</span> <a class="code hl_function" href="group___load_cell.html#ga3ef77bb2300f62c7dc65b8b83e642c9a">get_weight</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span> </div>
-<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span> </div>
-<div class="line"><a id="l00697" name="l00697"></a><span class="lineno">  697</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga561f18442e2d0a82c8dccaeea4f33eef">tare</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span> </div>
-<div class="line"><a id="l00699" name="l00699"></a><span class="lineno">  699</span> </div>
-<div class="line"><a id="l00714" name="l00714"></a><span class="lineno">  714</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#gaf42f59ae774cd02647450c8c81df6872">begin</a>(</div>
-<div class="line"><a id="l00715" name="l00715"></a><span class="lineno">  715</span>                <span class="keywordtype">byte</span> loadcell_num,</div>
-<div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span>                <span class="keywordtype">byte</span> dout,</div>
-<div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span>                <span class="keywordtype">byte</span> pd_sck,</div>
-<div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span>                <span class="keywordtype">byte</span> gain = 128</div>
-<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>                );</div>
-<div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span> </div>
-<div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span> </div>
-<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span> </div>
-<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="group___load_cell.html#ga0130a79b354cbe481dbee14ba3505e97">is_ready</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span> </div>
-<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span> </div>
-<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga3288f185af11b97cc1c5b4c4bff4d2fd">wait_ready</a>(</div>
-<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>                        <span class="keywordtype">byte</span> loadcell_num,</div>
-<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>                        <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> delay_ms = 0</div>
-<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>                        );</div>
-<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span> </div>
-<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span> </div>
-<div class="line"><a id="l00770" name="l00770"></a><span class="lineno">  770</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="group___load_cell.html#ga3277e1e7db4820436311e9ae5ee132fb">wait_ready_retry</a>(</div>
-<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span>                        <span class="keywordtype">byte</span> loadcell_num,</div>
-<div class="line"><a id="l00772" name="l00772"></a><span class="lineno">  772</span>                        <span class="keywordtype">int</span> retries = 3,</div>
-<div class="line"><a id="l00773" name="l00773"></a><span class="lineno">  773</span>                        <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> delay_ms = 0</div>
-<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span>                        );</div>
-<div class="line"><a id="l00775" name="l00775"></a><span class="lineno">  775</span> </div>
-<div class="line"><a id="l00776" name="l00776"></a><span class="lineno">  776</span> </div>
-<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="group___load_cell.html#ga545d0f405efe94943605e52d609ac0ff">wait_ready_timeout</a>(</div>
-<div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span>                                <span class="keywordtype">byte</span> loadcell_num,</div>
-<div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span>                                <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> timeout = 1000,</div>
-<div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span>                                <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> delay_ms = 0</div>
-<div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span>                                );</div>
-<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span> </div>
-<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span> </div>
-<div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga8c73a3be8a0f6c522af4ced8f3721143">power_up</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span> </div>
-<div class="line"><a id="l00808" name="l00808"></a><span class="lineno">  808</span> </div>
-<div class="line"><a id="l00819" name="l00819"></a><span class="lineno">  819</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga69aba79e70cadebdcb9ab8a67b8dfde1">power_down</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span> <span class="comment">// End of LoadCell functions for LoadCellController group</span></div>
-<div class="line"><a id="l00822" name="l00822"></a><span class="lineno">  822</span> </div>
-<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span> </div>
-<div class="line"><a id="l00834" name="l00834"></a><span class="lineno">  834</span>        <span class="keywordtype">byte</span> <a class="code hl_function" href="class_load_cell_controller.html#a59e5d76d920c4e370dd093b3f725300c">number_of_loadcells</a>();</div>
-<div class="line"><a id="l00835" name="l00835"></a><span class="lineno">  835</span> </div>
-<div class="line"><a id="l00836" name="l00836"></a><span class="lineno">  836</span> </div>
-<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span>        <span class="keywordtype">bool</span> <a class="code hl_function" href="class_load_cell_controller.html#a7fcdb8b27969825173926408b5731ff4">is_loadcell_num_in_range</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
-<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span> </div>
-<div class="line"><a id="l00860" name="l00860"></a><span class="lineno">  860</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a71dedebb692b8df739e0170081cca02a">clear_eeprom</a>(<span class="keywordtype">int</span> start=0, <span class="keywordtype">int</span> end=1024);</div>
-<div class="line"><a id="l00861" name="l00861"></a><span class="lineno">  861</span>};</div>
-<div class="line"><a id="l00862" name="l00862"></a><span class="lineno">  862</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="preprocessor">#ifndef LoadCellController_h</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="preprocessor">#define LoadCellController_h</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="preprocessor">#include &lt;Arduino.h&gt;</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="preprocessor">#include &quot;HX711.h&quot;</span></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="preprocessor">#include &quot;<a class="code" href="_load_cell_8h.html">LoadCell.h</a>&quot;</span></div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno"><a class="line" href="class_load_cell_controller.html">   81</a></span><span class="keyword">class </span><a class="code hl_class" href="class_load_cell_controller.html">LoadCellController</a> {</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno"><a class="line" href="class_load_cell_controller.html#abf5e00456c2c776b5048f500c5b0a495">   91</a></span>        <a class="code hl_class" href="class_load_cell.html">LoadCell</a>* <a class="code hl_variable" href="class_load_cell_controller.html#abf5e00456c2c776b5048f500c5b0a495">loadcells</a>[10];</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno"><a class="line" href="class_load_cell_controller.html#a233d1a7d5a09e65b99e68bb7458d7715">  102</a></span>        <span class="keywordtype">int</span> <a class="code hl_variable" href="class_load_cell_controller.html#a233d1a7d5a09e65b99e68bb7458d7715">n_loadcell</a> = 0;</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#ab673a056d39d382982800896c9fa002c">easy_calibration_with_params</a>(</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>                                        <span class="keywordtype">byte</span> loadcell_num,</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>                                        <span class="keywordtype">bool</span> cal_tare,</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>                                        <span class="keywordtype">bool</span> cal_scale</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>                                        );</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span> </div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a23aea4d401f23ec2eff578d8311693d0">easy_save_to_eeprom_with_params</a>(</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>                                <span class="keywordtype">byte</span> loadcell_num,</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>                                <span class="keywordtype">bool</span> save_offset,</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>                                <span class="keywordtype">bool</span> save_scale</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>                                );</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span> </div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a2233c8c119912b761a0059a7f7e1dea9">easy_read_from_eeprom_with_params</a>(</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>                                        <span class="keywordtype">byte</span> loadcell_num,</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>                                        <span class="keywordtype">bool</span> read_offset_eeprom,</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>                                        <span class="keywordtype">bool</span> read_scale_eeprom</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>                                        );</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span> </div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a6085bd3ff4f5ac988817f2d48bd21697">easy_start_with_questions</a>(</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>                                <span class="keywordtype">byte</span> loadcell_num,</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>                                <span class="keywordtype">byte</span> dout,</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>                                <span class="keywordtype">byte</span> pd_sck,</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>                                <span class="keywordtype">byte</span> gain=128</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>                                );</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span> </div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span> </div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a0db2e73641bb483ab9790e53939f20bb">easy_handle_exceptions</a>(</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>                                <span class="keywordtype">byte</span> loadcell_num,</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>                                <span class="keywordtype">bool</span> calibrate_offset=<span class="keyword">false</span>,</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>                                <span class="keywordtype">bool</span> calibrate_scale=<span class="keyword">false</span>,</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>                                <span class="keywordtype">bool</span> read_offset_eeprom=<span class="keyword">false</span>,</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>                                <span class="keywordtype">bool</span> read_scale_eeprom=<span class="keyword">false</span>,</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>                                <span class="keywordtype">bool</span> <a class="code hl_function" href="class_load_cell_controller.html#a7bd11dcde93be204e5ff1c29fdcf6009">save_offset_eeprom</a>=<span class="keyword">false</span>,</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>                                <span class="keywordtype">bool</span> save_scale_eeprom=<span class="keyword">false</span>,</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>                                <span class="keywordtype">float</span> tare_offset=0,</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>                                <span class="keywordtype">float</span> scale_coeff=0</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>                                );</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="keyword">public</span>: </div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>        <a class="code hl_function" href="class_load_cell_controller.html#a48feedb2cc775e870f53c9fc5f0ddcfd">LoadCellController</a>();</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>        </div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a81fb15d14c2c3d6dab3769f44d2fb9bd">add_loadcell</a>(<a class="code hl_class" href="class_load_cell.html">LoadCell</a> &amp;loadcell);</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span> </div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#ab541e7609395928262857c32192ebb08">easy_start_with_params</a>(</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>                                <span class="keywordtype">byte</span> loadcell_num,</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>                                <span class="keywordtype">byte</span> dout,</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>                                <span class="keywordtype">byte</span> pd_sck,</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>                                <span class="keywordtype">bool</span> calibrate_offset=<span class="keyword">false</span>,</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>                                <span class="keywordtype">bool</span> calibrate_scale=<span class="keyword">false</span>,</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>                                <span class="keywordtype">bool</span> read_offset_eeprom=<span class="keyword">false</span>,</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>                                <span class="keywordtype">bool</span> read_scale_eeprom=<span class="keyword">false</span>,</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>                                <span class="keywordtype">bool</span> <a class="code hl_function" href="class_load_cell_controller.html#a7bd11dcde93be204e5ff1c29fdcf6009">save_offset_eeprom</a>=<span class="keyword">false</span>,</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>                                <span class="keywordtype">bool</span> save_scale_eeprom=<span class="keyword">false</span>,</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>                                <span class="keywordtype">float</span> tare_offset=0,</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>                                <span class="keywordtype">float</span> scale_coeff=0,</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>                                <span class="keywordtype">byte</span> gain=128</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>                                );</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span> </div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a7bd11dcde93be204e5ff1c29fdcf6009">save_offset_eeprom</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span> </div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a7becc334c51d732833e24d7dead112af">save_scale_coeff_eeprom</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span> </div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>        <span class="keywordtype">long</span> <a class="code hl_function" href="class_load_cell_controller.html#a85ac0cb7a2f31f3a5f69c2882ad770be">read_offset_from_eeprom</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span> </div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>        <span class="keywordtype">float</span> <a class="code hl_function" href="class_load_cell_controller.html#a673034d59c4b755e39ee7b6b5255c250">read_scale_coeff_from_eeprom</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span> </div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a082df43905d7022983b539325e489440">calibrate_both_params</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span> </div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#ac9cb338e189436bf174dd49fa039dc1f">calibrate_tare_offset</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span> </div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a78b8e8c4d11b2c078042225cb5511d55">calibrate_scale_coeff</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span> </div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>        <span class="keywordtype">float</span> <a class="code hl_function" href="class_load_cell_controller.html#a9c4a2a43aa6e032e0cdb03af07882820">determine_offset</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span> </div>
+<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>        <span class="keywordtype">float</span> <a class="code hl_function" href="class_load_cell_controller.html#a6b8f522285770eb5160e961edcdd8de9">determine_scale_coeff</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span> </div>
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span> </div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>        <span class="keywordtype">float</span> calculate_scale_coeff(</div>
+<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>                                <span class="keywordtype">byte</span> loadcell_num,</div>
+<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>                                <span class="keywordtype">float</span> output,</div>
+<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>                                <span class="keywordtype">float</span> mass</div>
+<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>                                );</div>
+<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span> </div>
+<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span> </div>
+<div class="line"><a id="l00445" name="l00445"></a><span class="lineno">  445</span>        <span class="keywordtype">int</span> <a class="code hl_function" href="class_load_cell_controller.html#a1b942fa29d1b04bd1e89f7f0621e5c3f">get_offset_adress</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span> </div>
+<div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span> </div>
+<div class="line"><a id="l00461" name="l00461"></a><span class="lineno">  461</span>        <span class="keywordtype">int</span> <a class="code hl_function" href="class_load_cell_controller.html#a0ff19e64830b4b9cb1f63a6e5d0ac50b">get_scale_coeff_adress</a>(<span class="keywordtype">byte</span> loadcell_num); </div>
+<div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span> </div>
+<div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span> </div>
+<div class="line"><a id="l00483" name="l00483"></a><span class="lineno">  483</span>        <span class="keywordtype">float</span> <a class="code hl_function" href="group___load_cell.html#ga507c18a07c74ce8493e826566435a1c1">get_offset</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00484" name="l00484"></a><span class="lineno">  484</span> </div>
+<div class="line"><a id="l00485" name="l00485"></a><span class="lineno">  485</span> </div>
+<div class="line"><a id="l00495" name="l00495"></a><span class="lineno">  495</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#gac7fa01eae9c33384e1e70b9ba7ec5629">set_offset</a>(<span class="keywordtype">byte</span> loadcell_num, <span class="keywordtype">float</span> offset); </div>
+<div class="line"><a id="l00496" name="l00496"></a><span class="lineno">  496</span> </div>
+<div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span> </div>
+<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span>        <span class="keywordtype">float</span> <a class="code hl_function" href="group___load_cell.html#ga9b128c21393d8106a6148aea265e48dd">get_scale</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span> </div>
+<div class="line"><a id="l00509" name="l00509"></a><span class="lineno">  509</span> </div>
+<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#gadc6c08cde6fb690ff4cb5aa1c42f40ef">set_scale</a>(<span class="keywordtype">byte</span> loadcell_num, <span class="keywordtype">float</span> scale); </div>
+<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span> </div>
+<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span> </div>
+<div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#gaee0ac671ee0cd1c461f92ae70bb0f723">set_tare_n_readings</a>(<span class="keywordtype">byte</span> loadcell_num, <span class="keywordtype">int</span> n_readings);</div>
+<div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span> </div>
+<div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span> </div>
+<div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span>        <span class="keywordtype">byte</span> <a class="code hl_function" href="group___load_cell.html#ga6ceff1432e282f51f1df0b0104747101">get_tare_n_readings</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span> </div>
+<div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span> </div>
+<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga17af209b2de5300346c1a9d921f86522">set_scale_coeff_n_readings</a>(<span class="keywordtype">byte</span> loadcell_num, <span class="keywordtype">int</span> n_readings);</div>
+<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span> </div>
+<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span> </div>
+<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>        <span class="keywordtype">byte</span> <a class="code hl_function" href="group___load_cell.html#ga17148ba2d5bad59f005e830e2da07695">get_scale_coeff_n_readings</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span> </div>
+<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span> </div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga92c159cf6b6bc3a958a54457a240d057">set_weight_n_readings</a>(<span class="keywordtype">byte</span> loadcell_num, <span class="keywordtype">int</span> n_readings);</div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span> </div>
+<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span> </div>
+<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>        <span class="keywordtype">byte</span> <a class="code hl_function" href="group___load_cell.html#ga69deb0135206ed73e2ae1ec875137aa9">get_weight_n_readings</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span> </div>
+<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span> </div>
+<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga449f51749d5e27ee19b31a6c70c36c7d">set_all_loadcells_tare_n_readings</a>(<span class="keywordtype">int</span> n_readings);</div>
+<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span> </div>
+<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span> </div>
+<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#gad94259d5b2dd994ac1103ab26683bda3">set_all_loadcells_scale_coeff_n_readings</a>(<span class="keywordtype">int</span> n_readings);</div>
+<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span> </div>
+<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span> </div>
+<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga5be448b9aab6eb72c95ae49bbb879f23">set_all_loadcells_weight_n_readings</a>(<span class="keywordtype">int</span> n_readings);</div>
+<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span> </div>
+<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span> </div>
+<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>        <span class="keywordtype">long</span> <a class="code hl_function" href="group___load_cell.html#gad886961c39a7276ce169db187d52c4d1">read_raw_average</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span> </div>
+<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span> </div>
+<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span>        <span class="keywordtype">long</span> <a class="code hl_function" href="group___load_cell.html#ga8a9063b14499f23adf2fa8da92acd8d6">read_tare_average</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span> </div>
+<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span>        <span class="keywordtype">long</span> <a class="code hl_function" href="group___load_cell.html#ga596e9234d568399c3f8a42b9256fc47d">read_scale_coeff_average</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span> </div>
+<div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span> </div>
+<div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>        <span class="keywordtype">double</span> <a class="code hl_function" href="group___load_cell.html#ga0d0b0bfd07a1c17a46d1504d04dba226">get_raw_value</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span> </div>
+<div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span> </div>
+<div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span>        <span class="keywordtype">float</span> <a class="code hl_function" href="group___load_cell.html#ga3ef77bb2300f62c7dc65b8b83e642c9a">get_weight</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span> </div>
+<div class="line"><a id="l00691" name="l00691"></a><span class="lineno">  691</span> </div>
+<div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga561f18442e2d0a82c8dccaeea4f33eef">tare</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00701" name="l00701"></a><span class="lineno">  701</span> </div>
+<div class="line"><a id="l00702" name="l00702"></a><span class="lineno">  702</span> </div>
+<div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#gaf42f59ae774cd02647450c8c81df6872">begin</a>(</div>
+<div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span>                <span class="keywordtype">byte</span> loadcell_num,</div>
+<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>                <span class="keywordtype">byte</span> dout,</div>
+<div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span>                <span class="keywordtype">byte</span> pd_sck,</div>
+<div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span>                <span class="keywordtype">byte</span> gain = 128</div>
+<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span>                );</div>
+<div class="line"><a id="l00723" name="l00723"></a><span class="lineno">  723</span> </div>
+<div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span> </div>
+<div class="line"><a id="l00725" name="l00725"></a><span class="lineno">  725</span> </div>
+<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="group___load_cell.html#ga0130a79b354cbe481dbee14ba3505e97">is_ready</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00739" name="l00739"></a><span class="lineno">  739</span> </div>
+<div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span> </div>
+<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga3288f185af11b97cc1c5b4c4bff4d2fd">wait_ready</a>(</div>
+<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span>                        <span class="keywordtype">byte</span> loadcell_num,</div>
+<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>                        <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> delay_ms = 0</div>
+<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span>                        );</div>
+<div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span> </div>
+<div class="line"><a id="l00759" name="l00759"></a><span class="lineno">  759</span> </div>
+<div class="line"><a id="l00773" name="l00773"></a><span class="lineno">  773</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="group___load_cell.html#ga3277e1e7db4820436311e9ae5ee132fb">wait_ready_retry</a>(</div>
+<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span>                        <span class="keywordtype">byte</span> loadcell_num,</div>
+<div class="line"><a id="l00775" name="l00775"></a><span class="lineno">  775</span>                        <span class="keywordtype">int</span> retries = 3,</div>
+<div class="line"><a id="l00776" name="l00776"></a><span class="lineno">  776</span>                        <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> delay_ms = 0</div>
+<div class="line"><a id="l00777" name="l00777"></a><span class="lineno">  777</span>                        );</div>
+<div class="line"><a id="l00778" name="l00778"></a><span class="lineno">  778</span> </div>
+<div class="line"><a id="l00779" name="l00779"></a><span class="lineno">  779</span> </div>
+<div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="group___load_cell.html#ga545d0f405efe94943605e52d609ac0ff">wait_ready_timeout</a>(</div>
+<div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span>                                <span class="keywordtype">byte</span> loadcell_num,</div>
+<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span>                                <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> timeout = 1000,</div>
+<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span>                                <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> delay_ms = 0</div>
+<div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span>                                );</div>
+<div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span> </div>
+<div class="line"><a id="l00800" name="l00800"></a><span class="lineno">  800</span> </div>
+<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga8c73a3be8a0f6c522af4ced8f3721143">power_up</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span> </div>
+<div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span> </div>
+<div class="line"><a id="l00822" name="l00822"></a><span class="lineno">  822</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="group___load_cell.html#ga69aba79e70cadebdcb9ab8a67b8dfde1">power_down</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span> <span class="comment">// End of LoadCell functions for LoadCellController group</span></div>
+<div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span> </div>
+<div class="line"><a id="l00826" name="l00826"></a><span class="lineno">  826</span> </div>
+<div class="line"><a id="l00837" name="l00837"></a><span class="lineno">  837</span>        <span class="keywordtype">byte</span> <a class="code hl_function" href="class_load_cell_controller.html#a59e5d76d920c4e370dd093b3f725300c">number_of_loadcells</a>();</div>
+<div class="line"><a id="l00838" name="l00838"></a><span class="lineno">  838</span> </div>
+<div class="line"><a id="l00839" name="l00839"></a><span class="lineno">  839</span> </div>
+<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span>        <span class="keywordtype">bool</span> <a class="code hl_function" href="class_load_cell_controller.html#a7fcdb8b27969825173926408b5731ff4">is_loadcell_num_in_range</a>(<span class="keywordtype">byte</span> loadcell_num);</div>
+<div class="line"><a id="l00851" name="l00851"></a><span class="lineno">  851</span> </div>
+<div class="line"><a id="l00863" name="l00863"></a><span class="lineno">  863</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_load_cell_controller.html#a71dedebb692b8df739e0170081cca02a">clear_eeprom</a>(<span class="keywordtype">int</span> start=0, <span class="keywordtype">int</span> end=1024);</div>
+<div class="line"><a id="l00864" name="l00864"></a><span class="lineno">  864</span>};</div>
+<div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="a_load_cell_8h_html"><div class="ttname"><a href="_load_cell_8h.html">LoadCell.h</a></div></div>
-<div class="ttc" id="aclass_load_cell_controller_html"><div class="ttname"><a href="class_load_cell_controller.html">LoadCellController</a></div><div class="ttdoc">This library allows to control and manage many load cells with a LoadCellController.</div><div class="ttdef"><b>Definition</b> LoadCellController.h:78</div></div>
+<div class="ttc" id="aclass_load_cell_controller_html"><div class="ttname"><a href="class_load_cell_controller.html">LoadCellController</a></div><div class="ttdoc">This library allows to control and manage many load cells with a LoadCellController.</div><div class="ttdef"><b>Definition</b> LoadCellController.h:81</div></div>
 <div class="ttc" id="aclass_load_cell_controller_html_a082df43905d7022983b539325e489440"><div class="ttname"><a href="class_load_cell_controller.html#a082df43905d7022983b539325e489440">LoadCellController::calibrate_both_params</a></div><div class="ttdeci">void calibrate_both_params(byte loadcell_num)</div><div class="ttdoc">Proceed to the calibration of both parameters and set them for a LoadCell.</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:311</div></div>
 <div class="ttc" id="aclass_load_cell_controller_html_a0db2e73641bb483ab9790e53939f20bb"><div class="ttname"><a href="class_load_cell_controller.html#a0db2e73641bb483ab9790e53939f20bb">LoadCellController::easy_handle_exceptions</a></div><div class="ttdeci">void easy_handle_exceptions(byte loadcell_num, bool calibrate_offset=false, bool calibrate_scale=false, bool read_offset_eeprom=false, bool read_scale_eeprom=false, bool save_offset_eeprom=false, bool save_scale_eeprom=false, float tare_offset=0, float scale_coeff=0)</div><div class="ttdoc">Easy function used to handle possible conflicts in easy_start_with_params().</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:168</div></div>
 <div class="ttc" id="aclass_load_cell_controller_html_a0ff19e64830b4b9cb1f63a6e5d0ac50b"><div class="ttname"><a href="class_load_cell_controller.html#a0ff19e64830b4b9cb1f63a6e5d0ac50b">LoadCellController::get_scale_coeff_adress</a></div><div class="ttdeci">int get_scale_coeff_adress(byte loadcell_num)</div><div class="ttdoc">Get the EEPROM address for the scale coefficient of a LoadCell.</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:500</div></div>
 <div class="ttc" id="aclass_load_cell_controller_html_a1b942fa29d1b04bd1e89f7f0621e5c3f"><div class="ttname"><a href="class_load_cell_controller.html#a1b942fa29d1b04bd1e89f7f0621e5c3f">LoadCellController::get_offset_adress</a></div><div class="ttdeci">int get_offset_adress(byte loadcell_num)</div><div class="ttdoc">Get the EEPROM address for the offset of a LoadCell.</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:486</div></div>
 <div class="ttc" id="aclass_load_cell_controller_html_a2233c8c119912b761a0059a7f7e1dea9"><div class="ttname"><a href="class_load_cell_controller.html#a2233c8c119912b761a0059a7f7e1dea9">LoadCellController::easy_read_from_eeprom_with_params</a></div><div class="ttdeci">void easy_read_from_eeprom_with_params(byte loadcell_num, bool read_offset_eeprom, bool read_scale_eeprom)</div><div class="ttdoc">Easy function managing the reading of calibration from EEPROM.</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:68</div></div>
-<div class="ttc" id="aclass_load_cell_controller_html_a233d1a7d5a09e65b99e68bb7458d7715"><div class="ttname"><a href="class_load_cell_controller.html#a233d1a7d5a09e65b99e68bb7458d7715">LoadCellController::n_loadcell</a></div><div class="ttdeci">int n_loadcell</div><div class="ttdoc">Member variable used to keep track of the number of LoadCells added.</div><div class="ttdef"><b>Definition</b> LoadCellController.h:99</div></div>
+<div class="ttc" id="aclass_load_cell_controller_html_a233d1a7d5a09e65b99e68bb7458d7715"><div class="ttname"><a href="class_load_cell_controller.html#a233d1a7d5a09e65b99e68bb7458d7715">LoadCellController::n_loadcell</a></div><div class="ttdeci">int n_loadcell</div><div class="ttdoc">Member variable used to keep track of the number of LoadCells added.</div><div class="ttdef"><b>Definition</b> LoadCellController.h:102</div></div>
 <div class="ttc" id="aclass_load_cell_controller_html_a23aea4d401f23ec2eff578d8311693d0"><div class="ttname"><a href="class_load_cell_controller.html#a23aea4d401f23ec2eff578d8311693d0">LoadCellController::easy_save_to_eeprom_with_params</a></div><div class="ttdeci">void easy_save_to_eeprom_with_params(byte loadcell_num, bool save_offset, bool save_scale)</div><div class="ttdoc">Easy function managing the saving of calibration parameters to EEPROM.</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:126</div></div>
 <div class="ttc" id="aclass_load_cell_controller_html_a48feedb2cc775e870f53c9fc5f0ddcfd"><div class="ttname"><a href="class_load_cell_controller.html#a48feedb2cc775e870f53c9fc5f0ddcfd">LoadCellController::LoadCellController</a></div><div class="ttdeci">LoadCellController()</div><div class="ttdoc">Construct a LoadCellController object.</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:6</div></div>
 <div class="ttc" id="aclass_load_cell_controller_html_a59e5d76d920c4e370dd093b3f725300c"><div class="ttname"><a href="class_load_cell_controller.html#a59e5d76d920c4e370dd093b3f725300c">LoadCellController::number_of_loadcells</a></div><div class="ttdeci">byte number_of_loadcells()</div><div class="ttdoc">Get the number of LoadCell of the LoadCellController.</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:915</div></div>
@@ -312,7 +312,7 @@ $(function() {
 <div class="ttc" id="aclass_load_cell_controller_html_a9c4a2a43aa6e032e0cdb03af07882820"><div class="ttname"><a href="class_load_cell_controller.html#a9c4a2a43aa6e032e0cdb03af07882820">LoadCellController::determine_offset</a></div><div class="ttdeci">float determine_offset(byte loadcell_num)</div><div class="ttdoc">Proceed to the calibration of the offset and return the offset value.</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:364</div></div>
 <div class="ttc" id="aclass_load_cell_controller_html_ab541e7609395928262857c32192ebb08"><div class="ttname"><a href="class_load_cell_controller.html#ab541e7609395928262857c32192ebb08">LoadCellController::easy_start_with_params</a></div><div class="ttdeci">void easy_start_with_params(byte loadcell_num, byte dout, byte pd_sck, bool calibrate_offset=false, bool calibrate_scale=false, bool read_offset_eeprom=false, bool read_scale_eeprom=false, bool save_offset_eeprom=false, bool save_scale_eeprom=false, float tare_offset=0, float scale_coeff=0, byte gain=128)</div><div class="ttdoc">Easy function managing the start-up of a LoadCell with parameters as input.</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:14</div></div>
 <div class="ttc" id="aclass_load_cell_controller_html_ab673a056d39d382982800896c9fa002c"><div class="ttname"><a href="class_load_cell_controller.html#ab673a056d39d382982800896c9fa002c">LoadCellController::easy_calibration_with_params</a></div><div class="ttdeci">void easy_calibration_with_params(byte loadcell_num, bool cal_tare, bool cal_scale)</div><div class="ttdoc">Easy function managing the calibration of a LoadCell.</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:105</div></div>
-<div class="ttc" id="aclass_load_cell_controller_html_abf5e00456c2c776b5048f500c5b0a495"><div class="ttname"><a href="class_load_cell_controller.html#abf5e00456c2c776b5048f500c5b0a495">LoadCellController::loadcells</a></div><div class="ttdeci">LoadCell * loadcells[10]</div><div class="ttdoc">Array containing the pointer of the LoadCell controlled by the LoadCellController.</div><div class="ttdef"><b>Definition</b> LoadCellController.h:88</div></div>
+<div class="ttc" id="aclass_load_cell_controller_html_abf5e00456c2c776b5048f500c5b0a495"><div class="ttname"><a href="class_load_cell_controller.html#abf5e00456c2c776b5048f500c5b0a495">LoadCellController::loadcells</a></div><div class="ttdeci">LoadCell * loadcells[10]</div><div class="ttdoc">Array containing the pointer of the LoadCell controlled by the LoadCellController.</div><div class="ttdef"><b>Definition</b> LoadCellController.h:91</div></div>
 <div class="ttc" id="aclass_load_cell_controller_html_ac9cb338e189436bf174dd49fa039dc1f"><div class="ttname"><a href="class_load_cell_controller.html#ac9cb338e189436bf174dd49fa039dc1f">LoadCellController::calibrate_tare_offset</a></div><div class="ttdeci">void calibrate_tare_offset(byte loadcell_num)</div><div class="ttdoc">Proceed to the calibration of the offset and set it for a LoadCell.</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:332</div></div>
 <div class="ttc" id="aclass_load_cell_html"><div class="ttname"><a href="class_load_cell.html">LoadCell</a></div><div class="ttdoc">This library extends the functionality of the HX711 to make it compatible with the LoadCellController...</div><div class="ttdef"><b>Definition</b> LoadCell.h:41</div></div>
 <div class="ttc" id="agroup___load_cell_html_ga0130a79b354cbe481dbee14ba3505e97"><div class="ttname"><a href="group___load_cell.html#ga0130a79b354cbe481dbee14ba3505e97">LoadCellController::is_ready</a></div><div class="ttdeci">bool is_ready(byte loadcell_num)</div><div class="ttdoc">Verify if the HX711 is ready for a reading.</div><div class="ttdef"><b>Definition</b> LoadCellController.cpp:804</div></div>
