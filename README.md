@@ -28,3 +28,13 @@ This pdf was generated from the latex folder with Doxygen: [latex](Loadcell/Ardu
 There is also an html file that can be opened on your web browser to have a web page of the documentation
 Copy the repo and then open the [index.html](Loadcell/ArduinoLibraries/html/index.html)
 
+### How to install the libraries
+
+Copy the repo on your computer and indentify the [LoadCellLibrary](Loadcell/ArduinoLibraries/LoadCellLibrary) and the [LoadCellControllerLibrary](Loadcell/ArduinoLibraries/LoadCellControllerLibrary). Move these folders to your Arduino/libraries folder on your computer.
+
+
+```c++
+#include "LoadCell.h"
+#include "LoadCellController.h"
+
+
