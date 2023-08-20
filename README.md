@@ -33,8 +33,7 @@ Copy the repo and then open the [index.html](Loadcell/ArduinoLibraries/html/inde
 Copy the repo on your computer and indentify the [LoadCellLibrary](Loadcell/ArduinoLibraries/LoadCellLibrary) and the [LoadCellControllerLibrary](Loadcell/ArduinoLibraries/LoadCellControllerLibrary). Move these folders to your Arduino/libraries folder on your computer.
 
 
+You can now use the libraries in your skectch by including them this way
 ```c++
 #include "LoadCell.h"
 #include "LoadCellController.h"
-
-
