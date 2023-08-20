@@ -26,5 +26,5 @@ This pdf was generated from the latex folder with Doxygen: [latex](Loadcell/Ardu
 
 
 There is also an html file that can be opened on your web browser to have a web page of the documentation
-Coppy the repo ans then open the index.html file: IntelligentCage->Loadcell->Arduino libraries->html->index.html
+Copy the repo and then open the [index.html](Loadcell/ArduinoLibraries/html/index.html)
 
