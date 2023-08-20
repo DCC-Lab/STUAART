@@ -10,14 +10,6 @@ Mireille has access to all the CAD files of the different components. Ask her to
 
 
 
-## Lab notes:
-Lot of tests were done to characterize the drift behavior of a loadcell. Every test is detailled in the following document along
-with the main conclusions about it.
-
-Document: [Lab notes](https://www.overleaf.com/read/vvxvjbdjmgmg)
-
-
-
 ## Arduino LoadCell library and LoadCellController library:
 
 There is a pdf of the documentation in the repo: [Documentation.pdf](Loadcell/ArduinoLibraries/Documentation.pdf)
@@ -37,3 +29,13 @@ You can now use the libraries in your skectch by including them this way.
 ```c++
 #include "LoadCell.h"
 #include "LoadCellController.h"
+```
+
+
+
+## Lab notes:
+Lot of tests were done to characterize the drift behavior of a loadcell. Every test is detailled in the following document along
+with the main conclusions about it.
+
+Document: [Lab notes](https://www.overleaf.com/read/vvxvjbdjmgmg)
+
