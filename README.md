@@ -12,7 +12,9 @@ Mireille has access to all the CAD files of the different components. Ask her to
 
 ## Lab notes:
 Lot of tests were done to characterize the drift behavior of a loadcell. Every test is detailled in the following document along
-with the main conclusions about it [Lab notes](https://www.overleaf.com/read/vvxvjbdjmgmg)
+with the main conclusions about it
+
+Document: [Lab notes](https://www.overleaf.com/read/vvxvjbdjmgmg)
 
 
 
