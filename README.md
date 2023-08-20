@@ -20,7 +20,7 @@ Document: [Lab notes](https://www.overleaf.com/read/vvxvjbdjmgmg)
 
 ## Arduino LoadCell library and LoadCellController library:
 
-There is a pdf of the documentation in the repo: IntelligentCage->Loadcell->Arduino libraries->Documentation.pdf
+There is a pdf of the documentation in the repo: [Documentation.pdf](Loadcell/Arduino libraries/Documentation.pdf)
 This pdf was generated from the latex folder with Doxygen: IntelligentCage->Loadcell->Arduino libraries->latex
 
 There is also an html file that can be opened on your web browser to have a web page of the documentation
