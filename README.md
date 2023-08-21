@@ -35,7 +35,7 @@ You can now use the libraries in your skectch by including them this way.
 
 
 ## Load cell drift test
-Many tests were done to characterize the drift of a load cell. All the Arduino skectches used for different tests are listed by date in the repo [here](Loadcell/LoadCellDriftTest/ArduinoSketch). The small data files are also [here](Loadcell/LoadCellDriftTest/Data)
+Many tests were done to characterize the drift of a load cell. All the Arduino skectches used for different tests are listed by date in the repo [here](Loadcell/LoadCellDriftTest/ArduinoSketch). The small data files are also [here](Loadcell/LoadcellDriftTest/Data).
 
 
 ## Lab notes:
