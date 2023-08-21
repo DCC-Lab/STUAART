@@ -12,6 +12,7 @@ Mireille has access to all the CAD files of the different components. Ask her to
 
 ## Arduino LoadCell library and LoadCellController library:
 
+###Documentation
 There is a pdf of the documentation in the repo: [Documentation.pdf](Loadcell/ArduinoLibraries/Documentation.pdf)
 
 This pdf was generated from the latex folder with Doxygen: [latex](Loadcell/ArduinoLibraries/latex)
