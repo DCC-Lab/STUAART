@@ -5,6 +5,9 @@
  * A reset is only possible when the in-progress iteration is an integer multiple of a certain values to prevent from
  * a reset at every iteration when no contact is made.
  * 
+ *
+ * A 2 megaohm resistor was used in the RC circuit to get a touch sensor only.
+ * Look at the guide in the github repo to change sensitivity
  * Nathan Bérubé, August 2023
  */
 #include <CapacitiveSensor.h>
