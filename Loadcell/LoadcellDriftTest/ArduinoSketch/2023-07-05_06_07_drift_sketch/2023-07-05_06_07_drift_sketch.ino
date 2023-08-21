@@ -9,7 +9,7 @@
 
 #include <SPI.h>
 #include <SD.h>
-#include "Loadcell.h"
+#include "LoadCell.h"
 #include <dht.h>
     
 
@@ -41,9 +41,9 @@ const int SS_pin = 4;
 dht DHT;
 #define DHT22_PIN 7
 
-Loadcell scale_1;
-Loadcell scale_2;
-Loadcell scale_3;
+LoadCell scale_1;
+LoadCell scale_2;
+LoadCell scale_3;
 File myFile; // initialize the file
 
 void setup() {

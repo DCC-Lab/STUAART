@@ -9,7 +9,7 @@
 
 #include <SPI.h>
 #include <SD.h>
-#include "Loadcell.h"
+#include "LoadCell.h"
 
 #if defined(ESP8266)|| defined(ESP32) || defined(AVR)
 #include <EEPROM.h>
@@ -25,7 +25,7 @@ const int LOADCELL_SCK_PIN = 9;
 const int SS_pin = 4;
 const int cal_coeff_eepromAdress = 0; // EEPROM adress of the calibration value for the loadcell
 
-Loadcell scale; // initialize the scale
+LoadCell scale; // initialize the scale
 File myFile; // initialize the file
 
 void setup() {
