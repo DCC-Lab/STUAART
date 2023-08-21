@@ -39,7 +39,7 @@ Many tests were done to characterize the drift of a load cell. All the Arduino s
 
 
 ## Lab notes:
-Lot of tests were done to characterize the drift behavior of a loadcell. Every test is detailled in the following document along
+Lot of tests were done to characterize the drift behavior of a loadcell. Every test is detailled in the following document along with
 with the main conclusions about it.
 
 Document: [Lab notes](https://www.overleaf.com/read/vvxvjbdjmgmg)
