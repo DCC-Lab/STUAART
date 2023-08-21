@@ -48,4 +48,4 @@ Document: [Lab notes](https://www.overleaf.com/read/vvxvjbdjmgmg)
 ## Capacitive sensor:
 An Arduino sketch [example](CapacitiveSensor/CapacitiveSensorSketchExample) is available to get started
 
-A short [guide](CapacitiveSensor/GuideCapacitiveSensorWithArduino) is also available to understand everything about capacitive sensors. It also contains all to links to the Arduino library for installation and the documentation.
+A short [guide](CapacitiveSensor/GuideCapacitiveSensorWithArduino.pdf) is also available to understand everything about capacitive sensors. It also contains all to links to the Arduino library for installation and the documentation.
