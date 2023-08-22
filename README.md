@@ -8,7 +8,7 @@ Repo of the intelligent cage project, created July 12 2023, Nathan Bérubé
 
 Mireille has access to all the CAD files of the different components. Ask her to be added to the Fusion360 team.
 
-Thereb are also two .stl [files]()
+There are also two .stl [files](CAD) of the load cell platforms as example for 3D printing. It is important to print with a high infill density to maximize the stifness of the platforms to reduce creep.
 
 
 
