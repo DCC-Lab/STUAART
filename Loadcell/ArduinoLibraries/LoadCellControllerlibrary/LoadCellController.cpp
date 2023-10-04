@@ -12,19 +12,19 @@ void LoadCellController::add_loadcell(LoadCell &loadcell) {
 }
 
 void LoadCellController::easy_start_with_params(
-                                            byte loadcell_num,
-                                            byte dout,
-                                            byte pd_sck,
-                                            bool calibrate_offset=false,
-                                            bool calibrate_scale=false,
-                                            bool read_offset_eeprom=false,
-                                            bool read_scale_eeprom=false,
-                                            bool save_offset_eeprom=false,
-                                            bool save_scale_eeprom=false,
-                                            float tare_offset=0,
-                                            float scale_coeff=0,
-                                            byte gain=128
-                                            ) {
+                                                byte loadcell_num,
+                                                byte dout,
+                                                byte pd_sck,
+                                                bool calibrate_offset=false,
+                                                bool calibrate_scale=false,
+                                                bool read_offset_persistent_memory=false,
+                                                bool read_scale_persistent_memory=false,
+                                                bool save_offset_persistent_memory=false,
+                                                bool save_scale_persistent_memory=false,
+                                                float tare_offset=0,
+                                                float scale_coeff=0,
+                                                byte gain=128
+                                                ); {
     
     easy_handle_exceptions(
                             loadcell_num,
@@ -45,9 +45,9 @@ void LoadCellController::easy_start_with_params(
     loadcell_ptr->set_offset(tare_offset);
     loadcell_ptr->set_scale(scale_coeff);
 
-    easy_read_from_eeprom_with_params(
+    easy_read_from_persistent_memory_with_params(
                                     loadcell_num,
-                                    read_offset_eeprom,
+                                    read_offset_persistent_memory,
                                     read_scale_eeprom
                                     );
 
@@ -65,10 +65,10 @@ void LoadCellController::easy_start_with_params(
     Serial.println(F("---------***---------"));
 }
 
-void LoadCellController::easy_read_from_eeprom_with_params(
+void LoadCellController::easy_read_from_persistent_memory_with_params(
                                                         byte loadcell_num,
-                                                        bool read_offset_eeprom,
-                                                        bool read_scale_eeprom
+                                                        bool read_offset,
+                                                        bool read_scales
                                                         ) {
     LoadCell* loadcell_ptr = loadcells[loadcell_num - 1];
 
@@ -123,7 +123,7 @@ void LoadCellController::easy_calibration_with_params(
     }
 }
 
-void LoadCellController::easy_save_to_eeprom_with_params(
+void LoadCellController::easy_save_to_persistent_memort_with_params(
                                                         byte loadcell_num,
                                                         bool save_offset,
                                                         bool save_scale
@@ -244,7 +244,7 @@ void LoadCellController::easy_handle_exceptions(
 }
 
 
-void LoadCellController::save_offset_eeprom(byte loadcell_num) {
+void LoadCellController::save_offset_to_persistent_memory(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
@@ -260,7 +260,7 @@ void LoadCellController::save_offset_eeprom(byte loadcell_num) {
     EEPROM.put(get_offset_adress(loadcell_num), offset);
 }
 
-void LoadCellController::save_scale_coeff_eeprom(byte loadcell_num) {
+void LoadCellController::save_scale_coeff_to_persistent_memory(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
@@ -276,7 +276,7 @@ void LoadCellController::save_scale_coeff_eeprom(byte loadcell_num) {
     EEPROM.put(get_scale_coeff_adress(loadcell_num), scale);
 }
 
-long LoadCellController::read_offset_from_eeprom(byte loadcell_num) {
+long LoadCellController::read_offset_from_persistent_memory(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
@@ -292,7 +292,7 @@ long LoadCellController::read_offset_from_eeprom(byte loadcell_num) {
     return offset;
 }
 
-float LoadCellController::read_scale_coeff_from_eeprom(byte loadcell_num) {
+float LoadCellController::read_scale_coeff_from_persistent_memory(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
@@ -483,7 +483,7 @@ float LoadCellController::calculate_scale_coeff(
 }
 
 
-int LoadCellController::get_offset_adress(byte loadcell_num) {
+int LoadCellController::get_offset_eeprom_adress(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();
@@ -497,7 +497,7 @@ int LoadCellController::get_offset_adress(byte loadcell_num) {
     return 8 * (loadcell_num - 1);
 }
 
-int LoadCellController::get_scale_coeff_adress(byte loadcell_num) {
+int LoadCellController::get_scale_coeff_eeprom_adress(byte loadcell_num) {
     if (is_loadcell_num_in_range(loadcell_num) == false) {
         Serial.println();
         Serial.println();

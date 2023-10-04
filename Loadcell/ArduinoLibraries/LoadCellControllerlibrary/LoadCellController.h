@@ -72,6 +72,12 @@
  * @version 1.0.0
  */
 
+// Verify if the board is based on a ESP32 chip, like FireBeetle
+#define ESP_32 defined(ARDUINO_ARCH_ESP32)
+
+// Verify if the board is based on a Atmega328P chip, like Arduino Uno
+#define ATMEGA168 defined(__AVR_ATmega328P__)
+
 #ifndef LoadCellController_h
 #define LoadCellController_h
 #include <Arduino.h>
@@ -124,17 +130,17 @@ protected:
 
 
         /**
-        * @brief Easy function managing the saving of calibration parameters to EEPROM.
+        * @brief Easy function managing the saving of calibration parameters to persistent memory.
         *
         * This function is managing the possibilities that come with the saving of the tare offset 
         * and the scale coefficient of a LoadCell. It is meant to be used inside the member function
         * @ref easy_start_with_params().
         * 
         * @param loadcell_num Number of the LoadCell.
-        * @param save_offset Boolean telling if the offset should be saved to EEPROM.
-        * @param save_scale Boolean telling if the scale coefficient should be saved to EEPROM.
+        * @param save_offset Boolean telling if the offset should be saved to persistent memory.
+        * @param save_scale Boolean telling if the scale coefficient should be saved to persistent memory.
         */
-        void easy_save_to_eeprom_with_params(
+        void easy_save_to_persistent_memory_with_params(
                                 byte loadcell_num,
                                 bool save_offset,
                                 bool save_scale
@@ -144,18 +150,18 @@ protected:
         /**
         * @brief Easy function managing the reading of calibration from EEPROM.
         *
-        * This function is managing the possibilities that come with the reading from EEPROM of the tare offset 
-        * and the scale coefficient of a LoadCell. It is meant to be used inside the member function
-        * @ref easy_start_with_params().
+        * This function is managing the possibilities that come with the reading from persistent
+        * memory of the tare offset and the scale coefficient of a LoadCell. It is meant to be 
+        * used inside the member function @ref easy_start_with_params().
         * 
         * @param loadcell_num Number of the LoadCell.
-        * @param read_offset_eeprom Boolean telling if the offset should be read from EEPROM.
-        * @param read_scale_eeprom Boolean telling if the scale coefficient should be read from EEPROM.
+        * @param read_offset Boolean telling if the offset should be read from persistent memory.
+        * @param read_scale Boolean telling if the scale coefficient should be read from persistent memory.
         */
-        void easy_read_from_eeprom_with_params(
+        void easy_read_from_persistent_memory_with_params(
                                         byte loadcell_num,
-                                        bool read_offset_eeprom,
-                                        bool read_scale_eeprom
+                                        bool read_offset,
+                                        bool read_scale
                                         );
 
 
@@ -195,10 +201,10 @@ protected:
         * @param loadcell_num Number of the LoadCell.
         * @param calibrate_offset Boolean telling if the offset should be calibrated. Default is false.
         * @param calibrate_scale Boolean telling if the scale coefficient should be calibrated. Default is false.
-        * @param read_offset_eeprom Boolean telling if the offset should be read from EEPROM. Default is false.
-        * @param read_scale_eeprom Boolean telling if the scale coefficient should be read from EEPROM. Default is false.
-        * @param save_offset_eeprom Boolean telling if the offset should be saved to EEPROM. Default is false.
-        * @param save_scale_eeprom Boolean telling if the scale coefficient should be saved to EEPROM. Default is false.
+        * @param read_offset_persistent_memory Boolean telling if the offset should be read from persistent_memory. Default is false.
+        * @param read_scale_persistent_memory Boolean telling if the scale coefficient should be read from persistent_memory. Default is false.
+        * @param save_offset_persistent_memory Boolean telling if the offset should be saved to persistent_memory. Default is false.
+        * @param save_scale_persistent_memory Boolean telling if the scale coefficient should be saved to persistent_memory. Default is false.
         * @param tare_offset Value of the tare offset. Default is 0.
         * @details The @p tare_offset default is 0 and is considered as the absence of a value. If no value wants to be 
         * specified, 0 should be given to the member function.
@@ -210,10 +216,10 @@ protected:
                                 byte loadcell_num,
                                 bool calibrate_offset=false,
                                 bool calibrate_scale=false,
-                                bool read_offset_eeprom=false,
-                                bool read_scale_eeprom=false,
-                                bool save_offset_eeprom=false,
-                                bool save_scale_eeprom=false,
+                                bool read_offset_persistent_memory=false,
+                                bool read_scale_persistent_memory=false,
+                                bool save_offset_persistent_memory=false,
+                                bool save_scale_persistent_memory=false,
                                 float tare_offset=0,
                                 float scale_coeff=0
                                 );
@@ -262,10 +268,10 @@ public:
         * @param pd_sck Digital pin (or analog) connected to the SCK output of the HX711.
         * @param calibrate_offset Boolean telling if the offset should be calibrated. Default is false.
         * @param calibrate_scale Boolean telling if the scale coefficient should be calibrated. Default is false.
-        * @param read_offset_eeprom Boolean telling if the offset should be read from EEPROM. Default is false.
-        * @param read_scale_eeprom Boolean telling if the scale coefficient should be read from EEPROM. Default is false.
-        * @param save_offset_eeprom Boolean telling if the offset should be saved to EEPROM. Default is false.
-        * @param save_scale_eeprom Boolean telling if the scale coefficient should be saved to EEPROM. Default is false.
+        * @param read_offset_persistent_memory Boolean telling if the offset should be read from EEPROM. Default is false.
+        * @param read_scale_persistent_memory Boolean telling if the scale coefficient should be read from persistent_memory. Default is false.
+        * @param save_offset_persistent_memory Boolean telling if the offset should be saved to persistent memory. Default is false.
+        * @param save_scale_persistent_memory Boolean telling if the scale coefficient should be saved to persistent memory. Default is false.
         * @param tare_offset Value of the tare offset. Default is 0.
         * @param scale_coeff Value of the scale coefficient. Default is 0.
         * @param gain Gain of the HX711. Default is 128.
@@ -281,10 +287,10 @@ public:
                                 byte pd_sck,
                                 bool calibrate_offset=false,
                                 bool calibrate_scale=false,
-                                bool read_offset_eeprom=false,
-                                bool read_scale_eeprom=false,
-                                bool save_offset_eeprom=false,
-                                bool save_scale_eeprom=false,
+                                bool read_offset_persistent_memory=false,
+                                bool read_scale_persistent_memory=false,
+                                bool save_offset_persistent_memory=false,
+                                bool save_scale_persistent_memory=false,
                                 float tare_offset=0,
                                 float scale_coeff=0,
                                 byte gain=128
@@ -300,10 +306,10 @@ public:
         * 
         * @param loadcell_num Number of the LoadCell.
         */
-        void save_offset_eeprom(byte loadcell_num);
+        void save_offset_to_persistent_memory(byte loadcell_num);
 
         /**
-        * @brief Save the scale coefficient of a given LoadCell to EEPROM.
+        * @brief Save the scale coefficient of a given LoadCell to persistent memory.
         *
         * This function saves the scale coefficient member variable of a LoadCell, which was added to
         * the controller with the member function @ref add_loadcell(). The EEPROM adress is 
@@ -312,7 +318,7 @@ public:
         * 
         * @param loadcell_num Number of the LoadCell.
         */
-        void save_scale_coeff_eeprom(byte loadcell_num);
+        void save_scale_coeff_to_persistent_memory(byte loadcell_num);
 
         /**
         * @brief Save the offset of a given LoadCell to EEPROM.
@@ -327,7 +333,7 @@ public:
         * @param loadcell_num Number of the LoadCell.
         * @return The offset of the given LoadCell obtained from EEPROM.
         */
-        long read_offset_from_eeprom(byte loadcell_num);
+        long read_offset_from_persistent_memory(byte loadcell_num);
 
         /**
         * @brief Save the scale coefficient of a given LoadCell to EEPROM.
@@ -342,7 +348,7 @@ public:
         * @param loadcell_num Number of the LoadCell.
         * @return The scale coefficient of the given LoadCell obtained from EEPROM.
         */
-        float read_scale_coeff_from_eeprom(byte loadcell_num);
+        float read_scale_coeff_from_persistent_memory(byte loadcell_num);
 
         /**
         * @brief Proceed to the calibration of both parameters and set them for a LoadCell.
@@ -442,7 +448,7 @@ public:
         * @note The EEPROM addresses are spaced along the EEPROM to prevent overlap
  *       between neighboring values.
         */
-        int get_offset_adress(byte loadcell_num);
+        int get_offset_eeprom_adress(byte loadcell_num);
 
 
         /**
@@ -458,7 +464,7 @@ public:
         * @note The EEPROM addresses are spaced along the EEPROM to prevent overlap
         * between neighboring values.
         */
-        int get_scale_coeff_adress(byte loadcell_num); 
+        int get_scale_coeff_eeprom_adress(byte loadcell_num); 
 
 
         /**
