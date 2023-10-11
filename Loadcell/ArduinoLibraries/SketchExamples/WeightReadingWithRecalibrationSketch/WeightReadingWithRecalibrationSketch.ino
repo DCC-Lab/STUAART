@@ -22,7 +22,7 @@ LoadCell loadcell_1;
 LoadCellController controller;
 
 //// FILE
-const bool file_writing = true;
+const bool file_writing = false;
 const char file_name[50] = "20231808.csv";
 File myFile;
 
@@ -46,19 +46,19 @@ void setup() {
   controller.set_all_loadcells_weight_n_readings(20);
   controller.easy_start_with_params(
                                     1,         // loadcell_number
-                                    8,         // dout pin
-                                    9,         // sck pin
+                                    2,         // dout pin
+                                    3,         // sck pin
                                     false,      // calibrate offset
                                     false,      // calibrate scale
                                     false,     // read offset eeprom
-                                    true,     // read scale eeprom
+                                    false,     // read scale eeprom
                                     true,      // save offset eeprom
-                                    false,      // save scale eeprom
+                                    true,      // save scale eeprom
                                     0,         // tare offset
                                     0,         // scale coeff
                                     128        // gain
                                  );
-  write_file_heading();
+  // write_file_heading();
   Serial.print("Tare ...");
   controller.tare(1);
   Serial.println("done.");
