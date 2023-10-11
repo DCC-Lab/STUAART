@@ -71,18 +71,21 @@
  * @date August 14, 2023
  * @version 1.0.0
  */
-
-// Verify if the board is based on a ESP32 chip, like FireBeetle
-#define ESP_32 defined(ARDUINO_ARCH_ESP32)
-
-// Verify if the board is based on a Atmega328P chip, like Arduino Uno
-#define ATMEGA168 defined(__AVR_ATmega328P__)
-
 #ifndef LoadCellController_h
 #define LoadCellController_h
 #include <Arduino.h>
 #include "HX711.h"
 #include "LoadCell.h"
+
+// Verify if the board is based on a ESP32 chip, like FireBeetle
+#if defined(ARDUINO_ARCH_ESP32)
+#include "FS.h"
+#include "SPIFFS.h"
+// Verify if the board is based on a Atmega328P chip, like Arduino Uno
+#elif defined(__AVR_ATmega328P__)
+#include <EEPROM.h>
+#endif
+
 
 class LoadCellController {
 protected:
@@ -107,6 +110,19 @@ protected:
         */
         int n_loadcell = 0;
 
+        /**
+        * @var char offset_file_name
+        * @brief Name of the SPIFFS file where the offset value is stored.
+        * 
+        */
+        const char* offset_file_name = "/offset.txt";
+
+        /**
+        * @var char scale_coeff_file_name
+        * @brief Name of the SPIFFS file where the scale coefficient value is stored.
+        * 
+        */
+        const char* scale_coeff_file_name = "/scale_coeff.txt";
 
         /**
         * @brief Easy function managing the calibration of a LoadCell.

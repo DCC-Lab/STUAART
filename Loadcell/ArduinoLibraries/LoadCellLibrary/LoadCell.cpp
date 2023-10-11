@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "LoadCell.h"
 #include <SPI.h>
-#include <SD.h>
 
 // TEENSYDUINO has a port of Dean Camera's ATOMIC_BLOCK macros for AVR to ARM Cortex M3.
 #define HAS_ATOMIC_BLOCK (defined(ARDUINO_ARCH_AVR) || defined(TEENSYDUINO))
@@ -27,28 +26,28 @@
 #endif
 
 #if FAST_CPU
-// Make shiftIn() be aware of clockspeed for
-// faster CPUs like ESP32, Teensy 3.x and friends.
-// See also:
-// - https://github.com/bogde/HX711/issues/75
-// - https://github.com/arduino/Arduino/issues/6561
-// - https://community.hiveeyes.org/t/using-bogdans-canonical-hx711-library-on-the-esp32/539
-uint8_t shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
-    uint8_t value = 0;
-    uint8_t i;
+// // Make shiftIn() be aware of clockspeed for
+// // faster CPUs like ESP32, Teensy 3.x and friends.
+// // See also:
+// // - https://github.com/bogde/HX711/issues/75
+// // - https://github.com/arduino/Arduino/issues/6561
+// // - https://community.hiveeyes.org/t/using-bogdans-canonical-hx711-library-on-the-esp32/539
+// uint8_t shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
+//     uint8_t value = 0;
+//     uint8_t i;
 
-    for(i = 0; i < 8; ++i) {
-        digitalWrite(clockPin, HIGH);
-        delayMicroseconds(1);
-        if(bitOrder == LSBFIRST)
-            value |= digitalRead(dataPin) << i;
-        else
-            value |= digitalRead(dataPin) << (7 - i);
-        digitalWrite(clockPin, LOW);
-        delayMicroseconds(1);
-    }
-    return value;
-}
+//     for(i = 0; i < 8; ++i) {
+//         digitalWrite(clockPin, HIGH);
+//         delayMicroseconds(1);
+//         if(bitOrder == LSBFIRST)
+//             value |= digitalRead(dataPin) << i;
+//         else
+//             value |= digitalRead(dataPin) << (7 - i);
+//         digitalWrite(clockPin, LOW);
+//         delayMicroseconds(1);
+//     }
+//     return value;
+// }
 #define SHIFTIN_WITH_SPEED_SUPPORT(data,clock,order) shiftInSlow(data,clock,order)
 #else
 #define SHIFTIN_WITH_SPEED_SUPPORT(data,clock,order) shiftIn(data,clock,order)
