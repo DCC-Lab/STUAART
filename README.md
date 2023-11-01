@@ -91,3 +91,25 @@ void loop() {
   Serial.println(reading);
 }
 ```
+
+## How to generate documentation with Doxygen
+
+First of all, you need to download Doxygen and LaTex on your computer.
+
+After that, you need to open a terminal where your code is stored to generate a Doxyfile. Run the following command
+```console
+doxygen -g
+```
+Next, you can open the generated Doxyfile in your folder to change the RECURSIVE parameter. Set it to YES. This way dpxygen will search are code files that are inside the current repository to generate your documentation.
+Alternatively, you can also specify sub-folder path at the INPUT parameter in the Doxyfile.
+
+Now, with the Doxyfile, you can generate html and latex folders with the following command
+```console
+doxygen Doxyfile
+```
+You will see the html and latex folders appear in the folder where the Doxyfile is. If you open the index.html file in the html folder, you'll be accessible to see the documentation on your web browser.
+You can also generate a pdf of the documentation using the latex folder. Open a new terminal in this folder and run the following command
+```console
+pdflatex refman.tex
+```
+This will generate a file named refman.pdf in the latex folder, it is the documentation. You can rename and move this file.
