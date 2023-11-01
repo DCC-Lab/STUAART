@@ -131,7 +131,7 @@ void LoadCellController::easy_save_to_persistent_memory_with_params(
         save_offset_to_persistent_memory(loadcell_num);
         save_scale_coeff_to_persistent_memory(loadcell_num);
         Serial.println(F("---------***---------"));
-        Serial.println(F("Offset and scale coefficient saved to EEPROM."));
+        Serial.println(F("Offset and scale coefficient saved to persistent memory."));
         Serial.print(F("Offset: "));
         Serial.println(loadcell_ptr->get_offset());
         Serial.print(F("Scale coefficient: "));
@@ -141,7 +141,7 @@ void LoadCellController::easy_save_to_persistent_memory_with_params(
     {
         save_offset_to_persistent_memory(loadcell_num);
         Serial.println(F("---------***---------"));
-        Serial.println(F("Offset saved to EEPROM."));
+        Serial.println(F("Offset saved to persistent memory."));
         Serial.print(F("Offset: "));
         Serial.println(loadcell_ptr->get_offset());
     }
@@ -149,7 +149,7 @@ void LoadCellController::easy_save_to_persistent_memory_with_params(
     {
         save_scale_coeff_to_persistent_memory(loadcell_num);
         Serial.println(F("---------***---------"));
-        Serial.println(F("Scale coefficient saved to EEPROM."));
+        Serial.println(F("Scale coefficient saved to persistent memory."));
         Serial.print(F("Scale coefficient: "));
         Serial.println(loadcell_ptr->get_scale());
     }
@@ -268,7 +268,7 @@ void LoadCellController::save_offset_to_persistent_memory(byte loadcell_num)
             Serial.println();
             Serial.println();
             Serial.println();
-            Serial.print(F("ERROR 1 save_offset_persistent_memory(byte loadcell_num): loadcell number "));
+            Serial.print(F("ERROR 1 save_offset_persistent_to_memory(byte loadcell_num): loadcell number "));
             Serial.print(loadcell_num);
             Serial.println(F(" is out of range."));
             while (1)
@@ -288,28 +288,32 @@ void LoadCellController::save_offset_to_persistent_memory(byte loadcell_num)
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 save_offset_persistent_memory(byte loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 save_offset_to_persistent_memory(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while (1)
             ;
     }
-
+    if(!SPIFFS.begin()){
+        Serial.println(F("SPIFFS Mount Failed"));
+        while(1);
+    }
     LoadCell *loadcell_ptr = loadcells[loadcell_num - 1];
     // since loadcell.get_offset() returns an int, it needs to be converted to long before saving to SPIFFS
     long offset = loadcell_ptr->get_offset();
     char buffer[15];
     // Convert offset (long) to char array before saving it
     dtostrf(offset, 6, 0, buffer);
-    File file = SPIFFS.open(offset_file_name, FILE_WRITE);
+    File file = SPIFFS.open(get_offset_file_name(loadcell_num).c_str(), FILE_WRITE);
     if(!file){
-        Serial.println("- failed to open file for writing");
+        Serial.println(F("failed to open file for writing"));
         return;
     }
-    if(file.print(buffer)){
-        Serial.println("- file written");
+    const char *buffer_ptr = buffer;
+    if(file.print(buffer_ptr)){
+        Serial.println(F("offset saved to memory"));
     } else {
-            Serial.println("- write failed");
+            Serial.println(F("failed to saved offset to memory"));
         }
     file.close();
 }
@@ -323,7 +327,7 @@ void LoadCellController::save_scale_coeff_to_persistent_memory(byte loadcell_num
             Serial.println();
             Serial.println();
             Serial.println();
-            Serial.print(F("ERROR 1 save_scale_eeprom(byte loadcell_num): loadcell number "));
+            Serial.print(F("ERROR 1 save_scale_coeff_to_persistent_memory(byte loadcell_num): loadcell number "));
             Serial.print(loadcell_num);
             Serial.println(F(" is out of range."));
             while (1)
@@ -340,17 +344,20 @@ void LoadCellController::save_scale_coeff_to_persistent_memory(byte loadcell_num
 void LoadCellController::save_scale_coeff_to_persistent_memory(byte loadcell_num)
 {
     if (is_loadcell_num_in_range(loadcell_num) == false)
-        {
+    {
             Serial.println();
             Serial.println();
             Serial.println();
-            Serial.print(F("ERROR 1 save_scale_eeprom(byte loadcell_num): loadcell number "));
+            Serial.print(F("ERROR 1 save_scale_coeff_to_persistent_memory(byte loadcell_num): loadcell number "));
             Serial.print(loadcell_num);
             Serial.println(F(" is out of range."));
             while (1)
                 ;
-        }
-    
+    }
+    if(!SPIFFS.begin()){
+        Serial.println(F("SPIFFS Mount Failed"));
+        return;
+    }
     LoadCell *loadcell_ptr = loadcells[loadcell_num - 1];
     // since loadcell.get_offset() returns an float, it needs to be converted to double before calling EEPROM.put()
     double scale = loadcell_ptr->get_scale();
@@ -358,16 +365,17 @@ void LoadCellController::save_scale_coeff_to_persistent_memory(byte loadcell_num
     char buffer[15];
     // Convert offset (long) to char array before saving it
     dtostrf(scale, 6, 2, buffer);
-
-    File file = SPIFFS.open(offset_file_name, FILE_WRITE);
+    
+    File file = SPIFFS.open(get_scale_coeff_file_name(loadcell_num).c_str(), FILE_WRITE);
     if(!file){
-        Serial.println("- failed to open file for writing");
-        return;
+        Serial.println(F("failed to open file for writing"));
+        while(1);
     }
-    if(file.print(buffer)){
-        Serial.println("- file written");
+    const char *buffer_ptr = buffer;
+    if(file.print(buffer_ptr)){
+        Serial.println(F("file written"));
     } else {
-        Serial.println("- write failed");
+        Serial.println(F("failed to save scale coefficient to memory"));
     }
     file.close();
 }
@@ -381,7 +389,7 @@ long LoadCellController::read_offset_from_persistent_memory(byte loadcell_num)
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 read_offset_from_eeprom(byte loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 read_offset_from_persistent_memory(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while (1)
@@ -399,20 +407,23 @@ long LoadCellController::read_offset_from_persistent_memory(byte loadcell_num)
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 read_offset_from_eeprom(byte loadcell_num): loadcell number "));
+        Serial.print(F("ERROR 1 read_offset_from_persistent_memory(byte loadcell_num): loadcell number "));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while (1)
             ;
     }
-    SPIFFS.begin();
-    File file = SPIFFS.open(offset_file_name);
+    if(!SPIFFS.begin()){
+        Serial.println(F("SPIFFS Mount Failed"));
+        while(1);
+    }
+    File file = SPIFFS.open(get_offset_file_name(loadcell_num).c_str());
     if(!file || file.isDirectory()){
-        Serial.println("- failed to open file for reading");
+        Serial.println(F("failed to read offset from memory"));
         while(1);
     }
     long offset;
-    Serial.println("- read from file:");
+    // Serial.println("- read from file:");
     while(file.available()){
         offset = file.readStringUntil('\n').toInt();
     }
@@ -429,7 +440,7 @@ float LoadCellController::read_scale_coeff_from_persistent_memory(byte loadcell_
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 read_of_scale_from_eeprom(byte loadcell_num): loadcell number ."));
+        Serial.print(F("ERROR 1 read_scale_coeff_from_persistent_memory(byte loadcell_num): loadcell number ."));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while (1)
@@ -448,19 +459,24 @@ float LoadCellController::read_scale_coeff_from_persistent_memory(byte loadcell_
         Serial.println();
         Serial.println();
         Serial.println();
-        Serial.print(F("ERROR 1 read_of_scale_from_eeprom(byte loadcell_num): loadcell number ."));
+        Serial.print(F("ERROR 1 read_scale_coeff_from_persistent_memory(byte loadcell_num): loadcell number ."));
         Serial.print(loadcell_num);
         Serial.println(F(" is out of range."));
         while (1)
             ;
     }
-    File file = SPIFFS.open(scale_coeff_file_name);
+    if(!SPIFFS.begin()){
+        Serial.println(F("SPIFFS Mount Failed"));
+        while(1);
+    }
+
+    File file = SPIFFS.open(get_scale_coeff_file_name(loadcell_num).c_str());
     if(!file || file.isDirectory()){
-        Serial.println("- failed to open file for reading");
+        Serial.println(F("failed to read scale coefficient from memory"));
         while(1);
     }
     float scale;
-    Serial.println("- read from file:");
+    // Serial.println("- read from file:");
     while(file.available()){
         scale = file.readStringUntil('\n').toFloat();
     }
@@ -702,6 +718,20 @@ int LoadCellController::get_scale_coeff_eeprom_adress(byte loadcell_num)
     }
 
     return 8 * (loadcell_num - 1) + 4;
+}
+
+String LoadCellController::get_offset_file_name(byte loadcell_num)
+{
+    char fileName[30];
+    snprintf(fileName, 30, "/offset%i.txt", loadcell_num);
+    return String(fileName);
+}
+
+String LoadCellController::get_scale_coeff_file_name(byte loadcell_num)
+{
+    char fileName[30];
+    snprintf(fileName, 30, "/scale_coeff%i.txt", loadcell_num);
+    return String(fileName);
 }
 
 float LoadCellController::get_offset(byte loadcell_num)

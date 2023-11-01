@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['loadcell_20and_20loadcellcontroller_20libraries_20for_20arduino_0',['LoadCell and LoadCellController libraries for Arduino',['../index.html',1,'']]]
+  ['drift_20correction_20sketch_0',['Drift correction sketch',['../md__sketch_examples_2_weight_reading_with_recalibration_sketch_2_r_e_a_d_m_e.html',1,'']]]
 ];

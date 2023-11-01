@@ -42,14 +42,14 @@ void setup() {
   Serial.begin(115200);
   controller.add_loadcell(loadcell_1);
   controller.set_all_loadcells_scale_coeff_n_readings(50);
-  controller.set_all_loadcells_tare_n_readings(50);
-  controller.set_all_loadcells_weight_n_readings(20);
+  controller.set_all_loadcells_tare_n_readings(20);
+  controller.set_all_loadcells_weight_n_readings(10);
   controller.easy_start_with_params(
                                     1,         // loadcell_number
-                                    2,         // dout pin
-                                    3,         // sck pin
-                                    false,      // calibrate offset
-                                    false,      // calibrate scale
+                                    D4,         // dout pin
+                                    D2,         // sck pin
+                                    true,      // calibrate offset
+                                    true,      // calibrate scale
                                     false,     // read offset eeprom
                                     false,     // read scale eeprom
                                     true,      // save offset eeprom
@@ -59,9 +59,9 @@ void setup() {
                                     128        // gain
                                  );
   // write_file_heading();
-  Serial.print("Tare ...");
-  controller.tare(1);
-  Serial.println("done.");
+  // Serial.print("Tare ...");
+  // controller.tare(1);
+  // Serial.println("done.");
 }
 
 void loop() {
