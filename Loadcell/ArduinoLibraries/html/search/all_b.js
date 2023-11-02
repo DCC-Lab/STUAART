@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['save_5foffset_5feeprom_0',['save_offset_eeprom',['../class_load_cell_controller.html#a7bd11dcde93be204e5ff1c29fdcf6009',1,'LoadCellController']]],
-  ['save_5fscale_5fcoeff_5feeprom_1',['save_scale_coeff_eeprom',['../class_load_cell_controller.html#a7becc334c51d732833e24d7dead112af',1,'LoadCellController']]],
+  ['save_5foffset_5fto_5fpersistent_5fmemory_0',['save_offset_to_persistent_memory',['../class_load_cell_controller.html#a88b7f069dbd60454cd8c40636e5c697a',1,'LoadCellController']]],
+  ['save_5fscale_5fcoeff_5fto_5fpersistent_5fmemory_1',['save_scale_coeff_to_persistent_memory',['../class_load_cell_controller.html#a4a9a463212eeb0d577562eac99b01aa7',1,'LoadCellController']]],
   ['scale_5fcoeff_5fn_5freadings_2',['scale_coeff_n_readings',['../class_load_cell.html#ab09b66dfec4b114b88a22718edc97acc',1,'LoadCell']]],
   ['set_5fall_5floadcells_5fscale_5fcoeff_5fn_5freadings_3',['set_all_loadcells_scale_coeff_n_readings',['../group___load_cell.html#gad94259d5b2dd994ac1103ab26683bda3',1,'LoadCellController']]],
   ['set_5fall_5floadcells_5ftare_5fn_5freadings_4',['set_all_loadcells_tare_n_readings',['../group___load_cell.html#ga449f51749d5e27ee19b31a6c70c36c7d',1,'LoadCellController']]],

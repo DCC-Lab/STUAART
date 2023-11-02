@@ -22,7 +22,7 @@ LoadCell loadcell_1;
 LoadCellController controller;
 
 //// FILE
-const bool file_writing = true;
+const bool file_writing = false;
 const char file_name[50] = "20231808.csv";
 File myFile;
 
@@ -42,26 +42,26 @@ void setup() {
   Serial.begin(115200);
   controller.add_loadcell(loadcell_1);
   controller.set_all_loadcells_scale_coeff_n_readings(50);
-  controller.set_all_loadcells_tare_n_readings(50);
-  controller.set_all_loadcells_weight_n_readings(20);
+  controller.set_all_loadcells_tare_n_readings(20);
+  controller.set_all_loadcells_weight_n_readings(10);
   controller.easy_start_with_params(
                                     1,         // loadcell_number
-                                    8,         // dout pin
-                                    9,         // sck pin
-                                    false,      // calibrate offset
-                                    false,      // calibrate scale
+                                    D4,         // dout pin
+                                    D2,         // sck pin
+                                    true,      // calibrate offset
+                                    true,      // calibrate scale
                                     false,     // read offset eeprom
-                                    true,     // read scale eeprom
+                                    false,     // read scale eeprom
                                     true,      // save offset eeprom
-                                    false,      // save scale eeprom
+                                    true,      // save scale eeprom
                                     0,         // tare offset
                                     0,         // scale coeff
                                     128        // gain
                                  );
-  write_file_heading();
-  Serial.print("Tare ...");
-  controller.tare(1);
-  Serial.println("done.");
+  // write_file_heading();
+  // Serial.print("Tare ...");
+  // controller.tare(1);
+  // Serial.println("done.");
 }
 
 void loop() {

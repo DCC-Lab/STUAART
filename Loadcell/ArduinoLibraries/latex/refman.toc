@@ -1,89 +1,92 @@
 \@ifundefined {etoctocstyle}{\let \etoc@startlocaltoc \@gobble \let \etoc@settocdepth \@gobble \let \etoc@depthtag \@gobble \let \etoc@setlocaltop \@gobble }{}
 \contentsline {chapter}{\numberline {1}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell and Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Controller libraries for Arduino}{1}{chapter.1}%
-\contentsline {chapter}{\numberline {2}Todo List}{3}{chapter.2}%
-\contentsline {chapter}{\numberline {3}Module Index}{5}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Modules}{5}{section.3.1}%
-\contentsline {chapter}{\numberline {4}Hierarchical Index}{7}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Class Hierarchy}{7}{section.4.1}%
-\contentsline {chapter}{\numberline {5}Class Index}{9}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Class List}{9}{section.5.1}%
-\contentsline {chapter}{\numberline {6}File Index}{11}{chapter.6}%
-\contentsline {section}{\numberline {6.1}File List}{11}{section.6.1}%
-\contentsline {chapter}{\numberline {7}Module Documentation}{13}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell functions for Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Controller}{13}{section.7.1}%
-\contentsline {subsection}{\numberline {7.1.1}Detailed Description}{14}{subsection.7.1.1}%
-\contentsline {subsection}{\numberline {7.1.2}Function Documentation}{14}{subsection.7.1.2}%
-\contentsline {subsubsection}{\numberline {7.1.2.1}begin()}{14}{subsubsection.7.1.2.1}%
-\contentsline {subsubsection}{\numberline {7.1.2.2}get\_offset()}{15}{subsubsection.7.1.2.2}%
-\contentsline {subsubsection}{\numberline {7.1.2.3}get\_raw\_value()}{15}{subsubsection.7.1.2.3}%
-\contentsline {subsubsection}{\numberline {7.1.2.4}get\_scale()}{15}{subsubsection.7.1.2.4}%
-\contentsline {subsubsection}{\numberline {7.1.2.5}get\_scale\_coeff\_n\_readings()}{16}{subsubsection.7.1.2.5}%
-\contentsline {subsubsection}{\numberline {7.1.2.6}get\_tare\_n\_readings()}{16}{subsubsection.7.1.2.6}%
-\contentsline {subsubsection}{\numberline {7.1.2.7}get\_weight()}{17}{subsubsection.7.1.2.7}%
-\contentsline {subsubsection}{\numberline {7.1.2.8}get\_weight\_n\_readings()}{17}{subsubsection.7.1.2.8}%
-\contentsline {subsubsection}{\numberline {7.1.2.9}is\_ready()}{17}{subsubsection.7.1.2.9}%
-\contentsline {subsubsection}{\numberline {7.1.2.10}power\_down()}{18}{subsubsection.7.1.2.10}%
-\contentsline {subsubsection}{\numberline {7.1.2.11}power\_up()}{18}{subsubsection.7.1.2.11}%
-\contentsline {subsubsection}{\numberline {7.1.2.12}read\_raw\_average()}{18}{subsubsection.7.1.2.12}%
-\contentsline {subsubsection}{\numberline {7.1.2.13}read\_scale\_coeff\_average()}{19}{subsubsection.7.1.2.13}%
-\contentsline {subsubsection}{\numberline {7.1.2.14}read\_tare\_average()}{19}{subsubsection.7.1.2.14}%
-\contentsline {subsubsection}{\numberline {7.1.2.15}set\_all\_loadcells\_scale\_coeff\_n\_readings()}{19}{subsubsection.7.1.2.15}%
-\contentsline {subsubsection}{\numberline {7.1.2.16}set\_all\_loadcells\_tare\_n\_readings()}{20}{subsubsection.7.1.2.16}%
-\contentsline {subsubsection}{\numberline {7.1.2.17}set\_all\_loadcells\_weight\_n\_readings()}{20}{subsubsection.7.1.2.17}%
-\contentsline {subsubsection}{\numberline {7.1.2.18}set\_offset()}{20}{subsubsection.7.1.2.18}%
-\contentsline {subsubsection}{\numberline {7.1.2.19}set\_scale()}{21}{subsubsection.7.1.2.19}%
-\contentsline {subsubsection}{\numberline {7.1.2.20}set\_scale\_coeff\_n\_readings()}{21}{subsubsection.7.1.2.20}%
-\contentsline {subsubsection}{\numberline {7.1.2.21}set\_tare\_n\_readings()}{21}{subsubsection.7.1.2.21}%
-\contentsline {subsubsection}{\numberline {7.1.2.22}set\_weight\_n\_readings()}{22}{subsubsection.7.1.2.22}%
-\contentsline {subsubsection}{\numberline {7.1.2.23}tare()}{22}{subsubsection.7.1.2.23}%
-\contentsline {subsubsection}{\numberline {7.1.2.24}wait\_ready()}{22}{subsubsection.7.1.2.24}%
-\contentsline {subsubsection}{\numberline {7.1.2.25}wait\_ready\_retry()}{23}{subsubsection.7.1.2.25}%
-\contentsline {subsubsection}{\numberline {7.1.2.26}wait\_ready\_timeout()}{23}{subsubsection.7.1.2.26}%
-\contentsline {chapter}{\numberline {8}Class Documentation}{25}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell Class Reference}{25}{section.8.1}%
-\contentsline {subsection}{\numberline {8.1.1}Detailed Description}{26}{subsection.8.1.1}%
-\contentsline {subsection}{\numberline {8.1.2}Member Function Documentation}{27}{subsection.8.1.2}%
-\contentsline {subsubsection}{\numberline {8.1.2.1}get\_raw\_value()}{27}{subsubsection.8.1.2.1}%
-\contentsline {subsubsection}{\numberline {8.1.2.2}get\_scale\_coeff\_n\_readings()}{27}{subsubsection.8.1.2.2}%
-\contentsline {subsubsection}{\numberline {8.1.2.3}get\_tare\_n\_readings()}{27}{subsubsection.8.1.2.3}%
-\contentsline {subsubsection}{\numberline {8.1.2.4}get\_weight()}{27}{subsubsection.8.1.2.4}%
-\contentsline {subsubsection}{\numberline {8.1.2.5}get\_weight\_n\_readings()}{28}{subsubsection.8.1.2.5}%
-\contentsline {subsubsection}{\numberline {8.1.2.6}read\_raw\_average()}{28}{subsubsection.8.1.2.6}%
-\contentsline {subsubsection}{\numberline {8.1.2.7}read\_scale\_coeff\_average()}{28}{subsubsection.8.1.2.7}%
-\contentsline {subsubsection}{\numberline {8.1.2.8}read\_tare\_average()}{28}{subsubsection.8.1.2.8}%
-\contentsline {subsubsection}{\numberline {8.1.2.9}set\_scale\_coeff\_n\_readings()}{28}{subsubsection.8.1.2.9}%
-\contentsline {subsubsection}{\numberline {8.1.2.10}set\_tare\_n\_readings()}{29}{subsubsection.8.1.2.10}%
-\contentsline {subsubsection}{\numberline {8.1.2.11}set\_weight\_n\_readings()}{29}{subsubsection.8.1.2.11}%
-\contentsline {subsubsection}{\numberline {8.1.2.12}tare()}{29}{subsubsection.8.1.2.12}%
-\contentsline {section}{\numberline {8.2}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Controller Class Reference}{30}{section.8.2}%
-\contentsline {subsection}{\numberline {8.2.1}Detailed Description}{32}{subsection.8.2.1}%
-\contentsline {subsection}{\numberline {8.2.2}Member Function Documentation}{33}{subsection.8.2.2}%
-\contentsline {subsubsection}{\numberline {8.2.2.1}add\_loadcell()}{33}{subsubsection.8.2.2.1}%
-\contentsline {subsubsection}{\numberline {8.2.2.2}calibrate\_both\_params()}{34}{subsubsection.8.2.2.2}%
-\contentsline {subsubsection}{\numberline {8.2.2.3}calibrate\_scale\_coeff()}{34}{subsubsection.8.2.2.3}%
-\contentsline {subsubsection}{\numberline {8.2.2.4}calibrate\_tare\_offset()}{34}{subsubsection.8.2.2.4}%
-\contentsline {subsubsection}{\numberline {8.2.2.5}clear\_eeprom()}{35}{subsubsection.8.2.2.5}%
-\contentsline {subsubsection}{\numberline {8.2.2.6}determine\_offset()}{35}{subsubsection.8.2.2.6}%
-\contentsline {subsubsection}{\numberline {8.2.2.7}determine\_scale\_coeff()}{35}{subsubsection.8.2.2.7}%
-\contentsline {subsubsection}{\numberline {8.2.2.8}easy\_calibration\_with\_params()}{36}{subsubsection.8.2.2.8}%
-\contentsline {subsubsection}{\numberline {8.2.2.9}easy\_handle\_exceptions()}{36}{subsubsection.8.2.2.9}%
-\contentsline {subsubsection}{\numberline {8.2.2.10}easy\_read\_from\_eeprom\_with\_params()}{37}{subsubsection.8.2.2.10}%
-\contentsline {subsubsection}{\numberline {8.2.2.11}easy\_save\_to\_eeprom\_with\_params()}{38}{subsubsection.8.2.2.11}%
-\contentsline {subsubsection}{\numberline {8.2.2.12}easy\_start\_with\_params()}{38}{subsubsection.8.2.2.12}%
-\contentsline {subsubsection}{\numberline {8.2.2.13}easy\_start\_with\_questions()}{39}{subsubsection.8.2.2.13}%
-\contentsline {subsubsection}{\numberline {8.2.2.14}get\_offset\_adress()}{39}{subsubsection.8.2.2.14}%
-\contentsline {subsubsection}{\numberline {8.2.2.15}get\_scale\_coeff\_adress()}{40}{subsubsection.8.2.2.15}%
-\contentsline {subsubsection}{\numberline {8.2.2.16}is\_loadcell\_num\_in\_range()}{40}{subsubsection.8.2.2.16}%
-\contentsline {subsubsection}{\numberline {8.2.2.17}number\_of\_loadcells()}{41}{subsubsection.8.2.2.17}%
-\contentsline {subsubsection}{\numberline {8.2.2.18}read\_offset\_from\_eeprom()}{41}{subsubsection.8.2.2.18}%
-\contentsline {subsubsection}{\numberline {8.2.2.19}read\_scale\_coeff\_from\_eeprom()}{41}{subsubsection.8.2.2.19}%
-\contentsline {subsubsection}{\numberline {8.2.2.20}save\_offset\_eeprom()}{42}{subsubsection.8.2.2.20}%
-\contentsline {subsubsection}{\numberline {8.2.2.21}save\_scale\_coeff\_eeprom()}{42}{subsubsection.8.2.2.21}%
-\contentsline {subsection}{\numberline {8.2.3}Member Data Documentation}{42}{subsection.8.2.3}%
-\contentsline {subsubsection}{\numberline {8.2.3.1}loadcells}{42}{subsubsection.8.2.3.1}%
-\contentsline {subsubsection}{\numberline {8.2.3.2}n\_loadcell}{43}{subsubsection.8.2.3.2}%
-\contentsline {chapter}{\numberline {9}File Documentation}{45}{chapter.9}%
-\contentsline {section}{\numberline {9.1}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Controllerlibrary/\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Controller.h File Reference}{45}{section.9.1}%
-\contentsline {section}{\numberline {9.2}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Controller.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}h}{45}{section.9.2}%
-\contentsline {section}{\numberline {9.3}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Library/\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell.h File Reference}{48}{section.9.3}%
-\contentsline {section}{\numberline {9.4}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}h}{48}{section.9.4}%
+\contentsline {chapter}{\numberline {2}Drift correction sketch}{3}{chapter.2}%
+\contentsline {chapter}{\numberline {3}Todo List}{5}{chapter.3}%
+\contentsline {chapter}{\numberline {4}Module Index}{7}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Modules}{7}{section.4.1}%
+\contentsline {chapter}{\numberline {5}Hierarchical Index}{9}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Class Hierarchy}{9}{section.5.1}%
+\contentsline {chapter}{\numberline {6}Class Index}{11}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Class List}{11}{section.6.1}%
+\contentsline {chapter}{\numberline {7}File Index}{13}{chapter.7}%
+\contentsline {section}{\numberline {7.1}File List}{13}{section.7.1}%
+\contentsline {chapter}{\numberline {8}Module Documentation}{15}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell functions for Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Controller}{15}{section.8.1}%
+\contentsline {subsection}{\numberline {8.1.1}Detailed Description}{16}{subsection.8.1.1}%
+\contentsline {subsection}{\numberline {8.1.2}Function Documentation}{16}{subsection.8.1.2}%
+\contentsline {subsubsection}{\numberline {8.1.2.1}begin()}{16}{subsubsection.8.1.2.1}%
+\contentsline {subsubsection}{\numberline {8.1.2.2}get\_offset()}{17}{subsubsection.8.1.2.2}%
+\contentsline {subsubsection}{\numberline {8.1.2.3}get\_raw\_value()}{17}{subsubsection.8.1.2.3}%
+\contentsline {subsubsection}{\numberline {8.1.2.4}get\_scale()}{17}{subsubsection.8.1.2.4}%
+\contentsline {subsubsection}{\numberline {8.1.2.5}get\_scale\_coeff\_n\_readings()}{18}{subsubsection.8.1.2.5}%
+\contentsline {subsubsection}{\numberline {8.1.2.6}get\_tare\_n\_readings()}{18}{subsubsection.8.1.2.6}%
+\contentsline {subsubsection}{\numberline {8.1.2.7}get\_weight()}{19}{subsubsection.8.1.2.7}%
+\contentsline {subsubsection}{\numberline {8.1.2.8}get\_weight\_n\_readings()}{19}{subsubsection.8.1.2.8}%
+\contentsline {subsubsection}{\numberline {8.1.2.9}is\_ready()}{19}{subsubsection.8.1.2.9}%
+\contentsline {subsubsection}{\numberline {8.1.2.10}power\_down()}{20}{subsubsection.8.1.2.10}%
+\contentsline {subsubsection}{\numberline {8.1.2.11}power\_up()}{20}{subsubsection.8.1.2.11}%
+\contentsline {subsubsection}{\numberline {8.1.2.12}read\_raw\_average()}{20}{subsubsection.8.1.2.12}%
+\contentsline {subsubsection}{\numberline {8.1.2.13}read\_scale\_coeff\_average()}{21}{subsubsection.8.1.2.13}%
+\contentsline {subsubsection}{\numberline {8.1.2.14}read\_tare\_average()}{21}{subsubsection.8.1.2.14}%
+\contentsline {subsubsection}{\numberline {8.1.2.15}set\_all\_loadcells\_scale\_coeff\_n\_readings()}{21}{subsubsection.8.1.2.15}%
+\contentsline {subsubsection}{\numberline {8.1.2.16}set\_all\_loadcells\_tare\_n\_readings()}{22}{subsubsection.8.1.2.16}%
+\contentsline {subsubsection}{\numberline {8.1.2.17}set\_all\_loadcells\_weight\_n\_readings()}{22}{subsubsection.8.1.2.17}%
+\contentsline {subsubsection}{\numberline {8.1.2.18}set\_offset()}{22}{subsubsection.8.1.2.18}%
+\contentsline {subsubsection}{\numberline {8.1.2.19}set\_scale()}{23}{subsubsection.8.1.2.19}%
+\contentsline {subsubsection}{\numberline {8.1.2.20}set\_scale\_coeff\_n\_readings()}{23}{subsubsection.8.1.2.20}%
+\contentsline {subsubsection}{\numberline {8.1.2.21}set\_tare\_n\_readings()}{23}{subsubsection.8.1.2.21}%
+\contentsline {subsubsection}{\numberline {8.1.2.22}set\_weight\_n\_readings()}{24}{subsubsection.8.1.2.22}%
+\contentsline {subsubsection}{\numberline {8.1.2.23}tare()}{24}{subsubsection.8.1.2.23}%
+\contentsline {subsubsection}{\numberline {8.1.2.24}wait\_ready()}{24}{subsubsection.8.1.2.24}%
+\contentsline {subsubsection}{\numberline {8.1.2.25}wait\_ready\_retry()}{25}{subsubsection.8.1.2.25}%
+\contentsline {subsubsection}{\numberline {8.1.2.26}wait\_ready\_timeout()}{25}{subsubsection.8.1.2.26}%
+\contentsline {chapter}{\numberline {9}Class Documentation}{27}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell Class Reference}{27}{section.9.1}%
+\contentsline {subsection}{\numberline {9.1.1}Detailed Description}{28}{subsection.9.1.1}%
+\contentsline {subsection}{\numberline {9.1.2}Member Function Documentation}{29}{subsection.9.1.2}%
+\contentsline {subsubsection}{\numberline {9.1.2.1}get\_raw\_value()}{29}{subsubsection.9.1.2.1}%
+\contentsline {subsubsection}{\numberline {9.1.2.2}get\_scale\_coeff\_n\_readings()}{29}{subsubsection.9.1.2.2}%
+\contentsline {subsubsection}{\numberline {9.1.2.3}get\_tare\_n\_readings()}{29}{subsubsection.9.1.2.3}%
+\contentsline {subsubsection}{\numberline {9.1.2.4}get\_weight()}{29}{subsubsection.9.1.2.4}%
+\contentsline {subsubsection}{\numberline {9.1.2.5}get\_weight\_n\_readings()}{30}{subsubsection.9.1.2.5}%
+\contentsline {subsubsection}{\numberline {9.1.2.6}read\_raw\_average()}{30}{subsubsection.9.1.2.6}%
+\contentsline {subsubsection}{\numberline {9.1.2.7}read\_scale\_coeff\_average()}{30}{subsubsection.9.1.2.7}%
+\contentsline {subsubsection}{\numberline {9.1.2.8}read\_tare\_average()}{30}{subsubsection.9.1.2.8}%
+\contentsline {subsubsection}{\numberline {9.1.2.9}set\_scale\_coeff\_n\_readings()}{30}{subsubsection.9.1.2.9}%
+\contentsline {subsubsection}{\numberline {9.1.2.10}set\_tare\_n\_readings()}{31}{subsubsection.9.1.2.10}%
+\contentsline {subsubsection}{\numberline {9.1.2.11}set\_weight\_n\_readings()}{31}{subsubsection.9.1.2.11}%
+\contentsline {subsubsection}{\numberline {9.1.2.12}tare()}{31}{subsubsection.9.1.2.12}%
+\contentsline {section}{\numberline {9.2}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Controller Class Reference}{32}{section.9.2}%
+\contentsline {subsection}{\numberline {9.2.1}Detailed Description}{34}{subsection.9.2.1}%
+\contentsline {subsection}{\numberline {9.2.2}Member Function Documentation}{35}{subsection.9.2.2}%
+\contentsline {subsubsection}{\numberline {9.2.2.1}add\_loadcell()}{35}{subsubsection.9.2.2.1}%
+\contentsline {subsubsection}{\numberline {9.2.2.2}calibrate\_both\_params()}{36}{subsubsection.9.2.2.2}%
+\contentsline {subsubsection}{\numberline {9.2.2.3}calibrate\_scale\_coeff()}{36}{subsubsection.9.2.2.3}%
+\contentsline {subsubsection}{\numberline {9.2.2.4}calibrate\_tare\_offset()}{36}{subsubsection.9.2.2.4}%
+\contentsline {subsubsection}{\numberline {9.2.2.5}clear\_eeprom()}{37}{subsubsection.9.2.2.5}%
+\contentsline {subsubsection}{\numberline {9.2.2.6}determine\_offset()}{37}{subsubsection.9.2.2.6}%
+\contentsline {subsubsection}{\numberline {9.2.2.7}determine\_scale\_coeff()}{37}{subsubsection.9.2.2.7}%
+\contentsline {subsubsection}{\numberline {9.2.2.8}easy\_calibration\_with\_params()}{38}{subsubsection.9.2.2.8}%
+\contentsline {subsubsection}{\numberline {9.2.2.9}easy\_handle\_exceptions()}{38}{subsubsection.9.2.2.9}%
+\contentsline {subsubsection}{\numberline {9.2.2.10}easy\_read\_from\_persistent\_memory\_with\_params()}{39}{subsubsection.9.2.2.10}%
+\contentsline {subsubsection}{\numberline {9.2.2.11}easy\_save\_to\_persistent\_memory\_with\_params()}{40}{subsubsection.9.2.2.11}%
+\contentsline {subsubsection}{\numberline {9.2.2.12}easy\_start\_with\_params()}{40}{subsubsection.9.2.2.12}%
+\contentsline {subsubsection}{\numberline {9.2.2.13}easy\_start\_with\_questions()}{41}{subsubsection.9.2.2.13}%
+\contentsline {subsubsection}{\numberline {9.2.2.14}get\_offset\_eeprom\_adress()}{42}{subsubsection.9.2.2.14}%
+\contentsline {subsubsection}{\numberline {9.2.2.15}get\_offset\_file\_name()}{42}{subsubsection.9.2.2.15}%
+\contentsline {subsubsection}{\numberline {9.2.2.16}get\_scale\_coeff\_eeprom\_adress()}{43}{subsubsection.9.2.2.16}%
+\contentsline {subsubsection}{\numberline {9.2.2.17}get\_scale\_coeff\_file\_name()}{43}{subsubsection.9.2.2.17}%
+\contentsline {subsubsection}{\numberline {9.2.2.18}is\_loadcell\_num\_in\_range()}{43}{subsubsection.9.2.2.18}%
+\contentsline {subsubsection}{\numberline {9.2.2.19}number\_of\_loadcells()}{44}{subsubsection.9.2.2.19}%
+\contentsline {subsubsection}{\numberline {9.2.2.20}read\_offset\_from\_persistent\_memory()}{44}{subsubsection.9.2.2.20}%
+\contentsline {subsubsection}{\numberline {9.2.2.21}read\_scale\_coeff\_from\_persistent\_memory()}{44}{subsubsection.9.2.2.21}%
+\contentsline {subsubsection}{\numberline {9.2.2.22}save\_offset\_to\_persistent\_memory()}{45}{subsubsection.9.2.2.22}%
+\contentsline {subsubsection}{\numberline {9.2.2.23}save\_scale\_coeff\_to\_persistent\_memory()}{45}{subsubsection.9.2.2.23}%
+\contentsline {subsection}{\numberline {9.2.3}Member Data Documentation}{46}{subsection.9.2.3}%
+\contentsline {subsubsection}{\numberline {9.2.3.1}loadcells}{46}{subsubsection.9.2.3.1}%
+\contentsline {subsubsection}{\numberline {9.2.3.2}n\_loadcell}{46}{subsubsection.9.2.3.2}%
+\contentsline {chapter}{\numberline {10}File Documentation}{47}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Controllerlibrary /\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Controller.h File Reference}{47}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Controller.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}h}{47}{section.10.2}%
+\contentsline {section}{\numberline {10.3}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Library/\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell.h File Reference}{50}{section.10.3}%
+\contentsline {section}{\numberline {10.4}Load\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Cell.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}h}{50}{section.10.4}%
