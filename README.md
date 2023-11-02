@@ -101,7 +101,7 @@ After that, you need to open a terminal where your code is stored to generate a 
 doxygen -g
 ```
 Next, you can open the generated Doxyfile in your folder to change the RECURSIVE parameter. Set it to YES. This way dpxygen will search are code files that are inside the current repository to generate your documentation.
-Alternatively, you can also specify sub-folder path at the INPUT parameter in the Doxyfile.
+Alternatively, you can also specify sub-folders path at the INPUT parameter in the Doxyfile.
 
 Now, with the Doxyfile, you can generate html and latex folders with the following command
 ```console
