@@ -55,7 +55,6 @@ void setup()
   else
   {
     Serial.println("Starting in manual calibration mode");
-    Serial.println("manual mode");
     controller.tare_all_loadcells();
     controller.calibrate_all_loadcells();
   }
