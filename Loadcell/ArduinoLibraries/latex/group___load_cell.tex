@@ -34,6 +34,10 @@ void \mbox{\hyperlink{group___load_cell_gad94259d5b2dd994ac1103ab26683bda3}{Load
 \begin{DoxyCompactList}\small\item\em Set the number of readings averaged for calibration of scale coefficient for all Load\+Cells. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{group___load_cell_ga5be448b9aab6eb72c95ae49bbb879f23}{Load\+Cell\+Controller\+::set\+\_\+all\+\_\+loadcells\+\_\+weight\+\_\+n\+\_\+readings}} (int n\+\_\+readings)
 \begin{DoxyCompactList}\small\item\em Set the number of readings averaged for weight measurements for all Load\+Cells. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_gad72e2baab4158ae9527cde8e5dea12e2}{Load\+Cell\+Controller\+::set\+\_\+mouse\+\_\+weight}} (float weight)
+\begin{DoxyCompactList}\small\item\em Set the value of member variable \doxylink{class_load_cell_controller_aa962230034f95c97fc661ff6f66709a2}{mouse\+\_\+weight}. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{group___load_cell_gae8e496d9fe7392b46339e98b661097e4}{Load\+Cell\+Controller\+::get\+\_\+mouse\+\_\+weight}} ()
+\begin{DoxyCompactList}\small\item\em Get the value of member variable \doxylink{class_load_cell_controller_aa962230034f95c97fc661ff6f66709a2}{mouse\+\_\+weight}. \end{DoxyCompactList}\item 
 long \mbox{\hyperlink{group___load_cell_gad886961c39a7276ce169db187d52c4d1}{Load\+Cell\+Controller\+::read\+\_\+raw\+\_\+average}} (byte loadcell\+\_\+num)
 \begin{DoxyCompactList}\small\item\em Read the output of the \doxylink{class_load_cell}{Load\+Cell} and average weight\+\_\+n\+\_\+readings readings. \end{DoxyCompactList}\item 
 long \mbox{\hyperlink{group___load_cell_ga8a9063b14499f23adf2fa8da92acd8d6}{Load\+Cell\+Controller\+::read\+\_\+tare\+\_\+average}} (byte loadcell\+\_\+num)
@@ -44,6 +48,10 @@ double \mbox{\hyperlink{group___load_cell_ga0d0b0bfd07a1c17a46d1504d04dba226}{Lo
 \begin{DoxyCompactList}\small\item\em Read the raw output of the \doxylink{class_load_cell}{Load\+Cell} and substracts the offset. \end{DoxyCompactList}\item 
 float \mbox{\hyperlink{group___load_cell_ga3ef77bb2300f62c7dc65b8b83e642c9a}{Load\+Cell\+Controller\+::get\+\_\+weight}} (byte loadcell\+\_\+num)
 \begin{DoxyCompactList}\small\item\em Read the weight of the object currently on the \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{group___load_cell_ga18cd91e000f537aef83965a7e52c5adb}{Load\+Cell\+Controller\+::get\+\_\+weight\+\_\+with\+\_\+auto\+\_\+recalibration}} (byte loadcell\+\_\+num, float threshold=0.\+33)
+\begin{DoxyCompactList}\small\item\em Read the weight of the object currently on the \doxylink{class_load_cell}{Load\+Cell} and recalibrate the offset. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{group___load_cell_ga61ed978d84ad438a858f472eeab885b8}{Load\+Cell\+Controller\+::mass\+\_\+from\+\_\+raw}} (byte loadcell\+\_\+num, long raw)
+\begin{DoxyCompactList}\small\item\em Calculate mass from a raw reading. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{group___load_cell_ga561f18442e2d0a82c8dccaeea4f33eef}{Load\+Cell\+Controller\+::tare}} (byte loadcell\+\_\+num)
 \begin{DoxyCompactList}\small\item\em Read the raw output of the \doxylink{class_load_cell}{Load\+Cell} and set this value to the offset. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{group___load_cell_gaf42f59ae774cd02647450c8c81df6872}{Load\+Cell\+Controller\+::begin}} (byte loadcell\+\_\+num, byte dout, byte pd\+\_\+sck, byte gain=128)
@@ -94,7 +102,22 @@ This function begins the communication with the HX711 that is performing a volta
 {\em gain} & Gain of the HX711. Default is 128.\\
 \hline
 \end{DoxyParams}
-The {\ttfamily gain} argument can take the following values\+: 128, 64 and 32. For a gain of 128 and 64, channel A of the HX711 should be used. For a gain of 32, channel B should be used. \Hypertarget{group___load_cell_ga507c18a07c74ce8493e826566435a1c1}\label{group___load_cell_ga507c18a07c74ce8493e826566435a1c1} 
+The {\ttfamily gain} argument can take the following values\+: 128, 64 and 32. For a gain of 128 and 64, channel A of the HX711 should be used. For a gain of 32, channel B should be used. \Hypertarget{group___load_cell_gae8e496d9fe7392b46339e98b661097e4}\label{group___load_cell_gae8e496d9fe7392b46339e98b661097e4} 
+\index{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_mouse\_weight@{get\_mouse\_weight}}
+\index{get\_mouse\_weight@{get\_mouse\_weight}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}}
+\doxysubsubsection{\texorpdfstring{get\_mouse\_weight()}{get\_mouse\_weight()}}
+{\footnotesize\ttfamily float Load\+Cell\+Controller\+::get\+\_\+mouse\+\_\+weight (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Get the value of member variable \doxylink{class_load_cell_controller_aa962230034f95c97fc661ff6f66709a2}{mouse\+\_\+weight}. 
+
+This function gets the weight of the mouse in the cage controlled by the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}.
+
+\begin{DoxyReturn}{Returns}
+Weight of the mouse. 
+\end{DoxyReturn}
+\Hypertarget{group___load_cell_ga507c18a07c74ce8493e826566435a1c1}\label{group___load_cell_ga507c18a07c74ce8493e826566435a1c1} 
 \index{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_offset@{get\_offset}}
 \index{get\_offset@{get\_offset}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}}
 \doxysubsubsection{\texorpdfstring{get\_offset()}{get\_offset()}}
@@ -234,6 +257,28 @@ This function retrieves the number of readings that are averaged for measurement
 \begin{DoxyReturn}{Returns}
 Number of reading averaged for a weight measurements. 
 \end{DoxyReturn}
+\Hypertarget{group___load_cell_ga18cd91e000f537aef83965a7e52c5adb}\label{group___load_cell_ga18cd91e000f537aef83965a7e52c5adb} 
+\index{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_weight\_with\_auto\_recalibration@{get\_weight\_with\_auto\_recalibration}}
+\index{get\_weight\_with\_auto\_recalibration@{get\_weight\_with\_auto\_recalibration}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}}
+\doxysubsubsection{\texorpdfstring{get\_weight\_with\_auto\_recalibration()}{get\_weight\_with\_auto\_recalibration()}}
+{\footnotesize\ttfamily float Load\+Cell\+Controller\+::get\+\_\+weight\+\_\+with\+\_\+auto\+\_\+recalibration (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num,  }\item[{float}]{threshold = {\ttfamily 0.33} }\end{DoxyParamCaption})}
+
+
+
+Read the weight of the object currently on the \doxylink{class_load_cell}{Load\+Cell} and recalibrate the offset. 
+
+This member function can be used to perform a weight reading of an object on the \doxylink{class_load_cell}{Load\+Cell} will verifying if no object is on the \doxylink{class_load_cell}{Load\+Cell}. If it is the case, a recalibration of the \doxylink{class_load_cell}{Load\+Cell} offset will be done. The threshold to termine if the \doxylink{class_load_cell}{Load\+Cell} is empty is calculated from the \doxylink{class_load_cell_controller_aa962230034f95c97fc661ff6f66709a2}{mouse\+\_\+weight} and the {\ttfamily threshold}. If their is something on the \doxylink{class_load_cell}{Load\+Cell}, a weight reading is normally performed. The function returns the reading value in both case, but if a recalibration is done, the reading will most likely be 0g.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+{\em threshold} & Fraction of \doxylink{class_load_cell_controller_aa962230034f95c97fc661ff6f66709a2}{mouse\+\_\+weight} used as the threshold to determine if the \doxylink{class_load_cell}{Load\+Cell} is empty.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The averaged mass of the object on the \doxylink{class_load_cell}{Load\+Cell}. 
+\end{DoxyReturn}
 \Hypertarget{group___load_cell_ga0130a79b354cbe481dbee14ba3505e97}\label{group___load_cell_ga0130a79b354cbe481dbee14ba3505e97} 
 \index{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!is\_ready@{is\_ready}}
 \index{is\_ready@{is\_ready}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}}
@@ -253,6 +298,28 @@ This function verifies if the HX711 is ready for retrieval the next reading. Acc
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
 Boolean showing if the HX711 is ready for retrieval. 
+\end{DoxyReturn}
+\Hypertarget{group___load_cell_ga61ed978d84ad438a858f472eeab885b8}\label{group___load_cell_ga61ed978d84ad438a858f472eeab885b8} 
+\index{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!mass\_from\_raw@{mass\_from\_raw}}
+\index{mass\_from\_raw@{mass\_from\_raw}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}}
+\doxysubsubsection{\texorpdfstring{mass\_from\_raw()}{mass\_from\_raw()}}
+{\footnotesize\ttfamily float Load\+Cell\+Controller\+::mass\+\_\+from\+\_\+raw (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num,  }\item[{long}]{raw }\end{DoxyParamCaption})}
+
+
+
+Calculate mass from a raw reading. 
+
+This member function takes as an input a raw reading and calculates the mass associated to it. The calculation requires the scale coefficient and the offset of the \doxylink{class_load_cell}{Load\+Cell}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+{\em raw} & Raw reading.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Mass associated to raw measurement 
 \end{DoxyReturn}
 \Hypertarget{group___load_cell_ga69aba79e70cadebdcb9ab8a67b8dfde1}\label{group___load_cell_ga69aba79e70cadebdcb9ab8a67b8dfde1} 
 \index{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!power\_down@{power\_down}}
@@ -400,6 +467,23 @@ This function sets the number of readings to be averaged for weight measurements
 
 \begin{DoxyParams}{Parameters}
 {\em n\+\_\+readings} & Number of readings averaged for weight measurements. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{group___load_cell_gad72e2baab4158ae9527cde8e5dea12e2}\label{group___load_cell_gad72e2baab4158ae9527cde8e5dea12e2} 
+\index{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_mouse\_weight@{set\_mouse\_weight}}
+\index{set\_mouse\_weight@{set\_mouse\_weight}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}}
+\doxysubsubsection{\texorpdfstring{set\_mouse\_weight()}{set\_mouse\_weight()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::set\+\_\+mouse\+\_\+weight (\begin{DoxyParamCaption}\item[{float}]{weight }\end{DoxyParamCaption})}
+
+
+
+Set the value of member variable \doxylink{class_load_cell_controller_aa962230034f95c97fc661ff6f66709a2}{mouse\+\_\+weight}. 
+
+This function sets the weight of the mouse in the cage controlled by the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. This function will only set the input to the member variable \doxylink{class_load_cell_controller_aa962230034f95c97fc661ff6f66709a2}{mouse\+\_\+weight} if it is positive. If the input is negative, the default value is kept.
+
+
+\begin{DoxyParams}{Parameters}
+{\em weight} & Weight of the mouse. \\
 \hline
 \end{DoxyParams}
 \Hypertarget{group___load_cell_gac7fa01eae9c33384e1e70b9ba7ec5629}\label{group___load_cell_gac7fa01eae9c33384e1e70b9ba7ec5629} 

@@ -1,136 +1,155 @@
 \indexentry{LoadCell and LoadCellController libraries for Arduino@{LoadCell and LoadCellController libraries for Arduino}|hyperpage}{1}
 \indexentry{Drift correction sketch@{Drift correction sketch}|hyperpage}{3}
-\indexentry{Todo List@{Todo List}|hyperpage}{5}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{15}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!begin@{begin}|hyperpage}{16}
-\indexentry{begin@{begin}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{16}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_offset@{get\_offset}|hyperpage}{17}
-\indexentry{get\_offset@{get\_offset}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{17}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_raw\_value@{get\_raw\_value}|hyperpage}{17}
-\indexentry{get\_raw\_value@{get\_raw\_value}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{17}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_scale@{get\_scale}|hyperpage}{17}
-\indexentry{get\_scale@{get\_scale}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{17}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_scale\_coeff\_n\_readings@{get\_scale\_coeff\_n\_readings}|hyperpage}{18}
-\indexentry{get\_scale\_coeff\_n\_readings@{get\_scale\_coeff\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{18}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_tare\_n\_readings@{get\_tare\_n\_readings}|hyperpage}{18}
-\indexentry{get\_tare\_n\_readings@{get\_tare\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{18}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_weight@{get\_weight}|hyperpage}{18}
-\indexentry{get\_weight@{get\_weight}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{18}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_weight\_n\_readings@{get\_weight\_n\_readings}|hyperpage}{19}
-\indexentry{get\_weight\_n\_readings@{get\_weight\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{19}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!is\_ready@{is\_ready}|hyperpage}{19}
-\indexentry{is\_ready@{is\_ready}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{19}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!power\_down@{power\_down}|hyperpage}{20}
-\indexentry{power\_down@{power\_down}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{20}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!power\_up@{power\_up}|hyperpage}{20}
-\indexentry{power\_up@{power\_up}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{20}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!read\_raw\_average@{read\_raw\_average}|hyperpage}{20}
-\indexentry{read\_raw\_average@{read\_raw\_average}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{20}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!read\_scale\_coeff\_average@{read\_scale\_coeff\_average}|hyperpage}{21}
-\indexentry{read\_scale\_coeff\_average@{read\_scale\_coeff\_average}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{21}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!read\_tare\_average@{read\_tare\_average}|hyperpage}{21}
-\indexentry{read\_tare\_average@{read\_tare\_average}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{21}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_all\_loadcells\_scale\_coeff\_n\_readings@{set\_all\_loadcells\_scale\_coeff\_n\_readings}|hyperpage}{21}
-\indexentry{set\_all\_loadcells\_scale\_coeff\_n\_readings@{set\_all\_loadcells\_scale\_coeff\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{21}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_all\_loadcells\_tare\_n\_readings@{set\_all\_loadcells\_tare\_n\_readings}|hyperpage}{22}
-\indexentry{set\_all\_loadcells\_tare\_n\_readings@{set\_all\_loadcells\_tare\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{22}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_all\_loadcells\_weight\_n\_readings@{set\_all\_loadcells\_weight\_n\_readings}|hyperpage}{22}
-\indexentry{set\_all\_loadcells\_weight\_n\_readings@{set\_all\_loadcells\_weight\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{22}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_offset@{set\_offset}|hyperpage}{22}
-\indexentry{set\_offset@{set\_offset}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{22}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_scale@{set\_scale}|hyperpage}{22}
-\indexentry{set\_scale@{set\_scale}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{22}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_scale\_coeff\_n\_readings@{set\_scale\_coeff\_n\_readings}|hyperpage}{23}
-\indexentry{set\_scale\_coeff\_n\_readings@{set\_scale\_coeff\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{23}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_tare\_n\_readings@{set\_tare\_n\_readings}|hyperpage}{23}
-\indexentry{set\_tare\_n\_readings@{set\_tare\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{23}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_weight\_n\_readings@{set\_weight\_n\_readings}|hyperpage}{23}
-\indexentry{set\_weight\_n\_readings@{set\_weight\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{23}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!tare@{tare}|hyperpage}{24}
-\indexentry{tare@{tare}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{24}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!wait\_ready@{wait\_ready}|hyperpage}{24}
-\indexentry{wait\_ready@{wait\_ready}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{24}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!wait\_ready\_retry@{wait\_ready\_retry}|hyperpage}{25}
-\indexentry{wait\_ready\_retry@{wait\_ready\_retry}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{25}
-\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!wait\_ready\_timeout@{wait\_ready\_timeout}|hyperpage}{25}
-\indexentry{wait\_ready\_timeout@{wait\_ready\_timeout}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{25}
-\indexentry{LoadCell@{LoadCell}|hyperpage}{27}
-\indexentry{LoadCell@{LoadCell}!get\_raw\_value@{get\_raw\_value}|hyperpage}{29}
-\indexentry{get\_raw\_value@{get\_raw\_value}!LoadCell@{LoadCell}|hyperpage}{29}
-\indexentry{LoadCell@{LoadCell}!get\_scale\_coeff\_n\_readings@{get\_scale\_coeff\_n\_readings}|hyperpage}{29}
-\indexentry{get\_scale\_coeff\_n\_readings@{get\_scale\_coeff\_n\_readings}!LoadCell@{LoadCell}|hyperpage}{29}
-\indexentry{LoadCell@{LoadCell}!get\_tare\_n\_readings@{get\_tare\_n\_readings}|hyperpage}{29}
-\indexentry{get\_tare\_n\_readings@{get\_tare\_n\_readings}!LoadCell@{LoadCell}|hyperpage}{29}
-\indexentry{LoadCell@{LoadCell}!get\_weight@{get\_weight}|hyperpage}{29}
-\indexentry{get\_weight@{get\_weight}!LoadCell@{LoadCell}|hyperpage}{29}
-\indexentry{LoadCell@{LoadCell}!get\_weight\_n\_readings@{get\_weight\_n\_readings}|hyperpage}{29}
-\indexentry{get\_weight\_n\_readings@{get\_weight\_n\_readings}!LoadCell@{LoadCell}|hyperpage}{29}
-\indexentry{LoadCell@{LoadCell}!read\_raw\_average@{read\_raw\_average}|hyperpage}{30}
-\indexentry{read\_raw\_average@{read\_raw\_average}!LoadCell@{LoadCell}|hyperpage}{30}
-\indexentry{LoadCell@{LoadCell}!read\_scale\_coeff\_average@{read\_scale\_coeff\_average}|hyperpage}{30}
-\indexentry{read\_scale\_coeff\_average@{read\_scale\_coeff\_average}!LoadCell@{LoadCell}|hyperpage}{30}
-\indexentry{LoadCell@{LoadCell}!read\_tare\_average@{read\_tare\_average}|hyperpage}{30}
-\indexentry{read\_tare\_average@{read\_tare\_average}!LoadCell@{LoadCell}|hyperpage}{30}
-\indexentry{LoadCell@{LoadCell}!set\_scale\_coeff\_n\_readings@{set\_scale\_coeff\_n\_readings}|hyperpage}{30}
-\indexentry{set\_scale\_coeff\_n\_readings@{set\_scale\_coeff\_n\_readings}!LoadCell@{LoadCell}|hyperpage}{30}
-\indexentry{LoadCell@{LoadCell}!set\_tare\_n\_readings@{set\_tare\_n\_readings}|hyperpage}{31}
-\indexentry{set\_tare\_n\_readings@{set\_tare\_n\_readings}!LoadCell@{LoadCell}|hyperpage}{31}
-\indexentry{LoadCell@{LoadCell}!set\_weight\_n\_readings@{set\_weight\_n\_readings}|hyperpage}{31}
-\indexentry{set\_weight\_n\_readings@{set\_weight\_n\_readings}!LoadCell@{LoadCell}|hyperpage}{31}
-\indexentry{LoadCell@{LoadCell}!tare@{tare}|hyperpage}{31}
-\indexentry{tare@{tare}!LoadCell@{LoadCell}|hyperpage}{31}
-\indexentry{LoadCellController@{LoadCellController}|hyperpage}{32}
-\indexentry{LoadCellController@{LoadCellController}!add\_loadcell@{add\_loadcell}|hyperpage}{35}
-\indexentry{add\_loadcell@{add\_loadcell}!LoadCellController@{LoadCellController}|hyperpage}{35}
-\indexentry{LoadCellController@{LoadCellController}!calibrate\_both\_params@{calibrate\_both\_params}|hyperpage}{36}
-\indexentry{calibrate\_both\_params@{calibrate\_both\_params}!LoadCellController@{LoadCellController}|hyperpage}{36}
-\indexentry{LoadCellController@{LoadCellController}!calibrate\_scale\_coeff@{calibrate\_scale\_coeff}|hyperpage}{36}
-\indexentry{calibrate\_scale\_coeff@{calibrate\_scale\_coeff}!LoadCellController@{LoadCellController}|hyperpage}{36}
-\indexentry{LoadCellController@{LoadCellController}!calibrate\_tare\_offset@{calibrate\_tare\_offset}|hyperpage}{36}
-\indexentry{calibrate\_tare\_offset@{calibrate\_tare\_offset}!LoadCellController@{LoadCellController}|hyperpage}{36}
-\indexentry{LoadCellController@{LoadCellController}!clear\_eeprom@{clear\_eeprom}|hyperpage}{36}
-\indexentry{clear\_eeprom@{clear\_eeprom}!LoadCellController@{LoadCellController}|hyperpage}{36}
-\indexentry{LoadCellController@{LoadCellController}!determine\_offset@{determine\_offset}|hyperpage}{37}
-\indexentry{determine\_offset@{determine\_offset}!LoadCellController@{LoadCellController}|hyperpage}{37}
-\indexentry{LoadCellController@{LoadCellController}!determine\_scale\_coeff@{determine\_scale\_coeff}|hyperpage}{37}
-\indexentry{determine\_scale\_coeff@{determine\_scale\_coeff}!LoadCellController@{LoadCellController}|hyperpage}{37}
-\indexentry{LoadCellController@{LoadCellController}!easy\_calibration\_with\_params@{easy\_calibration\_with\_params}|hyperpage}{38}
-\indexentry{easy\_calibration\_with\_params@{easy\_calibration\_with\_params}!LoadCellController@{LoadCellController}|hyperpage}{38}
-\indexentry{LoadCellController@{LoadCellController}!easy\_handle\_exceptions@{easy\_handle\_exceptions}|hyperpage}{38}
-\indexentry{easy\_handle\_exceptions@{easy\_handle\_exceptions}!LoadCellController@{LoadCellController}|hyperpage}{38}
-\indexentry{LoadCellController@{LoadCellController}!easy\_read\_from\_persistent\_memory\_with\_params@{easy\_read\_from\_persistent\_memory\_with\_params}|hyperpage}{39}
-\indexentry{easy\_read\_from\_persistent\_memory\_with\_params@{easy\_read\_from\_persistent\_memory\_with\_params}!LoadCellController@{LoadCellController}|hyperpage}{39}
-\indexentry{LoadCellController@{LoadCellController}!easy\_save\_to\_persistent\_memory\_with\_params@{easy\_save\_to\_persistent\_memory\_with\_params}|hyperpage}{40}
-\indexentry{easy\_save\_to\_persistent\_memory\_with\_params@{easy\_save\_to\_persistent\_memory\_with\_params}!LoadCellController@{LoadCellController}|hyperpage}{40}
-\indexentry{LoadCellController@{LoadCellController}!easy\_start\_with\_params@{easy\_start\_with\_params}|hyperpage}{40}
-\indexentry{easy\_start\_with\_params@{easy\_start\_with\_params}!LoadCellController@{LoadCellController}|hyperpage}{40}
-\indexentry{LoadCellController@{LoadCellController}!easy\_start\_with\_questions@{easy\_start\_with\_questions}|hyperpage}{41}
-\indexentry{easy\_start\_with\_questions@{easy\_start\_with\_questions}!LoadCellController@{LoadCellController}|hyperpage}{41}
-\indexentry{LoadCellController@{LoadCellController}!get\_offset\_eeprom\_adress@{get\_offset\_eeprom\_adress}|hyperpage}{42}
-\indexentry{get\_offset\_eeprom\_adress@{get\_offset\_eeprom\_adress}!LoadCellController@{LoadCellController}|hyperpage}{42}
-\indexentry{LoadCellController@{LoadCellController}!get\_offset\_file\_name@{get\_offset\_file\_name}|hyperpage}{42}
-\indexentry{get\_offset\_file\_name@{get\_offset\_file\_name}!LoadCellController@{LoadCellController}|hyperpage}{42}
-\indexentry{LoadCellController@{LoadCellController}!get\_scale\_coeff\_eeprom\_adress@{get\_scale\_coeff\_eeprom\_adress}|hyperpage}{42}
-\indexentry{get\_scale\_coeff\_eeprom\_adress@{get\_scale\_coeff\_eeprom\_adress}!LoadCellController@{LoadCellController}|hyperpage}{42}
-\indexentry{LoadCellController@{LoadCellController}!get\_scale\_coeff\_file\_name@{get\_scale\_coeff\_file\_name}|hyperpage}{43}
-\indexentry{get\_scale\_coeff\_file\_name@{get\_scale\_coeff\_file\_name}!LoadCellController@{LoadCellController}|hyperpage}{43}
-\indexentry{LoadCellController@{LoadCellController}!is\_loadcell\_num\_in\_range@{is\_loadcell\_num\_in\_range}|hyperpage}{43}
-\indexentry{is\_loadcell\_num\_in\_range@{is\_loadcell\_num\_in\_range}!LoadCellController@{LoadCellController}|hyperpage}{43}
-\indexentry{LoadCellController@{LoadCellController}!number\_of\_loadcells@{number\_of\_loadcells}|hyperpage}{44}
-\indexentry{number\_of\_loadcells@{number\_of\_loadcells}!LoadCellController@{LoadCellController}|hyperpage}{44}
-\indexentry{LoadCellController@{LoadCellController}!read\_offset\_from\_persistent\_memory@{read\_offset\_from\_persistent\_memory}|hyperpage}{44}
-\indexentry{read\_offset\_from\_persistent\_memory@{read\_offset\_from\_persistent\_memory}!LoadCellController@{LoadCellController}|hyperpage}{44}
-\indexentry{LoadCellController@{LoadCellController}!read\_scale\_coeff\_from\_persistent\_memory@{read\_scale\_coeff\_from\_persistent\_memory}|hyperpage}{44}
-\indexentry{read\_scale\_coeff\_from\_persistent\_memory@{read\_scale\_coeff\_from\_persistent\_memory}!LoadCellController@{LoadCellController}|hyperpage}{44}
-\indexentry{LoadCellController@{LoadCellController}!save\_offset\_to\_persistent\_memory@{save\_offset\_to\_persistent\_memory}|hyperpage}{45}
-\indexentry{save\_offset\_to\_persistent\_memory@{save\_offset\_to\_persistent\_memory}!LoadCellController@{LoadCellController}|hyperpage}{45}
-\indexentry{LoadCellController@{LoadCellController}!save\_scale\_coeff\_to\_persistent\_memory@{save\_scale\_coeff\_to\_persistent\_memory}|hyperpage}{45}
-\indexentry{save\_scale\_coeff\_to\_persistent\_memory@{save\_scale\_coeff\_to\_persistent\_memory}!LoadCellController@{LoadCellController}|hyperpage}{45}
-\indexentry{LoadCellController@{LoadCellController}!loadcells@{loadcells}|hyperpage}{46}
-\indexentry{loadcells@{loadcells}!LoadCellController@{LoadCellController}|hyperpage}{46}
-\indexentry{LoadCellController@{LoadCellController}!n\_loadcell@{n\_loadcell}|hyperpage}{46}
-\indexentry{n\_loadcell@{n\_loadcell}!LoadCellController@{LoadCellController}|hyperpage}{46}
-\indexentry{LoadCellControllerlibrary /LoadCellController.h@{LoadCellControllerlibrary /LoadCellController.h}|hyperpage}{47}
-\indexentry{LoadCellControllerlibrary /LoadCellController.h@{LoadCellControllerlibrary /LoadCellController.h}|hyperpage}{47}
-\indexentry{LoadCellLibrary/LoadCell.h@{LoadCellLibrary/LoadCell.h}|hyperpage}{50}
-\indexentry{LoadCellLibrary/LoadCell.h@{LoadCellLibrary/LoadCell.h}|hyperpage}{50}
+\indexentry{Drift correction sketch@{Drift correction sketch}|hyperpage}{5}
+\indexentry{Todo List@{Todo List}|hyperpage}{7}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{17}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!begin@{begin}|hyperpage}{19}
+\indexentry{begin@{begin}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{19}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_mouse\_weight@{get\_mouse\_weight}|hyperpage}{19}
+\indexentry{get\_mouse\_weight@{get\_mouse\_weight}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{19}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_offset@{get\_offset}|hyperpage}{19}
+\indexentry{get\_offset@{get\_offset}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{19}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_raw\_value@{get\_raw\_value}|hyperpage}{20}
+\indexentry{get\_raw\_value@{get\_raw\_value}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{20}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_scale@{get\_scale}|hyperpage}{20}
+\indexentry{get\_scale@{get\_scale}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{20}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_scale\_coeff\_n\_readings@{get\_scale\_coeff\_n\_readings}|hyperpage}{20}
+\indexentry{get\_scale\_coeff\_n\_readings@{get\_scale\_coeff\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{20}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_tare\_n\_readings@{get\_tare\_n\_readings}|hyperpage}{21}
+\indexentry{get\_tare\_n\_readings@{get\_tare\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{21}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_weight@{get\_weight}|hyperpage}{21}
+\indexentry{get\_weight@{get\_weight}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{21}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_weight\_n\_readings@{get\_weight\_n\_readings}|hyperpage}{21}
+\indexentry{get\_weight\_n\_readings@{get\_weight\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{21}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!get\_weight\_with\_auto\_recalibration@{get\_weight\_with\_auto\_recalibration}|hyperpage}{22}
+\indexentry{get\_weight\_with\_auto\_recalibration@{get\_weight\_with\_auto\_recalibration}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{22}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!is\_ready@{is\_ready}|hyperpage}{22}
+\indexentry{is\_ready@{is\_ready}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{22}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!mass\_from\_raw@{mass\_from\_raw}|hyperpage}{23}
+\indexentry{mass\_from\_raw@{mass\_from\_raw}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{23}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!power\_down@{power\_down}|hyperpage}{23}
+\indexentry{power\_down@{power\_down}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{23}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!power\_up@{power\_up}|hyperpage}{23}
+\indexentry{power\_up@{power\_up}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{23}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!read\_raw\_average@{read\_raw\_average}|hyperpage}{24}
+\indexentry{read\_raw\_average@{read\_raw\_average}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{24}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!read\_scale\_coeff\_average@{read\_scale\_coeff\_average}|hyperpage}{24}
+\indexentry{read\_scale\_coeff\_average@{read\_scale\_coeff\_average}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{24}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!read\_tare\_average@{read\_tare\_average}|hyperpage}{24}
+\indexentry{read\_tare\_average@{read\_tare\_average}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{24}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_all\_loadcells\_scale\_coeff\_n\_readings@{set\_all\_loadcells\_scale\_coeff\_n\_readings}|hyperpage}{25}
+\indexentry{set\_all\_loadcells\_scale\_coeff\_n\_readings@{set\_all\_loadcells\_scale\_coeff\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{25}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_all\_loadcells\_tare\_n\_readings@{set\_all\_loadcells\_tare\_n\_readings}|hyperpage}{25}
+\indexentry{set\_all\_loadcells\_tare\_n\_readings@{set\_all\_loadcells\_tare\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{25}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_all\_loadcells\_weight\_n\_readings@{set\_all\_loadcells\_weight\_n\_readings}|hyperpage}{25}
+\indexentry{set\_all\_loadcells\_weight\_n\_readings@{set\_all\_loadcells\_weight\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{25}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_mouse\_weight@{set\_mouse\_weight}|hyperpage}{25}
+\indexentry{set\_mouse\_weight@{set\_mouse\_weight}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{25}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_offset@{set\_offset}|hyperpage}{26}
+\indexentry{set\_offset@{set\_offset}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{26}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_scale@{set\_scale}|hyperpage}{26}
+\indexentry{set\_scale@{set\_scale}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{26}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_scale\_coeff\_n\_readings@{set\_scale\_coeff\_n\_readings}|hyperpage}{26}
+\indexentry{set\_scale\_coeff\_n\_readings@{set\_scale\_coeff\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{26}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_tare\_n\_readings@{set\_tare\_n\_readings}|hyperpage}{27}
+\indexentry{set\_tare\_n\_readings@{set\_tare\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{27}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!set\_weight\_n\_readings@{set\_weight\_n\_readings}|hyperpage}{27}
+\indexentry{set\_weight\_n\_readings@{set\_weight\_n\_readings}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{27}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!tare@{tare}|hyperpage}{27}
+\indexentry{tare@{tare}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{27}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!wait\_ready@{wait\_ready}|hyperpage}{29}
+\indexentry{wait\_ready@{wait\_ready}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{29}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!wait\_ready\_retry@{wait\_ready\_retry}|hyperpage}{29}
+\indexentry{wait\_ready\_retry@{wait\_ready\_retry}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{29}
+\indexentry{LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}!wait\_ready\_timeout@{wait\_ready\_timeout}|hyperpage}{29}
+\indexentry{wait\_ready\_timeout@{wait\_ready\_timeout}!LoadCell functions for LoadCellController@{LoadCell functions for LoadCellController}|hyperpage}{29}
+\indexentry{LoadCell@{LoadCell}|hyperpage}{31}
+\indexentry{LoadCell@{LoadCell}!get\_raw\_value@{get\_raw\_value}|hyperpage}{33}
+\indexentry{get\_raw\_value@{get\_raw\_value}!LoadCell@{LoadCell}|hyperpage}{33}
+\indexentry{LoadCell@{LoadCell}!get\_scale\_coeff\_n\_readings@{get\_scale\_coeff\_n\_readings}|hyperpage}{33}
+\indexentry{get\_scale\_coeff\_n\_readings@{get\_scale\_coeff\_n\_readings}!LoadCell@{LoadCell}|hyperpage}{33}
+\indexentry{LoadCell@{LoadCell}!get\_tare\_n\_readings@{get\_tare\_n\_readings}|hyperpage}{33}
+\indexentry{get\_tare\_n\_readings@{get\_tare\_n\_readings}!LoadCell@{LoadCell}|hyperpage}{33}
+\indexentry{LoadCell@{LoadCell}!get\_weight@{get\_weight}|hyperpage}{33}
+\indexentry{get\_weight@{get\_weight}!LoadCell@{LoadCell}|hyperpage}{33}
+\indexentry{LoadCell@{LoadCell}!get\_weight\_n\_readings@{get\_weight\_n\_readings}|hyperpage}{33}
+\indexentry{get\_weight\_n\_readings@{get\_weight\_n\_readings}!LoadCell@{LoadCell}|hyperpage}{33}
+\indexentry{LoadCell@{LoadCell}!read\_raw\_average@{read\_raw\_average}|hyperpage}{34}
+\indexentry{read\_raw\_average@{read\_raw\_average}!LoadCell@{LoadCell}|hyperpage}{34}
+\indexentry{LoadCell@{LoadCell}!read\_scale\_coeff\_average@{read\_scale\_coeff\_average}|hyperpage}{34}
+\indexentry{read\_scale\_coeff\_average@{read\_scale\_coeff\_average}!LoadCell@{LoadCell}|hyperpage}{34}
+\indexentry{LoadCell@{LoadCell}!read\_tare\_average@{read\_tare\_average}|hyperpage}{34}
+\indexentry{read\_tare\_average@{read\_tare\_average}!LoadCell@{LoadCell}|hyperpage}{34}
+\indexentry{LoadCell@{LoadCell}!set\_scale\_coeff\_n\_readings@{set\_scale\_coeff\_n\_readings}|hyperpage}{34}
+\indexentry{set\_scale\_coeff\_n\_readings@{set\_scale\_coeff\_n\_readings}!LoadCell@{LoadCell}|hyperpage}{34}
+\indexentry{LoadCell@{LoadCell}!set\_tare\_n\_readings@{set\_tare\_n\_readings}|hyperpage}{35}
+\indexentry{set\_tare\_n\_readings@{set\_tare\_n\_readings}!LoadCell@{LoadCell}|hyperpage}{35}
+\indexentry{LoadCell@{LoadCell}!set\_weight\_n\_readings@{set\_weight\_n\_readings}|hyperpage}{35}
+\indexentry{set\_weight\_n\_readings@{set\_weight\_n\_readings}!LoadCell@{LoadCell}|hyperpage}{35}
+\indexentry{LoadCell@{LoadCell}!tare@{tare}|hyperpage}{35}
+\indexentry{tare@{tare}!LoadCell@{LoadCell}|hyperpage}{35}
+\indexentry{LoadCellController@{LoadCellController}|hyperpage}{36}
+\indexentry{LoadCellController@{LoadCellController}!add\_loadcell@{add\_loadcell}|hyperpage}{40}
+\indexentry{add\_loadcell@{add\_loadcell}!LoadCellController@{LoadCellController}|hyperpage}{40}
+\indexentry{LoadCellController@{LoadCellController}!add\_loadcell@{add\_loadcell}|hyperpage}{40}
+\indexentry{add\_loadcell@{add\_loadcell}!LoadCellController@{LoadCellController}|hyperpage}{40}
+\indexentry{LoadCellController@{LoadCellController}!calibrate\_all\_loadcells@{calibrate\_all\_loadcells}|hyperpage}{41}
+\indexentry{calibrate\_all\_loadcells@{calibrate\_all\_loadcells}!LoadCellController@{LoadCellController}|hyperpage}{41}
+\indexentry{LoadCellController@{LoadCellController}!calibrate\_both\_params@{calibrate\_both\_params}|hyperpage}{41}
+\indexentry{calibrate\_both\_params@{calibrate\_both\_params}!LoadCellController@{LoadCellController}|hyperpage}{41}
+\indexentry{LoadCellController@{LoadCellController}!calibrate\_scale\_coeff@{calibrate\_scale\_coeff}|hyperpage}{41}
+\indexentry{calibrate\_scale\_coeff@{calibrate\_scale\_coeff}!LoadCellController@{LoadCellController}|hyperpage}{41}
+\indexentry{LoadCellController@{LoadCellController}!calibrate\_tare\_offset@{calibrate\_tare\_offset}|hyperpage}{41}
+\indexentry{calibrate\_tare\_offset@{calibrate\_tare\_offset}!LoadCellController@{LoadCellController}|hyperpage}{41}
+\indexentry{LoadCellController@{LoadCellController}!clear\_eeprom@{clear\_eeprom}|hyperpage}{42}
+\indexentry{clear\_eeprom@{clear\_eeprom}!LoadCellController@{LoadCellController}|hyperpage}{42}
+\indexentry{LoadCellController@{LoadCellController}!determine\_offset@{determine\_offset}|hyperpage}{42}
+\indexentry{determine\_offset@{determine\_offset}!LoadCellController@{LoadCellController}|hyperpage}{42}
+\indexentry{LoadCellController@{LoadCellController}!determine\_scale\_coeff@{determine\_scale\_coeff}|hyperpage}{42}
+\indexentry{determine\_scale\_coeff@{determine\_scale\_coeff}!LoadCellController@{LoadCellController}|hyperpage}{42}
+\indexentry{LoadCellController@{LoadCellController}!easy\_calibration\_with\_params@{easy\_calibration\_with\_params}|hyperpage}{43}
+\indexentry{easy\_calibration\_with\_params@{easy\_calibration\_with\_params}!LoadCellController@{LoadCellController}|hyperpage}{43}
+\indexentry{LoadCellController@{LoadCellController}!easy\_handle\_exceptions@{easy\_handle\_exceptions}|hyperpage}{43}
+\indexentry{easy\_handle\_exceptions@{easy\_handle\_exceptions}!LoadCellController@{LoadCellController}|hyperpage}{43}
+\indexentry{LoadCellController@{LoadCellController}!easy\_read\_from\_persistent\_memory\_with\_params@{easy\_read\_from\_persistent\_memory\_with\_params}|hyperpage}{44}
+\indexentry{easy\_read\_from\_persistent\_memory\_with\_params@{easy\_read\_from\_persistent\_memory\_with\_params}!LoadCellController@{LoadCellController}|hyperpage}{44}
+\indexentry{LoadCellController@{LoadCellController}!easy\_save\_to\_persistent\_memory\_with\_params@{easy\_save\_to\_persistent\_memory\_with\_params}|hyperpage}{45}
+\indexentry{easy\_save\_to\_persistent\_memory\_with\_params@{easy\_save\_to\_persistent\_memory\_with\_params}!LoadCellController@{LoadCellController}|hyperpage}{45}
+\indexentry{LoadCellController@{LoadCellController}!easy\_start\_with\_params@{easy\_start\_with\_params}|hyperpage}{45}
+\indexentry{easy\_start\_with\_params@{easy\_start\_with\_params}!LoadCellController@{LoadCellController}|hyperpage}{45}
+\indexentry{LoadCellController@{LoadCellController}!easy\_start\_with\_questions@{easy\_start\_with\_questions}|hyperpage}{46}
+\indexentry{easy\_start\_with\_questions@{easy\_start\_with\_questions}!LoadCellController@{LoadCellController}|hyperpage}{46}
+\indexentry{LoadCellController@{LoadCellController}!get\_offset\_eeprom\_adress@{get\_offset\_eeprom\_adress}|hyperpage}{47}
+\indexentry{get\_offset\_eeprom\_adress@{get\_offset\_eeprom\_adress}!LoadCellController@{LoadCellController}|hyperpage}{47}
+\indexentry{LoadCellController@{LoadCellController}!get\_offset\_file\_name@{get\_offset\_file\_name}|hyperpage}{47}
+\indexentry{get\_offset\_file\_name@{get\_offset\_file\_name}!LoadCellController@{LoadCellController}|hyperpage}{47}
+\indexentry{LoadCellController@{LoadCellController}!get\_scale\_coeff\_eeprom\_adress@{get\_scale\_coeff\_eeprom\_adress}|hyperpage}{48}
+\indexentry{get\_scale\_coeff\_eeprom\_adress@{get\_scale\_coeff\_eeprom\_adress}!LoadCellController@{LoadCellController}|hyperpage}{48}
+\indexentry{LoadCellController@{LoadCellController}!get\_scale\_coeff\_file\_name@{get\_scale\_coeff\_file\_name}|hyperpage}{48}
+\indexentry{get\_scale\_coeff\_file\_name@{get\_scale\_coeff\_file\_name}!LoadCellController@{LoadCellController}|hyperpage}{48}
+\indexentry{LoadCellController@{LoadCellController}!is\_loadcell\_num\_in\_range@{is\_loadcell\_num\_in\_range}|hyperpage}{48}
+\indexentry{is\_loadcell\_num\_in\_range@{is\_loadcell\_num\_in\_range}!LoadCellController@{LoadCellController}|hyperpage}{48}
+\indexentry{LoadCellController@{LoadCellController}!number\_of\_loadcells@{number\_of\_loadcells}|hyperpage}{49}
+\indexentry{number\_of\_loadcells@{number\_of\_loadcells}!LoadCellController@{LoadCellController}|hyperpage}{49}
+\indexentry{LoadCellController@{LoadCellController}!read\_all\_scale\_coeff\_from\_persistent\_memory@{read\_all\_scale\_coeff\_from\_persistent\_memory}|hyperpage}{49}
+\indexentry{read\_all\_scale\_coeff\_from\_persistent\_memory@{read\_all\_scale\_coeff\_from\_persistent\_memory}!LoadCellController@{LoadCellController}|hyperpage}{49}
+\indexentry{LoadCellController@{LoadCellController}!read\_offset\_from\_persistent\_memory@{read\_offset\_from\_persistent\_memory}|hyperpage}{49}
+\indexentry{read\_offset\_from\_persistent\_memory@{read\_offset\_from\_persistent\_memory}!LoadCellController@{LoadCellController}|hyperpage}{49}
+\indexentry{LoadCellController@{LoadCellController}!read\_scale\_coeff\_from\_persistent\_memory@{read\_scale\_coeff\_from\_persistent\_memory}|hyperpage}{50}
+\indexentry{read\_scale\_coeff\_from\_persistent\_memory@{read\_scale\_coeff\_from\_persistent\_memory}!LoadCellController@{LoadCellController}|hyperpage}{50}
+\indexentry{LoadCellController@{LoadCellController}!save\_offset\_to\_persistent\_memory@{save\_offset\_to\_persistent\_memory}|hyperpage}{50}
+\indexentry{save\_offset\_to\_persistent\_memory@{save\_offset\_to\_persistent\_memory}!LoadCellController@{LoadCellController}|hyperpage}{50}
+\indexentry{LoadCellController@{LoadCellController}!save\_scale\_coeff\_to\_persistent\_memory@{save\_scale\_coeff\_to\_persistent\_memory}|hyperpage}{50}
+\indexentry{save\_scale\_coeff\_to\_persistent\_memory@{save\_scale\_coeff\_to\_persistent\_memory}!LoadCellController@{LoadCellController}|hyperpage}{50}
+\indexentry{LoadCellController@{LoadCellController}!tare\_all\_loadcells@{tare\_all\_loadcells}|hyperpage}{51}
+\indexentry{tare\_all\_loadcells@{tare\_all\_loadcells}!LoadCellController@{LoadCellController}|hyperpage}{51}
+\indexentry{LoadCellController@{LoadCellController}!loadcells@{loadcells}|hyperpage}{51}
+\indexentry{loadcells@{loadcells}!LoadCellController@{LoadCellController}|hyperpage}{51}
+\indexentry{LoadCellController@{LoadCellController}!mouse\_weight@{mouse\_weight}|hyperpage}{51}
+\indexentry{mouse\_weight@{mouse\_weight}!LoadCellController@{LoadCellController}|hyperpage}{51}
+\indexentry{LoadCellController@{LoadCellController}!n\_loadcell@{n\_loadcell}|hyperpage}{51}
+\indexentry{n\_loadcell@{n\_loadcell}!LoadCellController@{LoadCellController}|hyperpage}{51}
+\indexentry{LoadCellControllerlibrary/LoadCellController.h@{LoadCellControllerlibrary/LoadCellController.h}|hyperpage}{53}
+\indexentry{LoadCellControllerlibrary/LoadCellController.h@{LoadCellControllerlibrary/LoadCellController.h}|hyperpage}{53}
+\indexentry{LoadCellLibrary/LoadCell.h@{LoadCellLibrary/LoadCell.h}|hyperpage}{56}
+\indexentry{LoadCellLibrary/LoadCell.h@{LoadCellLibrary/LoadCell.h}|hyperpage}{56}

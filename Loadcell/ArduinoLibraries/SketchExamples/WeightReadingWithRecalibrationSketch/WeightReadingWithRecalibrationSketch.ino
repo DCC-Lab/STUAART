@@ -58,10 +58,9 @@ void setup() {
                                     0,         // scale coeff
                                     128        // gain
                                  );
-  // write_file_heading();
-  // Serial.print("Tare ...");
-  // controller.tare(1);
-  // Serial.println("done.");
+  if (file_writing) {
+        write_file_heading();
+  }
 }
 
 void loop() {

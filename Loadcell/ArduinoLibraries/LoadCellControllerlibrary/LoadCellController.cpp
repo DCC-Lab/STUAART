@@ -10,6 +10,101 @@ void LoadCellController::add_loadcell(LoadCell &loadcell)
     n_loadcell++;
 }
 
+void LoadCellController::add_loadcell(
+                                LoadCell &loadcell,
+                                byte dout,
+                                byte sck,
+                                byte gain)
+{
+    loadcells[n_loadcell] = &loadcell;
+    n_loadcell++;
+
+    loadcell.begin(dout, sck, gain);
+}
+
+void LoadCellController::tare_all_loadcells(bool wait_for_user)
+{
+    bool _resume;
+    Serial.println(F("Taring of all loadcells"));
+
+    if (wait_for_user == true)
+    {
+        Serial.println(F("Remove any load applied to the loadcell."));
+        Serial.println(F("Send 't' from serial monitor when ready."));
+        _resume = false;
+    }
+    else if (wait_for_user == false)
+    {
+        _resume = true;
+    }
+
+    while (_resume == false)
+    {
+        if (Serial.available() > 0)
+        {
+            char serial_reading = Serial.read();
+            if (serial_reading == 't')
+            {
+                Serial.println(F("Start of taring..."));
+                _resume = true;
+            }
+        }
+    }
+
+    for (byte i = 1; i <= number_of_loadcells(); i++)
+    {
+        Serial.print(F("Taring of LoadCell #"));
+        Serial.print(i);
+        Serial.print(F("..."));
+        tare(i);
+        Serial.println(F("done"));
+        Serial.println(get_offset(i));
+        Serial.print(F("Saving offset of LoadCell #"));
+        Serial.print(i);
+        Serial.print(F("..."));
+        save_offset_to_persistent_memory(i);
+        Serial.println(F("done"));
+    }
+    Serial.println();
+}
+
+void LoadCellController::calibrate_all_loadcells()
+{
+    Serial.println(F("Start of all LoadCells calibration"));
+    
+    for (byte i = 1; i <= number_of_loadcells(); i++)
+    {
+        calibrate_scale_coeff(i);
+
+        Serial.print(F("Saving scale coeff of LoadCell #"));
+        Serial.print(i);
+        Serial.print(F("..."));
+        save_scale_coeff_to_persistent_memory(i);
+        Serial.println("done");
+        Serial.println(get_scale(i));
+    }
+    Serial.println();
+    Serial.println(F("All LoadCells are calibrated"));
+    Serial.println();
+}
+
+void LoadCellController::read_all_scale_coeff_from_persistent_memory()
+{
+    Serial.println(F("Reading all scale coefficients from persistent memory"));
+
+    for (byte i = 1; i <= number_of_loadcells(); i++)
+    {
+        Serial.print(F("Reading scale coeff of LoadCell #"));
+        Serial.print(i);
+        Serial.print(F("..."));
+        float scale_coeff = read_scale_coeff_from_persistent_memory(i);
+        set_scale(i, scale_coeff);
+        Serial.println("done");
+        Serial.println(scale_coeff);
+    }
+}
+
+
 void LoadCellController::easy_start_with_params(
     byte loadcell_num,
     byte dout,
@@ -921,6 +1016,19 @@ void LoadCellController::set_all_loadcells_tare_n_readings(int n_readings)
     }
 }
 
+void LoadCellController::set_mouse_weight(float weight)
+{   
+    if (weight > 0)
+    {
+    mouse_weight = weight;
+    }
+}
+
+float LoadCellController::get_mouse_weight()
+{
+    return mouse_weight;
+}
+
 void LoadCellController::set_all_loadcells_scale_coeff_n_readings(int n_readings)
 {
     for (byte i = 1; i <= n_loadcell; i++)
@@ -1030,6 +1138,69 @@ float LoadCellController::get_weight(byte loadcell_num)
     LoadCell *loadcell_ptr = loadcells[loadcell_num - 1];
 
     return loadcell_ptr->get_weight();
+}
+
+float LoadCellController::get_weight_with_auto_recalibration(byte loadcell_num, float threshold)
+{
+    if (is_loadcell_num_in_range(loadcell_num) == false)
+    {
+        Serial.println();
+        Serial.println();
+        Serial.println();
+        Serial.println(F("ERROR 1 get_weight_with_auto_recalibration(byte loadcell_num): loadcell number "));
+        Serial.print(loadcell_num);
+        Serial.println(F(" is out of range."));
+        while (1)
+            ;
+    }
+
+    LoadCell *loadcell_ptr = loadcells[loadcell_num - 1];
+
+    while(!loadcell_ptr->is_ready());
+
+    long reading;
+    byte i = 0;
+    long reading_sum = 0;
+    bool tare = true;
+    float weight;
+
+    // average tare_n_readings for mesurements of new tare offset
+    for (i; i < loadcell_ptr->get_tare_n_readings(); i++) 
+    {
+    reading = loadcell_ptr->read();
+
+    if (mass_from_raw(loadcell_num,reading) > (get_mouse_weight()*threshold)) 
+    {
+        tare = false;
+        break;
+    }
+    reading_sum += reading;
+    }
+
+    // if no mouse came on the scale, we set the new offset to the average value
+    if (tare) 
+    {
+    // Serial.print(F("*** TARE LoadCell #"));
+    // Serial.print(loadcell_num);
+    // Serial.println(F(" ***"));
+    loadcell_ptr->set_offset(reading_sum/loadcell_ptr->get_tare_n_readings());
+    weight = mass_from_raw(loadcell_num, reading_sum/loadcell_ptr->get_tare_n_readings());
+    }
+
+    // if a mouse came, we perform a reading of its weight relative to the previous offset
+    else 
+    {
+        weight = loadcell_ptr->get_weight();
+    }
+
+    return weight;
+}
+
+float LoadCellController::mass_from_raw(byte loadcell_num, long raw)
+{
+    LoadCell *loadcell_ptr = loadcells[loadcell_num - 1];
+
+    return (raw - loadcell_ptr->get_offset())/loadcell_ptr->get_scale();
 }
 
 void LoadCellController::tare(byte loadcell_num)

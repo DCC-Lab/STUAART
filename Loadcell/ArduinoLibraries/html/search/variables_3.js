@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['tare_5fn_5freadings_0',['tare_n_readings',['../class_load_cell.html#a2a3ab8183e8e440dda6382d200cc3ca0',1,'LoadCell']]]
+  ['scale_5fcoeff_5fn_5freadings_0',['scale_coeff_n_readings',['../class_load_cell.html#ab09b66dfec4b114b88a22718edc97acc',1,'LoadCell']]]
 ];

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.8.15)  1 NOV 2023 16:03
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.8.15)  10 NOV 2023 16:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -862,8 +862,8 @@ File: uwasy.fd 2020/01/19 v2.4 Wasy-2 symbol font definitions
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
 (Font)              scaled to size 6.29996pt on input line 3.
 )
-(./md__sketch_examples_2_weight_reading_with_recalibration_sketch_2_r_e_a_d_m_e
-.tex
+(./md__sketch_examples_2_weight_reading_with_recalibration_mode_switching_2_r_e
+_a_d_m_e.tex
 LaTeX Font Info:    Font shape `T1/phv/b/n' will be
 (Font)              scaled to size 8.99994pt on input line 1.
  [1
@@ -877,43 +877,48 @@ LaTeX Font Info:    Trying to load font information for T1+pcr on input line 5.
 
 (/usr/local/texlive/2023/texmf-dist/tex/latex/psnfss/t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
-)) (./todo.tex
-[3] [4
+))
+(./md__sketch_examples_2_weight_reading_with_recalibration_sketch_2_r_e_a_d_m_e
+.tex [3] [4
 
 ]
 Chapter 3.
-) [5] [6
+) (./todo.tex [5] [6
 
 ]
 Chapter 4.
+) [7] [8
+
+]
+Chapter 5.
 (./modules.tex
 LaTeX Font Info:    Font shape `T1/phv/b/n' will be
 (Font)              scaled to size 12.9599pt on input line 1.
 
 
-LaTeX Warning: Reference `group___load_cell' on page 7 undefined on input line 
+LaTeX Warning: Reference `group___load_cell' on page 9 undefined on input line 
 3.
-
-) [7] [8
-
-]
-Chapter 5.
-(./hierarchy.tex
-
-LaTeX Warning: Reference `class_load_cell' on page 9 undefined on input line 4.
-
-
-
-LaTeX Warning: Reference `class_load_cell_controller' on page 9 undefined on in
-put line 6.
 
 ) [9] [10
 
 ]
 Chapter 6.
+(./hierarchy.tex
+
+LaTeX Warning: Reference `class_load_cell' on page 11 undefined on input line 4
+.
+
+
+LaTeX Warning: Reference `class_load_cell_controller' on page 11 undefined on i
+nput line 6.
+
+) [11] [12
+
+]
+Chapter 7.
 (./annotated.tex
 
-LaTeX Warning: Reference `class_load_cell' on page 11 undefined on input line 3
+LaTeX Warning: Reference `class_load_cell' on page 13 undefined on input line 3
 .
 
 
@@ -923,25 +928,25 @@ e it com-pat-i-ble with the
  []
 
 
-LaTeX Warning: Reference `class_load_cell_controller' on page 11 undefined on i
+LaTeX Warning: Reference `class_load_cell_controller' on page 13 undefined on i
 nput line 4.
-
-) [11] [12
-
-]
-Chapter 7.
-(./files.tex
-
-LaTeX Warning: Reference `_load_cell_controller_8h' on page 13 undefined on inp
-ut line 3.
-
-
-LaTeX Warning: Reference `_load_cell_8h' on page 13 undefined on input line 4.
 
 ) [13] [14
 
 ]
 Chapter 8.
+(./files.tex
+
+LaTeX Warning: Reference `_load_cell_controller_8h' on page 15 undefined on inp
+ut line 3.
+
+
+LaTeX Warning: Reference `_load_cell_8h' on page 15 undefined on input line 4.
+
+) [15] [16
+
+]
+Chapter 9.
 (./group___load_cell.tex
 LaTeX Font Info:    Trying to load font information for TS1+phv on input line 1
 1.
@@ -965,212 +970,238 @@ LaTeX Font Info:    Font shape `TS1/phv/m/it' in size <9> not available
 (Font)              Font shape `TS1/phv/m/sl' tried instead on input line 30.
 LaTeX Font Info:    Font shape `TS1/phv/m/sl' will be
 (Font)              scaled to size 8.09995pt on input line 30.
- [15]
+ [17]
 LaTeX Font Info:    Font shape `T1/phv/b/n' will be
-(Font)              scaled to size 10.79993pt on input line 65.
+(Font)              scaled to size 10.79993pt on input line 73.
 LaTeX Font Info:    Font shape `T1/phv/bc/n' will be
-(Font)              scaled to size 8.99994pt on input line 68.
+(Font)              scaled to size 8.99994pt on input line 76.
 
-Underfull \hbox (badness 10000) detected at line 68
+Underfull \hbox (badness 10000) detected at line 76
 [][][]
  []
 
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
-(Font)              scaled to size 7.19995pt on input line 78.
+(Font)              scaled to size 7.19995pt on input line 86.
 LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <8> not available
-(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 78.
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 86.
 LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <7> not available
-(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 78.
-[16]
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.1 on input line 96.
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.2 on input line 113.
-
-
-Underfull \hbox (badness 10000) detected at line 114
-[][][]
- []
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.3 on input line 133.
-
-
-Underfull \hbox (badness 10000) detected at line 134
-[][][]
- []
-
-[17]
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.4 on input line 153.
-
-
-Underfull \hbox (badness 10000) detected at line 154
-[][][]
- []
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.5 on input line 173.
-
-
-Underfull \hbox (badness 10000) detected at line 174
-[][][]
- []
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.6 on input line 193.
-
-
-Underfull \hbox (badness 10000) detected at line 194
-[][][]
- []
-
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 86.
 [18]
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 8.7 on input line 213.
+(longtable)                in table 9.1 on input line 104.
 
 
-Underfull \hbox (badness 10000) detected at line 214
+Underfull \hbox (badness 10000) detected at line 117
 [][][]
  []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 8.8 on input line 233.
+(longtable)                in table 9.2 on input line 136.
 
-
-Underfull \hbox (badness 10000) detected at line 234
+[19]
+Underfull \hbox (badness 10000) detected at line 137
 [][][]
  []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 8.9 on input line 253.
+(longtable)                in table 9.3 on input line 156.
 
 
-Overfull \vbox (5.088pt too high) has occurred while \output is active []
-
- [19]
-Underfull \hbox (badness 10000) detected at line 254
-[][][]
- []
-
-
-Underfull \hbox (badness 10000) detected at line 269
+Underfull \hbox (badness 10000) detected at line 157
 [][][]
  []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 8.10 on input line 276.
+(longtable)                in table 9.4 on input line 176.
 
 
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.11 on input line 293.
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.12 on input line 310.
+Underfull \hbox (badness 10000) detected at line 177
+[][][]
+ []
 
 [20]
-Underfull \hbox (badness 10000) detected at line 311
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.5 on input line 196.
+
+
+Underfull \hbox (badness 10000) detected at line 197
 [][][]
  []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 8.13 on input line 330.
+(longtable)                in table 9.6 on input line 216.
 
 
-Underfull \hbox (badness 10000) detected at line 331
+Underfull \hbox (badness 10000) detected at line 217
 [][][]
  []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 8.14 on input line 350.
+(longtable)                in table 9.7 on input line 236.
 
 
-Underfull \hbox (badness 10000) detected at line 351
+Underfull \hbox (badness 10000) detected at line 237
 [][][]
  []
 
 [21]
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 8.15 on input line 370.
+(longtable)                in table 9.8 on input line 256.
 
 
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.16 on input line 387.
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.17 on input line 404.
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.18 on input line 423.
-
-[22]
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.19 on input line 442.
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.20 on input line 461.
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.21 on input line 480.
-
-[23]
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.22 on input line 499.
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 8.23 on input line 516.
-
-
-Underfull \hbox (badness 10000) detected at line 529
+Underfull \hbox (badness 10000) detected at line 257
 [][][]
  []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 8.24 on input line 536.
+(longtable)                in table 9.9 on input line 278.
+
+
+Underfull \hbox (badness 10000) detected at line 279
+[][][]
+ []
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.10 on input line 298.
+
+[22]
+Underfull \hbox (badness 10000) detected at line 299
+[][][]
+ []
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.11 on input line 320.
+
+
+Underfull \hbox (badness 10000) detected at line 321
+[][][]
+ []
+
+
+Underfull \hbox (badness 10000) detected at line 336
+[][][]
+ []
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.12 on input line 343.
+
+[23]
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.13 on input line 360.
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.14 on input line 377.
+
+
+Underfull \hbox (badness 10000) detected at line 378
+[][][]
+ []
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.15 on input line 397.
+
+
+Underfull \hbox (badness 10000) detected at line 398
+[][][]
+ []
 
 [24]
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 8.25 on input line 557.
+(longtable)                in table 9.16 on input line 417.
+
+
+Underfull \hbox (badness 10000) detected at line 418
+[][][]
+ []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 8.26 on input line 578.
+(longtable)                in table 9.17 on input line 437.
 
-) [25] [26
 
-]
-Chapter 9.
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.18 on input line 454.
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.19 on input line 471.
+
+[25]
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.20 on input line 488.
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.21 on input line 507.
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.22 on input line 526.
+
+[26]
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.23 on input line 545.
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.24 on input line 564.
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.25 on input line 583.
+
+[27] [28]
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.26 on input line 600.
+
+
+Underfull \hbox (badness 10000) detected at line 613
+[][][]
+ []
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.27 on input line 620.
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.28 on input line 641.
+
+[29]
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 9.29 on input line 662.
+
+) [30]
+Chapter 10.
 (./class_load_cell.tex <./class_load_cell.pdf>
-<class_load_cell.pdf, id=421, 501.875pt x 573.57286pt>
+<class_load_cell.pdf, id=487, 501.875pt x 573.57286pt>
 File: class_load_cell.pdf Graphic file (type pdf)
 <use class_load_cell.pdf>
 Package pdftex.def Info: class_load_cell.pdf  used on input line 15.
 (pdftex.def)             Requested size: 49.79222pt x 56.9055pt.
- [27]
+ [31
+
+]
 Underfull \hbox (badness 10000) detected at line 80
 [][][]
  []
@@ -1185,7 +1216,7 @@ Underfull \hbox (badness 10000) detected at line 86
 [][][]
  []
 
-[28]
+[32]
 Underfull \hbox (badness 10000) detected at line 104
 [][][]
  []
@@ -1210,7 +1241,7 @@ Underfull \hbox (badness 10000) detected at line 164
 [][][]
  []
 
-[29]
+[33]
 Underfull \hbox (badness 10000) detected at line 179
 [][][]
  []
@@ -1236,10 +1267,10 @@ Type  H <return>  for immediate help.
 l.222 ...cale\+\_\+coeff\+\_\+n\+\_\+readings} ∈
                                                    \mbox{[}1, 255\mbox{]}.
 ? 
-[30]
+[34]
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.1 on input line 230.
+(longtable)                in table 10.1 on input line 230.
 
 
 ! LaTeX Error: Unicode character ∈ (U+2208)
@@ -1254,7 +1285,7 @@ l.241 ...200cc3ca0}{tare\+\_\+n\+\_\+readings} ∈
 ? 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.2 on input line 249.
+(longtable)                in table 10.2 on input line 249.
 
 
 ! LaTeX Error: Unicode character ∈ (U+2208)
@@ -1269,246 +1300,256 @@ l.260 ...f17f37f}{weight\+\_\+n\+\_\+readings} ∈
 ? 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.3 on input line 268.
+(longtable)                in table 10.3 on input line 268.
 
-) (./class_load_cell_controller.tex [31]
-Underfull \hbox (badness 832) in paragraph at lines 20--21
+) (./class_load_cell_controller.tex [35]
+Underfull \hbox (badness 832) in paragraph at lines 22--23
 []\T1/phv/m/n/10 void [] (byte loadcell[]_[]num, byte dout, byte pd[]_[]sck, bo
 ol calibrate[]_[]offset=false,
  []
 
 
-Underfull \hbox (badness 2884) in paragraph at lines 20--21
+Underfull \hbox (badness 2884) in paragraph at lines 22--23
 \T1/phv/m/n/10 bool calibrate[]_[]scale=false, bool read[]_[]offset[]_[]persist
 ent[]_[]memory=false, bool read[]_[]scale[]_[]persistent[]_[]
  []
 
 
-Underfull \hbox (badness 2856) in paragraph at lines 20--21
+Underfull \hbox (badness 2856) in paragraph at lines 22--23
 \T1/phv/m/n/10 memory=false, bool save[]_[]offset[]_[]persistent[]_[]memory=fal
 se, bool save[]_[]scale[]_[]persistent[]_[]memory=false,
  []
 
-[32] [33] [34]
-Underfull \hbox (badness 10000) in paragraph at lines 180--180
+[36] [37] [38]
+Underfull \hbox (badness 10000) in paragraph at lines 200--200
 [][] \T1/phv/m/n/10 library[]: [][] \T1/pcr/m/n/10 https[]://github.[]com/[]DCC
 -[]Lab/[]Intelligent[]Cage/tree/master/[]
  []
 
-
-Underfull \hbox (badness 10000) detected at line 180
+[39]
+Underfull \hbox (badness 10000) detected at line 200
 [][][]
  []
 
 
-Underfull \hbox (badness 10000) detected at line 183
+Underfull \hbox (badness 10000) detected at line 203
 [][][]
  []
 
 
-Underfull \hbox (badness 10000) detected at line 186
+Underfull \hbox (badness 10000) detected at line 206
 [][][]
  []
 
-[35]
+LaTeX Font Info:    Font shape `T1/phv/b/n' will be
+(Font)              scaled to size 7.19995pt on input line 215.
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.4 on input line 210.
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 9.5 on input line 227.
+(longtable)                in table 10.4 on input line 230.
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.6 on input line 244.
+(longtable)                in table 10.5 on input line 255.
+
+
+Overfull \vbox (5.809pt too high) has occurred while \output is active []
+
+ [40]
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.6 on input line 282.
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.7 on input line 261.
+(longtable)                in table 10.7 on input line 299.
 
-[36]
-Underfull \hbox (badness 10000) detected at line 274
-[][][]
- []
-
+[41]
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.8 on input line 283.
+(longtable)                in table 10.8 on input line 316.
 
 
-Package longtable Warning: Column widths have changed
-(longtable)                in table 9.9 on input line 302.
-
-
-Underfull \hbox (badness 10000) detected at line 303
-[][][]
- []
-
-[37]
-Underfull \hbox (badness 10000) detected at line 326
+Underfull \hbox (badness 10000) detected at line 329
 [][][]
  []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.10 on input line 333.
+(longtable)                in table 10.9 on input line 338.
 
 
-Underfull \hbox (badness 10000) detected at line 334
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.10 on input line 357.
+
+
+Underfull \hbox (badness 10000) detected at line 358
+[][][]
+ []
+
+[42]
+Underfull \hbox (badness 10000) detected at line 381
 [][][]
  []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.11 on input line 359.
+(longtable)                in table 10.11 on input line 388.
 
-[38]
-Underfull \hbox (badness 1953) in paragraph at lines 370--371
+
+Underfull \hbox (badness 10000) detected at line 389
+[][][]
+ []
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.12 on input line 414.
+
+[43]
+Underfull \hbox (badness 1953) in paragraph at lines 425--426
 []\T1/phv/m/n/10 This func-tion man-ages the pos-si-ble con-flicts that can hap
 -pen be-tween the pa-ram-e-ters passed to the
  []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.12 on input line 390.
+(longtable)                in table 10.13 on input line 445.
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.13 on input line 395.
-
-[39]
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 9.14 on input line 416.
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 9.15 on input line 437.
-
-[40]
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 9.16 on input line 486.
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 9.17 on input line 515.
-
-
-Overfull \vbox (31.40173pt too high) has occurred while \output is active []
-
-
-[41]
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 9.18 on input line 532.
-
-
-Underfull \hbox (badness 10000) detected at line 533
-[][][]
- []
-
-
-Underfull \hbox (badness 10000) detected at line 536
-[][][]
- []
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 9.19 on input line 555.
-
-
-Underfull \hbox (badness 10000) detected at line 556
-[][][]
- []
-
-
-Underfull \hbox (badness 10000) detected at line 559
-[][][]
- []
-
-[42]
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 9.20 on input line 578.
-
-
-Underfull \hbox (badness 10000) detected at line 579
-[][][]
- []
-
-
-Underfull \hbox (badness 10000) detected at line 582
-[][][]
- []
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 9.21 on input line 601.
-
-
-Underfull \hbox (badness 10000) detected at line 602
-[][][]
- []
-
-
-Underfull \hbox (badness 10000) detected at line 605
-[][][]
- []
-
-[43]
-Underfull \hbox (badness 10000) detected at line 620
-[][][]
- []
-
-
-Underfull \hbox (badness 10000) detected at line 635
-[][][]
- []
-
-
-Package longtable Warning: Column widths have changed
-(longtable)                in table 9.22 on input line 654.
-
-
-Underfull \hbox (badness 10000) detected at line 655
-[][][]
- []
+(longtable)                in table 10.14 on input line 450.
 
 [44]
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.23 on input line 674.
+(longtable)                in table 10.15 on input line 471.
 
 
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.16 on input line 492.
+
+[45]
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.17 on input line 541.
+
+[46]
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.18 on input line 570.
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.19 on input line 587.
+
+
+Underfull \hbox (badness 10000) detected at line 588
+[][][]
+ []
+
+
+Underfull \hbox (badness 10000) detected at line 591
+[][][]
+ []
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.20 on input line 610.
+
+
+Underfull \hbox (badness 10000) detected at line 611
+[][][]
+ []
+
+[47]
+Underfull \hbox (badness 10000) detected at line 614
+[][][]
+ []
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.21 on input line 633.
+
+
+Underfull \hbox (badness 10000) detected at line 634
+[][][]
+ []
+
+
+Underfull \hbox (badness 10000) detected at line 637
+[][][]
+ []
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.22 on input line 656.
+
+
+Underfull \hbox (badness 10000) detected at line 657
+[][][]
+ []
+
+
+Underfull \hbox (badness 10000) detected at line 660
+[][][]
+ []
+
+[48]
 Underfull \hbox (badness 10000) detected at line 675
 [][][]
  []
 
 
+Underfull \hbox (badness 10000) detected at line 690
+[][][]
+ []
+
+[49]
+
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.24 on input line 694.
+(longtable)                in table 10.23 on input line 719.
+
+
+Underfull \hbox (badness 10000) detected at line 720
+[][][]
+ []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 9.25 on input line 711.
+(longtable)                in table 10.24 on input line 739.
 
-[45]) [46]
-Chapter 10.
+
+Underfull \hbox (badness 10000) detected at line 740
+[][][]
+ []
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.25 on input line 759.
+
+[50]
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.26 on input line 776.
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 10.27 on input line 793.
+
+[51]) [52]
+Chapter 11.
 (./_load_cell_controller_8h.tex
 Underfull \hbox (badness 10000) in paragraph at lines 3--6
 
  []
 
-) (./_load_cell_controller_8h_source.tex [47
+) (./_load_cell_controller_8h_source.tex [53
 
-] [48] [49]) (./_load_cell_8h.tex
+] [54] [55]) (./_load_cell_8h.tex
 Underfull \hbox (badness 10000) in paragraph at lines 3--5
 
  []
 
-) (./_load_cell_8h_source.tex [50]) [51] [52
+) (./_load_cell_8h_source.tex [56]) [57] [58
 
 ]
 No file refman.ind.
@@ -1529,14 +1570,14 @@ Package rerunfilecheck Warning: File `refman.out' has changed.
 
 Package rerunfilecheck Info: Checksums for `refman.out':
 (rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  C53313B497398CE04F91373B9C85423F;20611.
+(rerunfilecheck)             After:  83CFA4BCDFF5B78848A890629F81A737;23410.
  ) 
 Here is how much of TeX's memory you used:
- 18449 strings out of 476025
- 304269 string characters out of 5790017
+ 18507 strings out of 476025
+ 306654 string characters out of 5790017
  1889388 words of memory out of 5000000
- 38262 multiletter control sequences out of 15000+600000
- 565246 words of font info for 99 fonts, out of 8000000 for 9000
+ 38283 multiletter control sequences out of 15000+600000
+ 567500 words of font info for 102 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  101i,16n,117p,1007b,741s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
@@ -1544,16 +1585,17 @@ Here is how much of TeX's memory you used:
 /usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
 usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></us
 r/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/
-local/texlive/2023/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/te
-xlive/2023/texmf-dist/fonts/type1/urw/courier/ucrro8a.pfb></usr/local/texlive/2
-023/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2023/tex
-mf-dist/fonts/type1/urw/helvetic/uhvb8ac.pfb></usr/local/texlive/2023/texmf-dis
-t/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2023/texmf-dist/fonts
-/type1/urw/helvetic/uhvro8a.pfb>
-Output written on refman.pdf (54 pages, 210367 bytes).
+local/texlive/2023/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/local/te
+xlive/2023/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/20
+23/texmf-dist/fonts/type1/urw/courier/ucrro8a.pfb></usr/local/texlive/2023/texm
+f-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2023/texmf-dist/
+fonts/type1/urw/helvetic/uhvb8ac.pfb></usr/local/texlive/2023/texmf-dist/fonts/
+type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/u
+rw/helvetic/uhvro8a.pfb>
+Output written on refman.pdf (60 pages, 225535 bytes).
 PDF statistics:
- 1202 PDF objects out of 1440 (max. 8388607)
- 1022 compressed objects within 11 object streams
- 286 named destinations out of 1000 (max. 500000)
+ 1353 PDF objects out of 1440 (max. 8388607)
+ 1152 compressed objects within 12 object streams
+ 318 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

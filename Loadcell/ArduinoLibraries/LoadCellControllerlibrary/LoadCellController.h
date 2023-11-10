@@ -12,10 +12,10 @@
  *      for both parameters. The interaction with the user is done inside the
  *      member functions.
  *
- * - Save the calibration parameters to persistent memory (tested on Arduino Uno August 2023)
+ * - Save the calibration parameters to persistent memory
  *      
  *      The library can automatically detect if an Arduino Uno (ATmega328p chip) or a FireBeetle
- *      (ESP8266) is used. For Arduino Uno, EEPROM is used to store calibration parameters.
+ *      (ESP8266 chip) is used. For Arduino Uno, EEPROM is used to store calibration parameters.
  *      For FireBeetle, SPIFFS is used.
  *
  *      The calibration parameters can be saved on the EEPROM after calibration for
@@ -23,6 +23,10 @@
  *      when it comes to saving because the saved values don't erase themselves when the
  *      power supply of the microcontroller is cut. The saved parameters can
  *      be reused at another moment. (tested on Arduino Uno and FireBeetle November 2023)
+ * 
+ *      When it is wanted to reuse the saved parameters, it is important to add the load cell
+ *      in the same order with the @ref add_loadcell() function. The calibration parameters are
+ *      saved are accessible with the number of the LoadCell.
  *
  * - Read the calibration parameters from persistent memory (tested on Arduino Uno August 2023)
  *
@@ -73,8 +77,8 @@
  * 
  * LoadCell library: https://github.com/DCC-Lab/IntelligentCage/tree/master/Loadcell/Arduino%20libraries/LoadCellLibrary
  * @author Nathan Bérubé
- * @date November 1st, 2023
- * @version 2.0.0
+ * @date November 10, 2023
+ * @version 2.0.2
  */
 #ifndef LoadCellController_h
 #define LoadCellController_h
@@ -114,6 +118,16 @@ protected:
         * is called.
         */
         int n_loadcell = 0;
+
+        /**
+        * @var float mouse_weight
+        * @brief Member variable used to store the weight in gramms of the mouse in the cage controlled by
+        * The LoadCellController.
+        * 
+        * Default is 20 gramms.
+        * This parameter can be used as a threshold for recalibration in @ref easy_get_weight_with_auto_recalibration()
+        */
+        float mouse_weight = 20;
 
         /**
         * @brief Easy function managing the calibration of a LoadCell.
@@ -238,7 +252,7 @@ public:
         LoadCellController();
         
         /**
-        * @brief Add a new LoadCell to the LoadCellController.
+        * @brief Add a new LoadCell to the LoadCellController without pin specification.
         *
         * This function adds a new LoadCell to the controller. It will add the pointer of the LoadCell
         * object to the next index in the @ref loadcells array and increase the value @ref n_loadcell by 1
@@ -250,6 +264,28 @@ public:
         * @param loadcell LoadCell object added to the LoadCellController.
         */
         void add_loadcell(LoadCell &loadcell);
+
+        /**
+        * @brief Add a new LoadCell to the LoadCellController with pin specification.
+        *
+        * This function adds a new LoadCell to the controller. It will add the pointer of the LoadCell
+        * object to the next index in the @ref loadcells array and increase the value @ref n_loadcell by 1
+        * to keep track of the number of LoadCell.
+        * 
+        * The first added LoadCell will be load cell 1, the second one will be load cell 2 and so on.
+        *
+        * 
+        * @param loadcell LoadCell object added to the LoadCellController.
+        * @param dout Digital pin (or analog) connected to the DOUT output pin of the HX711.
+        * @param pd_sck Digital pin (or analog) connected to the SCK output of the HX711.
+        * @param gain Gain of the HX711. Default is 128.
+        */
+        void add_loadcell(
+                        LoadCell &loadcell,
+                        byte dout,
+                        byte sck,
+                        byte gain=128
+                        );
 
 
         /**
@@ -302,6 +338,44 @@ public:
                                 float scale_coeff=0,
                                 byte gain=128
                                 );
+
+
+        /**
+        * @brief Tare all the LoadCells added to the LoadCellController
+        *
+        * This function interacts with the user to tare every LoadCells added to the LoadCellController when
+        * he is ready. The user is asked to send 't' from the serial monitor when all load cells are empty. 
+        * The taring of each will be done. A message will be printed on the monitor when done.
+        * 
+        * @param wait_for_user Boolean telling if the manual confirmation of the user is needed to tare the LoadCells
+        */
+        void tare_all_loadcells(bool wait_for_user=true);
+
+
+        /**
+        * @brief Calibrate the scale coeffcient of every LoadCells added to the LoadCellController.
+        *
+        * This function interacts with the user to calibrate every LoadCell with known weights. The user
+        * is guided by the messages on the monitor to place the known weights on the load cell. The user
+        * is asked to send the weight value from the monitor. The scale coefficient are then saved to persistent
+        * memory.
+        * 
+        */
+        void calibrate_all_loadcells();
+
+
+        /**
+        * @brief Read the scale coeffcient of every LoadCells added to the LoadCellController.
+        *
+        * This function read the scale coefficient of every LoadCell from peristent memory. The scale
+        * coefficient is then set to the LoadCell class variable OFFSET through the controller with a
+        * setter. This function can be used in the start-up of LoadCells when the scale coefficients
+        * are saved to peristent memory.
+        * 
+        * 
+        */
+        void LoadCellController::read_all_scale_coeff_from_persistent_memory();
+
 
         /**
         * @brief Save the offset of a given LoadCell to persistent memory.
@@ -673,6 +747,28 @@ public:
 
 
         /**
+        * @brief Set the value of member variable @ref mouse_weight.
+        *
+        * This function sets the weight of the mouse in the cage controlled by the LoadCellController.
+        * This function will only set the input to the member variable @ref mouse_weight
+        * if it is positive. If the input is negative, the default value is kept.
+        * 
+        * @param weight Weight of the mouse.
+        */
+        void set_mouse_weight(float weight);
+
+
+        /**
+        * @brief Get the value of member variable @ref mouse_weight.
+        *
+        * This function gets the weight of the mouse in the cage controlled by the LoadCellController.
+        * 
+        * @return Weight of the mouse.
+        */
+        float get_mouse_weight();
+
+
+        /**
         * @brief Read the output of the LoadCell and average @ref weight_n_readings readings.
         *
         * This function does @ref weight_n_readings readings of the raw output of the LoadCell and 
@@ -738,6 +834,41 @@ public:
 
 
         /**
+        * @brief Read the weight of the object currently on the LoadCell and recalibrate the offset
+        *
+        * This member function can be used to perform a weight reading
+        * of an object on the LoadCell will verifying if no object is on the LoadCell.
+        * If it is the case, a recalibration of the LoadCell offset will be done. The threshold to termine
+        * if the LoadCell is empty is calculated from the @ref mouse_weight and the @p threshold. If their
+        * is something on the LoadCell, a weight reading is normally performed. The function
+        * returns the reading value in both case, but if a recalibration is done, the reading will most likely
+        * be 0g.
+        * 
+        * @param loadcell_num Number of the LoadCell.
+        * @param threshold Fraction of @ref mouse_weight used as the threshold to determine
+        *                  if the LoadCell is empty.
+        * 
+        * @return The averaged mass of the object on the LoadCell.
+        */
+        float get_weight_with_auto_recalibration(
+                                                byte loadcell_num,
+                                                float threshold=0.33);
+
+
+        /**
+        * @brief Calculate mass from a raw reading
+        *
+        * This member function takes as an input a raw reading and calculates the mass associated
+        * to it. The calculation requires the scale coefficient and the offset of the LoadCell.
+        * 
+        * @param loadcell_num Number of the LoadCell.
+        * @param raw Raw reading.
+        * 
+        * @return Mass associated to raw measurement
+        */
+        float mass_from_raw(byte loadcell_num, long raw);
+
+        /**
         * @brief Read the raw output of the LoadCell and set this value to the offset
         *
         * This function does tare_n_reading readings to get the average for the offset. 
@@ -801,7 +932,7 @@ public:
         */
 	void wait_ready(
                         byte loadcell_num,
-                        unsigned long delay_ms = 0
+                        unsigned long delay_ms=0
                         );
 
 
@@ -820,8 +951,8 @@ public:
         */
 	bool wait_ready_retry(
                         byte loadcell_num,
-                        int retries = 3,
-                        unsigned long delay_ms = 0
+                        int retries=3,
+                        unsigned long delay_ms=0
                         );
 
 
@@ -841,8 +972,8 @@ public:
         */
 	bool wait_ready_timeout(
                                 byte loadcell_num,
-                                unsigned long timeout = 1000,
-                                unsigned long delay_ms = 0
+                                unsigned long timeout=1000,
+                                unsigned long delay_ms=0
                                 );
 
 

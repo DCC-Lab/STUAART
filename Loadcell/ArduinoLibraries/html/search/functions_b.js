@@ -1,13 +1,9 @@
 var searchData=
 [
-  ['save_5foffset_5fto_5fpersistent_5fmemory_0',['save_offset_to_persistent_memory',['../class_load_cell_controller.html#a88b7f069dbd60454cd8c40636e5c697a',1,'LoadCellController']]],
-  ['save_5fscale_5fcoeff_5fto_5fpersistent_5fmemory_1',['save_scale_coeff_to_persistent_memory',['../class_load_cell_controller.html#a4a9a463212eeb0d577562eac99b01aa7',1,'LoadCellController']]],
-  ['set_5fall_5floadcells_5fscale_5fcoeff_5fn_5freadings_2',['set_all_loadcells_scale_coeff_n_readings',['../group___load_cell.html#gad94259d5b2dd994ac1103ab26683bda3',1,'LoadCellController']]],
-  ['set_5fall_5floadcells_5ftare_5fn_5freadings_3',['set_all_loadcells_tare_n_readings',['../group___load_cell.html#ga449f51749d5e27ee19b31a6c70c36c7d',1,'LoadCellController']]],
-  ['set_5fall_5floadcells_5fweight_5fn_5freadings_4',['set_all_loadcells_weight_n_readings',['../group___load_cell.html#ga5be448b9aab6eb72c95ae49bbb879f23',1,'LoadCellController']]],
-  ['set_5foffset_5',['set_offset',['../group___load_cell.html#gac7fa01eae9c33384e1e70b9ba7ec5629',1,'LoadCellController']]],
-  ['set_5fscale_6',['set_scale',['../group___load_cell.html#gadc6c08cde6fb690ff4cb5aa1c42f40ef',1,'LoadCellController']]],
-  ['set_5fscale_5fcoeff_5fn_5freadings_7',['set_scale_coeff_n_readings',['../group___load_cell.html#ga17af209b2de5300346c1a9d921f86522',1,'LoadCellController::set_scale_coeff_n_readings()'],['../class_load_cell.html#a374db0a3e0f5e5d86605dd2e95e3daad',1,'LoadCell::set_scale_coeff_n_readings()']]],
-  ['set_5ftare_5fn_5freadings_8',['set_tare_n_readings',['../group___load_cell.html#gaee0ac671ee0cd1c461f92ae70bb0f723',1,'LoadCellController::set_tare_n_readings()'],['../class_load_cell.html#a88e0dc03dfc2675babf588af879eb3fb',1,'LoadCell::set_tare_n_readings()']]],
-  ['set_5fweight_5fn_5freadings_9',['set_weight_n_readings',['../group___load_cell.html#ga92c159cf6b6bc3a958a54457a240d057',1,'LoadCellController::set_weight_n_readings()'],['../class_load_cell.html#a65dafb2cba0eb8f064e80357b5ba49e6',1,'LoadCell::set_weight_n_readings()']]]
+  ['read_5fall_5fscale_5fcoeff_5ffrom_5fpersistent_5fmemory_0',['read_all_scale_coeff_from_persistent_memory',['../class_load_cell_controller.html#a14b4c93225112783a5b1f8b119ee2352',1,'LoadCellController']]],
+  ['read_5foffset_5ffrom_5fpersistent_5fmemory_1',['read_offset_from_persistent_memory',['../class_load_cell_controller.html#a42c2e9f95696bfe168ccf92bdfdd26c2',1,'LoadCellController']]],
+  ['read_5fraw_5faverage_2',['read_raw_average',['../group___load_cell.html#gad886961c39a7276ce169db187d52c4d1',1,'LoadCellController::read_raw_average()'],['../class_load_cell.html#a0b6c60bd4092b6140a43c58a67fd8174',1,'LoadCell::read_raw_average()']]],
+  ['read_5fscale_5fcoeff_5faverage_3',['read_scale_coeff_average',['../group___load_cell.html#ga596e9234d568399c3f8a42b9256fc47d',1,'LoadCellController::read_scale_coeff_average()'],['../class_load_cell.html#aa27617fd64d0ca2e977249b204f20269',1,'LoadCell::read_scale_coeff_average()']]],
+  ['read_5fscale_5fcoeff_5ffrom_5fpersistent_5fmemory_4',['read_scale_coeff_from_persistent_memory',['../class_load_cell_controller.html#aa8d3f14c5324e0d4724325220f1464a0',1,'LoadCellController']]],
+  ['read_5ftare_5faverage_5',['read_tare_average',['../group___load_cell.html#ga8a9063b14499f23adf2fa8da92acd8d6',1,'LoadCellController::read_tare_average()'],['../class_load_cell.html#ac1f877356ba945c0cc6d0588710910c3',1,'LoadCell::read_tare_average()']]]
 ];
