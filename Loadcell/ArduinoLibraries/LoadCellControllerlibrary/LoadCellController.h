@@ -374,7 +374,7 @@ public:
         * 
         * 
         */
-        void LoadCellController::read_all_scale_coeff_from_persistent_memory();
+        void read_all_scale_coeff_from_persistent_memory();
 
 
         /**
