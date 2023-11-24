@@ -12,7 +12,9 @@
 * If the switch is opened, the mode_pin is HIGH and the automatic start-up is selected
 * If the switch is closed, the mode_pin is LOW and the manual start-up is selected
 *
-* 
+* WARNING: This code will delete the file with the same name as file_name if there is one.
+ Comment line 67 (write_file_heading()) to prevent this. The data will be written below the
+* previous ones in the already existing file.
 */
 
 
@@ -29,24 +31,25 @@ LoadCell loadcell_2;
 LoadCellController controller;
 
 //// FILE
-const bool file_writing = false;
-const char file_name[50] = "20231808.csv";
+const bool file_writing = true;
+const char file_name[50] = "/test_1.csv";
 File myFile;
 
 //// PINS
-const byte SS_pin = 6;
-const byte mode_pin = 7;
+const byte SS_pin = D6;
+const byte mode_pin = D7;
 
 void setup() 
 {
   Serial.begin(115200);
-  controller.add_loadcell(loadcell_1, 2, 3);
-  controller.add_loadcell(loadcell_2, 4, 5);
+  pinMode(mode_pin, INPUT_PULLUP);
+  controller.add_loadcell(loadcell_1, D2, D3);
+  controller.add_loadcell(loadcell_2, D4, D5);
   controller.set_all_loadcells_scale_coeff_n_readings(50);
   controller.set_all_loadcells_tare_n_readings(10);
   controller.set_all_loadcells_weight_n_readings(10);
 
-  if (digitalRead(mode_pin) == HIGH)
+  if (digitalRead(mode_pin) == LOW)
   {
     Serial.println("Starting in auto mode");
     controller.tare_all_loadcells(false);
@@ -65,6 +68,7 @@ void setup()
   }
 }
 
+
 void loop()
 {
 
@@ -75,15 +79,17 @@ void loop()
   Serial.print(weight_1);
   Serial.print("\t\t\t");
   Serial.print(F("Weight LoadCell 2: \t"));
-  Serial.println(weight_2);
-
+  Serial.print(weight_2);
+  Serial.println();
   if (file_writing)
   {
-      file_write(weight_1, controller.get_offset(1), weight_2, controller.get_offset(1));
+      file_write(weight_1, weight_2);
   }
 }
 
-void file_write(float reading_1, long offset_1, float reading_2, long offset_2) {
+
+
+void file_write(float reading_1, float reading_2) {
 
     while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
@@ -99,7 +105,7 @@ void file_write(float reading_1, long offset_1, float reading_2, long offset_2) 
 
     // open the file. note that only one file can be open at a time,
     // so you have to close this one before opening another.
-    myFile = SD.open(file_name, FILE_WRITE);
+    myFile = SD.open(file_name, FILE_APPEND);
 
     // if the file opened okay, write to it:
     if (myFile) {
@@ -108,17 +114,14 @@ void file_write(float reading_1, long offset_1, float reading_2, long offset_2) 
       myFile.print(F(","));
       myFile.print(reading_1);
       myFile.print(F(","));
-      myFile.print(offset_1);
       myFile.print(reading_2);
-      myFile.print(F(","));
-      myFile.print(offset_2);
       myFile.println();
       // close the file:
       myFile.close();
       Serial.println(F("done."));
     } else {
       // if the file didn't open, print an error:
-      Serial.println(F("error opening data.csv"));
+      Serial.println(F("error opening file"));
     }
 }
 
@@ -147,17 +150,13 @@ void write_file_heading() {
       myFile.print(F(","));
       myFile.print(F("reading 1"));
       myFile.print(F(","));
-      myFile.print(F("offset 1"));
-      myFile.print(F(","));
       myFile.print(F("reading 2"));
-      myFile.print(F(","));
-      myFile.print(F("offset 2"));
       myFile.println();
       // close the file:
       myFile.close();
       Serial.println(F("done."));
     } else {
       // if the file didn't open, print an error:
-      Serial.println(F("error opening data.csv"));
+      Serial.println(F("error opening file"));
     }
 }
