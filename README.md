@@ -100,16 +100,16 @@ After that, you need to open a terminal where your code is stored to generate a 
 ```console
 doxygen -g
 ```
-Next, you can open the generated Doxyfile in your folder to change the RECURSIVE parameter. Set it to YES. This way dpxygen will search are code files that are inside the current repository to generate your documentation.
+Next, you can open the generated Doxyfile in your folder to change the RECURSIVE parameter. Set it to YES. This way doxygen will search all code files that are inside the current directory to generate your documentation, even those inside directories.
 Alternatively, you can also specify sub-folders path at the INPUT parameter in the Doxyfile.
 
 Now, with the Doxyfile, you can generate html and latex folders with the following command
 ```console
 doxygen Doxyfile
 ```
-You will see the html and latex folders appear in the folder where the Doxyfile is. If you open the index.html file in the html folder, you'll be accessible to see the documentation on your web browser.
+You will see the html and latex folders appear in the folder where the Doxyfile is. If you open the index.html file in the html folder, you'll be able to see the documentation on your web browser.
 You can also generate a pdf of the documentation using the latex folder. Open a new terminal in this folder and run the following command
 ```console
 pdflatex refman.tex
 ```
-This will generate a file named refman.pdf in the latex folder, it is the documentation. You can rename and move this file.
+This will generate a file named refman.pdf in the latex folder, it is the documentation. You can rename and move this file wherever you want.
