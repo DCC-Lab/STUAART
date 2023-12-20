@@ -2,10 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as scipy
 import pandas as pd
-import csv
 
 
-path = "/Users/nathan/Documents/UL/Session - E23/IntelligentCage/Loadcell/300gLoadCell/300gLoadCellWithWheelDriftTest/data.csv"
+path = "/Users/nathan/Documents/UL/Session - E23/IntelligentCage/Loadcell/300gLoadCell/300gLoadCellWithWheelDriftTest/300gLoadCellWithWheelGraphData.csv"
 
 data = np.array(pd.read_csv(path, header=0))
 
