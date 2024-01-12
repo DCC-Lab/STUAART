@@ -15,7 +15,7 @@ There are also two .stl [files](CAD) of the load cell platforms as example for 3
 ## Arduino LoadCell library and LoadCellController library:
 
 ### Documentation
-They are based on the following library that can be found [here]([Loadcell/ArduinoLibraries/Documentation.pdf](https://github.com/bogde/HX711))
+They are based on the following library that can be found [here](https://github.com/bogde/HX711)
 
 There is a pdf of the documentation in the repo: [Documentation.pdf](Loadcell/ArduinoLibraries/Documentation.pdf)
 
