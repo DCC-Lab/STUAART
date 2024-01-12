@@ -21,7 +21,7 @@ LoadCellController controller;
 void setup() 
 {
   Serial.begin(115200);
-  controller.add_loadcell(loadcell_1, D2, D3);
+  controller.add_loadcell(loadcell_1, D8, 17);
   controller.set_all_loadcells_scale_coeff_n_readings(50);
   controller.set_all_loadcells_tare_n_readings(10);
   controller.set_all_loadcells_weight_n_readings(10);
