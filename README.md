@@ -79,10 +79,10 @@ Serial.begin(9600);
                                     9,         // sck pin
                                     true,      // calibrate offset
                                     true,      // calibrate scale
-                                    false,     // read offset eeprom
-                                    false,     // read scale eeprom
-                                    true,      // save offset eeprom
-                                    true,      // save scale eeprom
+                                    false,     // read offset to memory
+                                    false,     // read scale to memory
+                                    true,      // save offset to memory
+                                    true,      // save scale to memory
                                     0,         // tare offset manually, no specification if 0
                                     0,         // scale coeff manually, no specification if 0
                                     128        // gain, don't change! 
