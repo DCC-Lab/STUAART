@@ -36,6 +36,9 @@ You can now use the libraries in your skectch by including them this way.
 #include "LoadCellController.h"
 ```
 
+### Sketch examples
+Many useful sketches are saved in this folder. Find it in Loadcell > ArduinoLibraries > SketchExamples. 
+
 
 ## Load cell drift test
 Many tests were done to characterize the drift of a load cell. All the Arduino [sketches](Loadcell/LoadcellDriftTest/ArduinoSketch) used for different tests are listed by date in the repo. The small data files are also [here](Loadcell/LoadcellDriftTest/Data).
