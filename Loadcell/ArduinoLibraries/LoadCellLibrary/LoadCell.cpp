@@ -72,6 +72,7 @@ long LoadCell::read_raw_average() {
 	for (byte i = 0; i < times; i++) {
 		sum += read();
 		delay(0);
+    // Serial.println(i);
 	}
 	return sum / times;
 }
@@ -99,7 +100,7 @@ long LoadCell::read_scale_coeff_average() {
 }
 
 double LoadCell::get_raw_value() {
-  return read_average() - get_offset();
+  return read_raw_average() - get_offset();
 }
 
 float LoadCell::get_weight() {
