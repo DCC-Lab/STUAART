@@ -16,12 +16,12 @@
 const bool print = true; // variable used to determine if print readings (true will slow down execution)
 bool reset_plate = true; // variable acting as a switch for the reset of the sensor
 int i = 0; // variable used to keep track of iterations
-const int reset_trigg_value_plate = 100; // capacity treshold considered as "no-contact" to trigger reset of the sensor
+const int reset_trigg_value_plate = 300; // capacity treshold considered as "no-contact" to trigger reset of the sensor
 const int reset_num_older_value = 40; // number of old value used to determine the stability needed to trigger the reset of the sensor
 
 int previous_values_plate[reset_num_older_value];
 
-CapacitiveSensor   plate = CapacitiveSensor(A0,A1);        // (emitting pin, sensing pin)
+CapacitiveSensor   plate = CapacitiveSensor(2,13);        // (emitting pin, sensing pin)
 
 void setup()                    
 { 
