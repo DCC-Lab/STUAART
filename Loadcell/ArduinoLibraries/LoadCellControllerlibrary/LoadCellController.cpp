@@ -1169,7 +1169,7 @@ float LoadCellController::get_weight_with_auto_recalibration(byte loadcell_num, 
     {
     reading = loadcell_ptr->read();
 
-    if (mass_from_raw(loadcell_num,reading) > (get_mouse_weight()*threshold)) 
+    if (abs(mass_from_raw(loadcell_num,reading)) > (get_mouse_weight()*threshold)) 
     {
         tare = false;
         break;
