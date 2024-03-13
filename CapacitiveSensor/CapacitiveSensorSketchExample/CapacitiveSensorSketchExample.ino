@@ -11,6 +11,12 @@
  * Nathan Bérubé, August 2023
  */
 #include <CapacitiveSensor.h>
+#include "SD.h"
+#include "SPI.h"
+
+
+const int SS_pin = 4;
+File myFile; // initialize the file
 
 
 const bool print = true; // variable used to determine if print readings (true will slow down execution)
@@ -21,18 +27,18 @@ const int reset_num_older_value = 40; // number of old value used to determine t
 
 int previous_values_plate[reset_num_older_value];
 
-CapacitiveSensor   plate = CapacitiveSensor(2,13);        // (emitting pin, sensing pin)
+CapacitiveSensor   plate = CapacitiveSensor(2,3);        // (emitting pin, sensing pin)
 
 void setup()                    
 { 
   Serial.begin(115200);
   plate.reset_CS_AutoCal(); // set the new reference of the plate
-  // plate.set_CS_AutocaL_Millis(0xFFFFFFFF); // disable the auto reset of reference of the plate
+  plate.set_CS_AutocaL_Millis(0xFFFFFFFF); // disable the auto reset of reference of the plate
   Serial.println("Starting...");
 }
 
 void loop() {
-  int total_plate = plate.capacitiveSensor(10); // read the capacitance value
+  int total_plate = plate.capacitiveSensor(100); // read the capacitance value
 
   // place the reading in the array of previous values at the position of the older value
   if (reset_plate){
@@ -68,9 +74,41 @@ void loop() {
     }
     Serial.print("Value:    ");
     Serial.println(total_plate);
-
-  i++; // add one to the iteration variable
-  delay(10);
+    i++; // add one to the iteration variable
   }
+  filewrite(total_plate);
+  delay(100);
 }
 
+
+void filewrite(float reading) {
+    while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+    }
+
+    Serial.print("Initializing SD card...");
+
+    if (!SD.begin(SS_pin)) {
+      Serial.println("initialization failed!");
+      while (1);
+    }
+    Serial.println("initialization done.");
+
+    // open the file. note that only one file can be open at a time,
+    // so you have to close this one before opening another.
+    myFile = SD.open("test.csv", FILE_WRITE);
+
+    // if the file opened okay, write to it:
+    if (myFile) {
+      Serial.print("Writing to data.csv...");
+      myFile.print(1);
+      myFile.print(",");
+      myFile.println(millis());
+      // close the file:
+      myFile.close();
+      Serial.println("done.");
+    } else {
+      // if the file didn't open, print an error:
+      Serial.println("error opening data.csv");
+    }
+  }
