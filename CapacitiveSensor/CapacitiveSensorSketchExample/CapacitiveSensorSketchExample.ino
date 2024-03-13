@@ -77,7 +77,7 @@ void loop() {
     i++; // add one to the iteration variable
   }
   filewrite(total_plate);
-  delay(100);
+  delay(5);
 }
 
 
