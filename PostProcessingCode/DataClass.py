@@ -2,14 +2,14 @@ import numpy as np
 
 class Data(np.ndarray):
 
+    def __new__(cls, data):
+        obj = np.asarray(data).view(cls)
+        return obj
+
     def __init__(self, data):
         print('init')
         super().__init__()
         self.outliers_threshold = 0
-    
-    def __new__(cls, a):
-        obj = np.asarray(a).view(cls)
-        return obj
 
     def center_data_on_zero(self):
         baseline = np.mean(self[1])
