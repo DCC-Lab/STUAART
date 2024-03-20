@@ -20,7 +20,6 @@ data3 = data[:,3]
 data1 = Data(data1)
 data2 = Data(data2)
 data3 = Data(data3)
-
 print(data1)
 
 threshold = 5 * 10**5

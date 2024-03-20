@@ -4,6 +4,7 @@ class Data(np.ndarray):
 
     def __init__(self, data):
         print('init')
+        super().__init__()
         self.outliers_threshold = 0
     
     def __new__(cls, a):
