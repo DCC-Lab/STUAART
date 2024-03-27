@@ -17,16 +17,17 @@ data1 = data[:,1]
 data2 = data[:,2]
 data3 = data[:,3]
 
-data1 = Data(data1)
-data2 = Data(data2)
-data3 = Data(data3)
-print(data1)
+data1 = Data(data1, time)
+data2 = Data(data2, time)
+data3 = Data(data3, time)
 
-threshold = 5 * 10**5
+threshold1 = 2 * 10**5
+threshold2 = 4 * 10**5
+threshold3 = 4 * 10**5
 
-data1.set_outliers_threshold(threshold)
-data2.set_outliers_threshold(threshold)
-data3.set_outliers_threshold(threshold)
+data1.set_outliers_threshold(threshold1)
+data2.set_outliers_threshold(threshold2)
+data3.set_outliers_threshold(threshold3)
 
 data1.center_data_on_zero()
 data2.center_data_on_zero()
@@ -36,13 +37,28 @@ data1.remove_outliers()
 data2.remove_outliers()
 data3.remove_outliers()
 
+data1.set_weight_threshold()
+data2.set_weight_threshold()
+data3.set_weight_threshold()
+
+data1.find_peak_average_values()
+data2.find_peak_average_values()
+data3.find_peak_average_values()
+
+data1.find_all_peaks_values()
+data2.find_all_peaks_values()
+data3.find_all_peaks_values()
 
 
 
-plt.plot(time, data1)
-plt.plot(time, data2)
-plt.plot(time, data3)
-plt.xlabel("Time [h]")
-plt.ylabel("Raw output [-]")
-plt.show()
+
+data1.plot_signal()
+data1.plot_peak_averages()
+data1.plot_all_peaks()
+
+# data2.plot_signal()
+# data2.plot_peaks_average()
+
+# data3.plot_signal()
+# data3.plot_peaks_average()
 
