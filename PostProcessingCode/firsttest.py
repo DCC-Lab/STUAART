@@ -14,6 +14,8 @@ data = np.array(pd.read_csv(your_path))
 
 time = data[:,0]/(1000 * 60 * 60)
 data1 = data[:,1]
+data1[3000:] += 3000
+# data1[5000:] += 3000
 data2 = data[:,2]
 data3 = data[:,3]
 
@@ -37,6 +39,13 @@ data1.remove_outliers()
 data2.remove_outliers()
 data3.remove_outliers()
 
+data1.plot_signal(threshold=False, peaks=False, baseline=False)
+
+data1.find_baseline()
+data1.plot_signal(threshold=False, peaks=False, baseline=True)
+
+data1.substract_baseline()
+
 data1.set_weight_threshold()
 data2.set_weight_threshold()
 data3.set_weight_threshold()
@@ -52,7 +61,8 @@ data3.find_all_peaks_values()
 
 
 
-data1.plot_signal()
-data1.plot_all_peaks()
+data1.plot_signal(baseline=False)
+data1.plot_baseline()
+# data1.plot_all_peaks()
 
 

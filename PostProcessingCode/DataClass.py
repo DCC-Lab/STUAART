@@ -20,6 +20,8 @@ class Data(np.ndarray):
         self.peak_averages = [0]
         self.peak_average_times = [0]
 
+        self.baseline = np.zeros(self.shape)
+
     def center_data_on_zero(self):
         """
         Raw signal is not centered on zero because the rest is non-zero. That's why we need to tare the load cell.
@@ -32,8 +34,43 @@ class Data(np.ndarray):
         return self
 
     def find_baseline(self):
-        for i, value in enumerate(self):
-            stable_values = []
+        n_values = 50
+        threshold = 5000
+        i = 1
+
+        offset = self[0]
+        while i < len(self):
+            time = self.time[i]
+            value = self[i]
+            if value > threshold:
+                #if value is over the threshold, we go look n_values further because stability
+                # won't be reached until then
+
+                # saving unchanged baseline for next time ticks
+                self.baseline[i: i+n_values] = offset
+                i += n_values
+                continue
+            
+            # if present value under threshold
+            # get old values to verify if they are also under the threshold
+            # before setting it as new baseline
+            if i >= n_values:
+                old_values = self[i - n_values:i]
+            else:
+                old_values = self[0:i]
+            
+            if np.all(np.abs(old_values) < (threshold + offset)):
+                # change offset value if the previous_values are under threshold
+                offset = np.mean(old_values)
+                # print(f'offset change: {offset}')
+
+            # save baseline value for time tick
+            self.baseline[i] = offset
+            i +=1
+
+    def substract_baseline(self):
+        # self.find_baseline()
+        self[:] = self - self.baseline
 
     def remove_outliers(self) -> np.array:
         self[:] = np.where(np.abs(self) > self.outliers_threshold, 0, self)
@@ -93,7 +130,15 @@ class Data(np.ndarray):
         peak_times, peak_averaged_values = self.__find_signal_average_at_peaks(peaks_index_intervalls)
         self.peak_average_times, self.peak_averages = peak_times, peak_averaged_values
 
-    def plot_signal(self, threshold: bool=True, peaks: bool=True):
+
+
+
+    def plot_baseline(self):
+        plt.plot(self.time,self.baseline, color='black', label='Baseline')
+        plt.title('Baseline')
+        plt.show()
+
+    def plot_signal(self, threshold: bool=True, peaks: bool=True, baseline: bool=True):
 
         print(f"Number of peaks identified {len(self.peaks)}")
         print(f"Number of peak intervalls identified {len(self.peak_averages)}")
@@ -101,10 +146,14 @@ class Data(np.ndarray):
         print(f"Peak intervalls average is {np.mean(self.peaks)}")
 
         plt.plot(self.time, self, color='black', label='Signal')
+
         if threshold:
             plt.plot([0, np.max(self.time)], [self.weight_threshold, self.weight_threshold], color='red', linestyle='dashed', label='Threshold')
         if peaks:
             plt.scatter(self.peak_times, self.peaks, color='red')
+        if baseline:
+            plt.plot(self.time, self.baseline, color='blue', label='Baseline')
+
         plt.xlabel("Time [h]")
         plt.ylabel("Signal [-]") 
         plt.title("Signal")
