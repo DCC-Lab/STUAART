@@ -53,12 +53,6 @@ data3.find_all_peaks_values()
 
 
 data1.plot_signal()
-data1.plot_peak_averages()
 data1.plot_all_peaks()
 
-# data2.plot_signal()
-# data2.plot_peaks_average()
-
-# data3.plot_signal()
-# data3.plot_peaks_average()
 

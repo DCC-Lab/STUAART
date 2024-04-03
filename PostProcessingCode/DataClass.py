@@ -104,7 +104,7 @@ class Data(np.ndarray):
         if threshold:
             plt.plot([0, np.max(self.time)], [self.weight_threshold, self.weight_threshold], color='red', linestyle='dashed', label='Threshold')
         if peaks:
-            plt.scatter(self.peak_times, self.peak_times, color='red')
+            plt.scatter(self.peak_times, self.peaks, color='red')
         plt.xlabel("Time [h]")
         plt.ylabel("Signal [-]") 
         plt.title("Signal")
