@@ -136,12 +136,11 @@ class Data(np.ndarray):
         self.peak_average_times, self.peak_averages = peak_times, peak_averaged_values
 
 
-
-
     def plot_baseline(self):
         plt.plot(self.time, self.baseline, color='black', label='Baseline')
         plt.title('Baseline')
         plt.show()
+
 
     def plot_signal(self, threshold: bool=True, peaks: bool=True, baseline: bool=True, color: str="k", is_saved:bool=False, real_data=None):
         # TODO : C'EST QUOI TOUT ÇA? 
@@ -153,7 +152,7 @@ class Data(np.ndarray):
         fig = plt.figure(figsize=(13,3))
 
         if real_data is not None:
-            plt.scatter(real_data[0], real_data[1], color="k", label="Real weight")
+            plt.scatter(real_data[0], real_data[1], marker="*", edgecolors="k", color="y", label="Real weight", s=100)
 
         plt.plot(self.time, self, color=color, label='Signal')
 
@@ -192,3 +191,5 @@ class Data(np.ndarray):
         plt.title("All peaks")
         plt.legend()
         plt.show()
+
+
