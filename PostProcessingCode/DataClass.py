@@ -78,7 +78,8 @@ class Data(np.ndarray):
         Removes the data higher or lower than self.outliers_threshold. 
         """
         exceptions.variable_is_defined(self.outliers_threshold)
-        self[:] = np.where(np.abs(self) > self.outliers_threshold, 0, self)
+        self[:] = np.where(self < self.outliers_threshold[0], 0, self)
+        self[:] = np.where(self > self.outliers_threshold[1], 0, self)
         return self
 
     def set_outliers_threshold(self, threshold: float):
