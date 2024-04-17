@@ -109,5 +109,3 @@ data3.find_all_peaks_values()
 # data1.plot_signal(baseline=False)
 # data1.plot_baseline()
 # data1.plot_all_peaks()
-
-
