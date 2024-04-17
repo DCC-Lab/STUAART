@@ -178,10 +178,18 @@ class Data(np.ndarray):
         return peaks_index
 
     def find_all_peaks_values(self) -> tuple:
+        """
+        Find weight values above the self.weight_threshold and their index to store them
+        in appropriate class variable.
+        """
         index_above_threshold = np.asarray(self > self.weight_threshold).nonzero()
         self.peak_times, self.peaks =  self.time[index_above_threshold], self[index_above_threshold]
 
     def __find_signal_average_at_peaks(self, peaks_index_intervalls: list) -> tuple:
+        """
+        Find the average value for the peak intervalls with their index obtained with __find_peaks_index_intervalls().
+        Weight values are averaged over the intervalls and the middle index is attributed to the average value.
+        """
         peak_averages = []
         peak_times = []
         i = 0
@@ -196,6 +204,10 @@ class Data(np.ndarray):
         return np.array(peak_times), np.array(peak_averages)
 
     def find_peak_average_values(self):
+        """
+        Calculate the average of each intervall above weight_threshold and their associate time tick.
+        Set these two array to the approriate class variable.
+        """
         peaks_index_intervalls = self.__find_peaks_index_intervalls()
         peak_times, peak_averaged_values = self.__find_signal_average_at_peaks(peaks_index_intervalls)
         self.peak_average_times, self.peak_averages = peak_times, peak_averaged_values
@@ -206,10 +218,14 @@ class Data(np.ndarray):
         plt.show()
 
     def plot_signal(self, threshold: bool=True, peaks: bool=True, baseline: bool=True, color: str="k", is_saved:bool=False, real_data=None):
-        # TODO : C'EST QUOI TOUT ÇA? 
+        # number of all data points over the weight_threshold
         print(f"Number of peaks identified {len(self.peaks)}")
+        # number of intervals where the data points are all over the weight_threshold
+        # an intervall is probably made of many data points
         print(f"Number of peak intervals identified {len(self.peak_averages)}")
+        # average of all data points over weight threshold
         print(f"Peaks average is {np.mean(self.peaks)}")
+        # average of intervall means
         print(f"Peak intervals average is {np.mean(self.peaks)}")
 
         fig = plt.figure(figsize=(13,3))
