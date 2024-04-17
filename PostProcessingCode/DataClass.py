@@ -19,7 +19,8 @@ class Data(np.ndarray):
         self.peaks = [0]
         self.peak_times = [0]
 
-        # relative to average of neighbor points considered as weight measurments
+        # relative to average of neighbor points considered as weight measurements
+        # relative to intervals over weight_threshold
         self.peak_averages = [0]
         self.peak_average_times = [0]
 
@@ -46,7 +47,7 @@ class Data(np.ndarray):
         # return the object in case it needs to be stored in main
         return self
 
-    def find_baseline(self, n_values: int=50, threshold: float=25/10):
+    def find_baseline(self, n_values: int=50, threshold: float=25/4):
         """
         This function goes through the weight values to identify the drifting baseline of the signal.
         The self.baseline is associated to an array containing the offset at each time tick.
@@ -110,7 +111,7 @@ class Data(np.ndarray):
 
     def subtract_baseline(self):
         """
-        Subtract the self.basleine array to the weight values
+        Subtract the self.baseline array to the weight values
         """
         self[:] = self - self.baseline
         return self
@@ -218,7 +219,7 @@ class Data(np.ndarray):
         plt.show()
 
     def plot_signal(self, threshold: bool=True, peaks: bool=True, baseline: bool=True, color: str="k", is_saved:bool=False, real_data=None):
-        # number of all data points over the weight_threshold
+        # number of data points over the weight_threshold
         print(f"Number of peaks identified {len(self.peaks)}")
         # number of intervals where the data points are all over the weight_threshold
         # an intervall is probably made of many data points
