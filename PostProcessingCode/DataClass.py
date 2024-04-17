@@ -1,5 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import exceptions
+
+
 class Data(np.ndarray):
 
     def __new__(cls, data: np.ndarray, time: np.ndarray):
@@ -24,18 +27,16 @@ class Data(np.ndarray):
 
     def center_data_on_zero(self):
         """
+        TODO : DESCRIPTION PAS CLAIRE, SURTOUT LA PREMIÈRE PHRASE. REPHRASER SVP.  
         Raw signal is not centered on zero because the rest is non-zero. That's why we need to tare the load cell.
-        This function substracts the first value of the signal
-        
+        This function subtracts the first value of the signal to all data. 
         """
-        baseline = np.mean(self[0])
-        centered_data = self - baseline
-        self[:] = np.abs(centered_data)
+        self[:] = self - self[0]
         return self
 
     def find_baseline(self):
         n_values = 50
-        threshold = 5000
+        threshold = 1 # TODO : ÇA MARCHE PAS SUR MES DONNÉES DE POIDS ÇA LALA. Faut que je change le threshold manuellement
         i = 1
 
         offset = self[0]
@@ -68,12 +69,17 @@ class Data(np.ndarray):
             self.baseline[i] = offset
             i +=1
 
-    def substract_baseline(self):
+    def subtract_baseline(self):
         # self.find_baseline()
         self[:] = self - self.baseline
 
     def remove_outliers(self) -> np.array:
-        self[:] = np.where(np.abs(self) > self.outliers_threshold, 0, self)
+        """
+        Removes the data higher or lower than self.outliers_threshold. 
+        """
+        exceptions.variable_is_defined(self.outliers_threshold)
+        self[:] = np.where(self < self.outliers_threshold[0], 0, self)
+        self[:] = np.where(self > self.outliers_threshold[1], 0, self)
         return self
 
     def set_outliers_threshold(self, threshold: float):
@@ -131,33 +137,40 @@ class Data(np.ndarray):
         self.peak_average_times, self.peak_averages = peak_times, peak_averaged_values
 
 
-
-
     def plot_baseline(self):
-        plt.plot(self.time,self.baseline, color='black', label='Baseline')
+        plt.plot(self.time, self.baseline, color='black', label='Baseline')
         plt.title('Baseline')
         plt.show()
 
-    def plot_signal(self, threshold: bool=True, peaks: bool=True, baseline: bool=True):
 
+    def plot_signal(self, threshold: bool=True, peaks: bool=True, baseline: bool=True, color: str="k", is_saved:bool=False, real_data=None):
+        # TODO : C'EST QUOI TOUT ÇA? 
         print(f"Number of peaks identified {len(self.peaks)}")
-        print(f"Number of peak intervalls identified {len(self.peak_averages)}")
+        print(f"Number of peak intervals identified {len(self.peak_averages)}")
         print(f"Peaks average is {np.mean(self.peaks)}")
-        print(f"Peak intervalls average is {np.mean(self.peaks)}")
+        print(f"Peak intervals average is {np.mean(self.peaks)}")
 
-        plt.plot(self.time, self, color='black', label='Signal')
+        fig = plt.figure(figsize=(13,3))
+
+        if real_data is not None:
+            plt.scatter(real_data[0], real_data[1], marker="*", edgecolors="k", color="y", label="Real weight", s=100)
+
+        plt.plot(self.time, self, color=color, label='Signal')
 
         if threshold:
             plt.plot([0, np.max(self.time)], [self.weight_threshold, self.weight_threshold], color='red', linestyle='dashed', label='Threshold')
         if peaks:
-            plt.scatter(self.peak_times, self.peaks, color='red')
+            plt.scatter(self.peak_times, self.peaks, color='k')
         if baseline:
-            plt.plot(self.time, self.baseline, color='blue', label='Baseline')
+            plt.plot(self.time, self.baseline, color='k', label='Baseline', linestyle="--", linewidth = 2)
 
-        plt.xlabel("Time [h]")
-        plt.ylabel("Signal [-]") 
-        plt.title("Signal")
+        plt.xlabel("Time [h]", fontsize=14)
+        plt.ylabel("Weight [g]", fontsize=14) 
         plt.legend()
+
+        if is_saved:
+            filename = input("Please enter the name of your file :")
+            plt.savefig(str(filename) + ".png", format="png", transparent=True)
         plt.show()
 
     def plot_peak_averages(self):
@@ -179,3 +192,5 @@ class Data(np.ndarray):
         plt.title("All peaks")
         plt.legend()
         plt.show()
+
+
