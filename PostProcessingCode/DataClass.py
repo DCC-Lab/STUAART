@@ -25,13 +25,25 @@ class Data(np.ndarray):
 
         self.baseline = np.zeros(self.shape)
 
-    def center_data_on_zero(self):
+    def shift_data_on_zero(self):
         """
-        TODO : DESCRIPTION PAS CLAIRE, SURTOUT LA PREMIÈRE PHRASE. REPHRASER SVP.  
-        Raw signal is not centered on zero because the rest is non-zero. That's why we need to tare the load cell.
-        This function subtracts the first value of the signal to all data. 
+        This function calculates the initial offset of the data to subtract it from all points.
+        We are now sure the weight is zero when the mouse in not on the scale. The number of data points
+        to average for initial offset depends on when the first weight measurement is recorded.
         """
-        self[:] = self - self[0]
+        # number of first values tu average
+        number_stable_initial_values = 1
+
+        #average of these values
+        baseline = np.mean(self[:number_stable_initial_values])
+
+        # substract baseline from data to shift if back to zer0
+        shifted_data = self - baseline
+
+        #update the weight values 
+        self[:] = np.abs(shifted_data)
+
+        # return the object in case it needs to be stored in main
         return self
 
     def find_baseline(self):
@@ -72,6 +84,7 @@ class Data(np.ndarray):
     def subtract_baseline(self):
         # self.find_baseline()
         self[:] = self - self.baseline
+        return self
 
     def remove_outliers(self) -> np.array:
         """
@@ -136,12 +149,10 @@ class Data(np.ndarray):
         peak_times, peak_averaged_values = self.__find_signal_average_at_peaks(peaks_index_intervalls)
         self.peak_average_times, self.peak_averages = peak_times, peak_averaged_values
 
-
     def plot_baseline(self):
         plt.plot(self.time, self.baseline, color='black', label='Baseline')
         plt.title('Baseline')
         plt.show()
-
 
     def plot_signal(self, threshold: bool=True, peaks: bool=True, baseline: bool=True, color: str="k", is_saved:bool=False, real_data=None):
         # TODO : C'EST QUOI TOUT ÇA? 
@@ -154,7 +165,6 @@ class Data(np.ndarray):
 
         if real_data is not None:
             plt.scatter(real_data[0], real_data[1], marker="*", edgecolors="k", color="y", label="Real weight", s=100)
-
         plt.plot(self.time, self, color=color, label='Signal')
 
         if threshold:
@@ -192,5 +202,3 @@ class Data(np.ndarray):
         plt.title("All peaks")
         plt.legend()
         plt.show()
-
-

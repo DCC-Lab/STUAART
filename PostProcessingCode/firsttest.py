@@ -48,9 +48,9 @@ data1.set_outliers_threshold(threshold1)
 data2.set_outliers_threshold(threshold2)
 data3.set_outliers_threshold(threshold3)
 
-data1.center_data_on_zero()
-data2.center_data_on_zero()
-data3.center_data_on_zero()
+data1.shift_data_to_zero()
+data2.shift_data_to_zero()
+data3.shift_data_to_zero()
 
 data1.remove_outliers()
 data2.remove_outliers()
