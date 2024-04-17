@@ -25,13 +25,13 @@ class Data(np.ndarray):
 
         self.baseline = np.zeros(self.shape)
 
-    def shift_data_on_zero(self):
+    def shift_data_to_zero(self):
         """
         This function calculates the initial offset of the data to subtract it from all points.
         We are now sure the weight is zero when the mouse in not on the scale. The number of data points
         to average for initial offset depends on when the first weight measurement is recorded.
         """
-        # number of first values tu average
+        # number of first values to average
         number_stable_initial_values = 1
 
         #average of these values
@@ -46,43 +46,72 @@ class Data(np.ndarray):
         # return the object in case it needs to be stored in main
         return self
 
-    def find_baseline(self):
-        n_values = 50
-        threshold = 1 # TODO : ÇA MARCHE PAS SUR MES DONNÉES DE POIDS ÇA LALA. Faut que je change le threshold manuellement
-        i = 1
+    def find_baseline(self, n_values: int=50, threshold: float=25/10):
+        """
+        This function goes through the weight values to identify the drifting baseline of the signal.
+        The self.baseline is associated to an array containing the offset at each time tick.
+        The stability is verified by looking at n_values in the past from current time increment
+        and looking if they are over a thrshold.
 
+        Arguments:
+            - n_values: number of stable values needed to assert stability before updating the offset
+            - threshold: threshold for weight considered as "empty"
+        """
+        # iteration increment
+        i = 1
+        # offset initialize as the first weight value
         offset = self[0]
+
+        # looping on all weigth values
         while i < len(self):
+            # time of the current weigth value
             time = self.time[i]
+            # weigth value
             value = self[i]
             if value > threshold:
-                #if value is over the threshold, we go look n_values further because stability
-                # won't be reached until then
-
+                #if value is over the threshold, we go look n_values further in time because stability 
+                # won't be reached until then.
+                # baseline needs to be tracked at each time stamp to substract it from weigth values
                 # saving unchanged baseline for next time ticks
                 self.baseline[i: i+n_values] = offset
+
+                # adding n_values to the iteration increment to go n_values further in time
                 i += n_values
+                # going to next iteration
                 continue
             
-            # if present value under threshold
-            # get old values to verify if they are also under the threshold
-            # before setting it as new baseline
-            if i >= n_values:
-                old_values = self[i - n_values:i]
             else:
-                old_values = self[0:i]
-            
-            if np.all(np.abs(old_values) < (threshold + offset)):
-                # change offset value if the previous_values are under threshold
-                offset = np.mean(old_values)
-                # print(f'offset change: {offset}')
+                # else cas is if present value is under threshold
+                # get old values to verify if they are also under 
+                # the threshold before setting their average as the new baseline
 
-            # save baseline value for time tick
-            self.baseline[i] = offset
-            i +=1
+                # handling the case where the current index of value is smaller
+                # than number of values to average
+                if i >= n_values:
+                    # averaging from current value to n_values in the past
+                    old_values = self[i - n_values:i]
+                else:
+                    # averaging from start to current value
+                    old_values = self[0:i]
+                
+                # verify if all old_values are under (threshold + current offset)
+                # since the drift causes the whole curve to shift up or down,
+                # old_values need to be compared to threshold + offset
+                if np.all(np.abs(old_values) < (threshold + offset)):
+                    # change offset value if the previous_values are under threshold
+                    offset = np.mean(old_values)
+                    # print(f'offset change: {offset}')
+
+                # save baseline value for time tick
+                self.baseline[i] = offset
+
+                # go to next iteration increment
+                i +=1
 
     def subtract_baseline(self):
-        # self.find_baseline()
+        """
+        Subtract the self.basleine array to the weight values
+        """
         self[:] = self - self.baseline
         return self
 
@@ -99,29 +128,51 @@ class Data(np.ndarray):
         self.outliers_threshold = threshold
     
     def get_weight_threshold(self):
+        """
+        Calculate the weight threshold used to identify if a value should be considered as a weigth measurement.
+        A simple method is used for now. The average of the values above the average of the signal is used. This 
+        is meant to be used after filtering and shifting the signal to zero.
+        """
         filtered_signal = self[self > np.mean(self)]
         filtered_signal = filtered_signal[filtered_signal > np.mean(filtered_signal)]
-
         threshold = np.mean(filtered_signal)
-
         return threshold
 
     def set_weight_threshold(self):
         self.weight_threshold = self.get_weight_threshold()
 
     def __find_peaks_index_intervalls(self) -> list:
+        """
+        This function finds the start and end index for all period of time where the
+        weight measurement is above self.weight_threshold.
+        """
+        # empty list to store index
         peaks_index = []
+        # iteration increment variable
         i = 0
+
+        # looping on all values
         while i < len(self):
+            # current weight value
             value = self[i]
+
             if value > self.weight_threshold:
+                # if current value is above weight_threshold
+                # we verify if neighbors are also over the threshold with a loop
                 for j, neighbor in enumerate(self[i:]):
                     if neighbor > self.weight_threshold:
                         continue
                     else:
+                        # when we reached the first neighbor under the threshold
+                        # we append to the list storing the the stat and end index of
+                        # the interval identified as over the self.weight_threshold.
                         peaks_index.append((i,j+i))
+
+                        # go to the end of the intervall in time for next iteration
                         i += j
                         break
+
+            # go to next value
             i += 1
 
         return peaks_index
