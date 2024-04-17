@@ -31,7 +31,7 @@ class Data(np.ndarray):
         Raw signal is not centered on zero because the rest is non-zero. That's why we need to tare the load cell.
         This function subtracts the first value of the signal to all data. 
         """
-        self = self - self[0]
+        self[:] = self - self[0]
         return self
 
     def find_baseline(self):
