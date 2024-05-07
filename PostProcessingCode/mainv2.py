@@ -41,9 +41,6 @@ threshold1 = [-10, 40]
 threshold2 = [-10, 40]
 threshold3 = [-10, 40]
 
-# data1.plot_signal(threshold=False, peaks=False, baseline=False, color=color_data1, is_saved=save_figure, real_data=real_data)
-# data2.plot_signal(threshold=False, peaks=False, baseline=False, color=color_data2, is_saved=save_figure, real_data=real_data)
-# data3.plot_signal(threshold=False, peaks=False, baseline=False, color=color_data3, is_saved=save_figure, real_data=real_data)
 
 data1.set_outliers_threshold(threshold1)
 data2.set_outliers_threshold(threshold2)
@@ -60,16 +57,12 @@ data3.remove_outliers()
 data1.find_baseline()
 data2.find_baseline()
 data3.find_baseline()
-# data1.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data1, is_saved=save_figure, real_data=real_data)
-# data2.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data2, is_saved=save_figure, real_data=real_data)
-# data3.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data3, is_saved=save_figure, real_data=real_data)
+
 
 data1.subtract_baseline()
 data2.subtract_baseline()
 data3.subtract_baseline()
-# data1.plot_signal(threshold=False, peaks=False, baseline=False, color=color_data1, is_saved=save_figure, real_data=real_data)
-# data2.plot_signal(threshold=False, peaks=False, baseline=False, color=color_data2, is_saved=save_figure, real_data=real_data)
-# data3.plot_signal(threshold=False, peaks=False, baseline=False, color=color_data3, is_saved=save_figure, real_data=real_data)
+
 
 data1.set_weight_threshold()
 data2.set_weight_threshold()
@@ -82,11 +75,11 @@ data3.find_peak_average_values()
 data1.find_all_peaks_values()
 data2.find_all_peaks_values()
 data3.find_all_peaks_values()
-# data1.plot_signal(threshold=False, peaks=True, baseline=False, color=color_data1, is_saved=save_figure)
-# data2.plot_signal(threshold=False, peaks=True, baseline=False, color=color_data2, is_saved=save_figure)
-# data3.plot_signal(threshold=False, peaks=True, baseline=False, color=color_data3, is_saved=save_figure)
 
-
-# Donc, basically ici je fais la somme des 3 mesures des balances dans le temps parce que ça devrait toujours être le poids de la souris uknow. 
 data_list = [data1, data2, data3]
 cage = Cage(data_list, time)
+
+cage.fft_filter(cutoff_freq=40)
+
+plt.plot(cage.time, cage)
+plt.show()
