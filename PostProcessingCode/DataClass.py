@@ -32,20 +32,48 @@ class Data(np.ndarray):
         We are now sure the weight is zero when the mouse in not on the scale. The number of data points
         to average for initial offset depends on when the first weight measurement is recorded.
         """
-        # number of first values to average
-        number_stable_initial_values = 1
 
-        #average of these values
-        baseline = np.mean(self[:number_stable_initial_values])
+        #get offset
+        offset = self.find_offset()
 
-        # substract baseline from data to shift if back to zer0
-        shifted_data = self - baseline
+        # substract offset from data to shift if back to zero
+        shifted_data = self - offset
 
         #update the weight values 
+        # self[:] = np.abs(shifted_data)
         self[:] = np.abs(shifted_data)
 
         # return the object in case it needs to be stored in main
         return self
+
+    def find_offset(self, tolerance: float=0.2):
+        """
+        This function can be used to calculate the first offset of the signal. The code
+        goes trough the signal starting from start and verifies if it is stable. Stability is
+        established using a weight tolerance (default is 0.2g). When the signal goes beyond this king of variation,
+        the previous values are averaged to calculate the initial offset.
+
+        Arguments:
+            - tolerance: range of weight around previous value considered as stable. default is 0.2g
+        """
+        # declare list to store old values to average for calculation of offset
+        offset_values = [self[0]]
+        # store previous value. first previous value is the value at first time tick
+        last_value = self[0]
+
+        # loop on signal starting at second time tick
+        for value in self[1:]:
+            # verify if difference between to consecutive values is less than tolerance
+            if abs(value - last_value) > tolerance:
+                # break loop when stability criteria is not met
+                break
+            # append value to list if stability criteria is met
+            offset_values.append(value)
+            # reassign last_value to current value for next iteration
+            last_value = value
+        
+        # return mean of stable values
+        return np.mean(np.array(offset_values))
 
     def find_baseline(self, n_values: int=50, threshold: float=25/4):
         """
@@ -61,18 +89,19 @@ class Data(np.ndarray):
         # iteration increment
         i = 1
         # offset initialize as the first weight value
-        offset = self[0]
+        offset = self.find_offset()
+        print(offset)
 
-        # looping on all weigth values
+        # looping on all weight values
         while i < len(self):
-            # time of the current weigth value
+            # time of the current weight value
             time = self.time[i]
-            # weigth value
+            # weight value
             value = self[i]
             if value > threshold:
                 #if value is over the threshold, we go look n_values further in time because stability 
                 # won't be reached until then.
-                # baseline needs to be tracked at each time stamp to substract it from weigth values
+                # baseline needs to be tracked at each time stamp to substract it from weight values
                 # saving unchanged baseline for next time ticks
                 self.baseline[i: i+n_values] = offset
 
@@ -166,7 +195,7 @@ class Data(np.ndarray):
                         continue
                     else:
                         # when we reached the first neighbor under the threshold
-                        # we append to the list storing the the stat and end index of
+                        # we append to the list storing the start and end index of
                         # the interval identified as over the self.weight_threshold.
                         peaks_index.append((i,j+i))
 
@@ -228,7 +257,7 @@ class Data(np.ndarray):
         # average of all data points over weight threshold
         print(f"Peaks average is {np.mean(self.peaks)}")
         # average of intervall means
-        print(f"Peak intervals average is {np.mean(self.peaks)}")
+        print(f"Peak intervals average is {np.mean(self.peak_averages)}")
 
         fig = plt.figure(figsize=(13,3))
 
