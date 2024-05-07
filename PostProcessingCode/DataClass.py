@@ -26,26 +26,6 @@ class Data(np.ndarray):
 
         self.baseline = np.zeros(self.shape)
 
-    def shift_data_to_zero(self):
-        """
-        This function calculates the initial offset of the data to subtract it from all points.
-        We are now sure the weight is zero when the mouse in not on the scale. The number of data points
-        to average for initial offset depends on when the first weight measurement is recorded.
-        """
-
-        #get offset
-        offset = self.find_offset()
-
-        # substract offset from data to shift if back to zero
-        shifted_data = self - offset
-
-        #update the weight values 
-        # self[:] = np.abs(shifted_data)
-        self[:] = np.abs(shifted_data)
-
-        # return the object in case it needs to be stored in main
-        return self
-
     def find_offset(self, tolerance: float=0.2):
         """
         This function can be used to calculate the first offset of the signal. The code
@@ -75,7 +55,27 @@ class Data(np.ndarray):
         # return mean of stable values
         return np.mean(np.array(offset_values))
 
-    def find_baseline(self, n_values: int=50, threshold: float=25/4):
+    def shift_data_to_zero(self):
+        """
+        This function calculates the initial offset of the data to subtract it from all points.
+        We are now sure the weight is zero when the mouse in not on the scale. The number of data points
+        to average for initial offset depends on when the first weight measurement is recorded.
+        """
+
+        #get offset
+        offset = self.find_offset()
+
+        # substract offset from data to shift if back to zero
+        shifted_data = self - offset
+
+        #update the weight values 
+        # self[:] = np.abs(shifted_data)
+        self[:] = np.abs(shifted_data)
+
+        # return the object in case it needs to be stored in main
+        return self
+
+    def find_baseline(self, n_values: int=300, threshold: float=25/4):
         """
         This function goes through the weight values to identify the drifting baseline of the signal.
         The self.baseline is associated to an array containing the offset at each time tick.
