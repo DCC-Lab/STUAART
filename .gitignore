@@ -20,3 +20,5 @@ PostProcessingCode/path.py
 PostProcessingCode/test.py
 PostProcessingCode/__pycache__/path.cpython-39.pyc
 *.pyc
+PostProcessingCode/__pycache__/DataClass.cpython-310.pyc
+PostProcessingCode/__pycache__/path.cpython-310.pyc
