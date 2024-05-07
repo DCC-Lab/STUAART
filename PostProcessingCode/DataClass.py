@@ -52,7 +52,7 @@ class Data(np.ndarray):
         This function goes through the weight values to identify the drifting baseline of the signal.
         The self.baseline is associated to an array containing the offset at each time tick.
         The stability is verified by looking at n_values in the past from current time increment
-        and looking if they are over a thrshold.
+        and looking if they are over a threshold.
 
         Arguments:
             - n_values: number of stable values needed to assert stability before updating the offset
@@ -112,6 +112,7 @@ class Data(np.ndarray):
     def subtract_baseline(self):
         """
         Subtract the self.baseline array to the weight values
+        Updates object
         """
         self[:] = self - self.baseline
         return self
@@ -130,7 +131,7 @@ class Data(np.ndarray):
     
     def get_weight_threshold(self):
         """
-        Calculate the weight threshold used to identify if a value should be considered as a weigth measurement.
+        Calculate the weight threshold used to identify if a value should be considered as a weight measurement.
         A simple method is used for now. The average of the values above the average of the signal is used. This 
         is meant to be used after filtering and shifting the signal to zero.
         """
