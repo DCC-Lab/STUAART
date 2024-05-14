@@ -75,7 +75,7 @@ class Data(np.ndarray):
         # return the object in case it needs to be stored in main
         return self
 
-    def find_baseline(self, n_values: int=300, threshold: float=25/4):
+    def find_baseline(self, n_values: int=50, threshold: float=2):
         """
         This function goes through the weight values to identify the drifting baseline of the signal.
         The self.baseline is associated to an array containing the offset at each time tick.
@@ -90,7 +90,6 @@ class Data(np.ndarray):
         i = 1
         # offset initialize as the first weight value
         offset = self.find_offset()
-        print(offset)
 
         # looping on all weight values
         while i < len(self):

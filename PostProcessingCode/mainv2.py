@@ -59,6 +59,11 @@ data2.find_baseline()
 data3.find_baseline()
 
 
+
+# data1.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data1, is_saved=save_figure, real_data=real_data)
+# data2.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data2, is_saved=save_figure, real_data=real_data)
+# data3.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data3, is_saved=save_figure, real_data=real_data)
+
 data1.subtract_baseline()
 data2.subtract_baseline()
 data3.subtract_baseline()
@@ -79,7 +84,12 @@ data3.find_all_peaks_values()
 data_list = [data1, data2, data3]
 cage = Cage(data_list, time)
 
-cage.fft_filter(cutoff_freq=40)
+plt.plot(cage.time, cage.data)
+plt.show()
 
-plt.plot(cage.time, cage)
+# cage.fft_filter(cutoff_freq=40)
+cage.remove_outliers()
+
+
+plt.plot(cage.time, cage.data)
 plt.show()
