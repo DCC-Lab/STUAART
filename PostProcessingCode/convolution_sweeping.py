@@ -10,6 +10,13 @@ import matplotlib.pyplot as plt
 from DataClass import Data
 from CageClass import Cage
 
+# this script is used to test many lengths of convolution kernel and see how the signal behave under these filters
+# the code sweeps many kernel lengths from the lower bound to upper bound that can be specified below
+
+lower_bound_kernel_length = 1
+upper_bound_kernel_length = 1000
+number_of_lengths = 6
+
 color_data1 = "b"
 color_data2 = "r"
 color_data3 = "g"
@@ -86,16 +93,23 @@ cage = Cage(data_list, time)
 
 mean = np.mean(cage.data)
 
-data_copy = np.copy(cage.data)
-time_copy = np.copy(cage.time)
 
-cage.remove_values_under_threshold(5)
-cage.convolution_filter(600, 3)
-# cage.fft_filter(cutoff_freq=50)
+def convolution_filter(data, length):
+        filtering_array = np.ones(length)/length
+        return np.convolve(data, filtering_array, mode='same')
 
 
-plt.plot(time_copy, data_copy, label="Not filtered")
-plt.plot(cage.time, cage.data, label="Filtered")
-plt.plot([cage.time[0], cage.time[-1]], [mean, mean], linestyle='dotted', label="Mean of unfiltered")
+# cage.fft_filter(cutoff_freq=40)
+
+lengths_array = np.linspace(lower_bound_kernel_length, upper_bound_kernel_length, number_of_lengths)
+data_array = np.copy(cage.data)
+print(lengths_array)
+for length in lengths_array:
+    length = int(length)
+    convolved_data = convolution_filter(data_array, length)
+    plt.plot(cage.time, convolved_data, label=f"n = {length}")
+
+plt.xlabel("Time [h] (n is length of convolution kernel)")
+plt.ylabel("Weight [g]")
 plt.legend()
 plt.show()
