@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import exceptions
 import scipy.fft as fft
-
 class Cage():
 
     def __init__(self, data_list: list, time: np.ndarray):
@@ -54,6 +53,31 @@ class Cage():
         # delete data points considered as outliers
         self.data = np.delete(self.data, outliers_index)
         self.time = np.delete(self.time, outliers_index)
+
+    def find_dynamic_threshold(self, time_window_length: float):
+        """ 
+        NOT IMPLEMENTED
+        
+        This function could be use to calculate a threshold identifying what is considered
+        "empty". It was found that using a threshold to eleminate data points near zero before using
+        a convolutional filter works pretty well. The determination of this threshold can be simple if a value like 5g is used
+        for the whole experiment. But, using a more cleverly chosen value can help with the smoothing of the signal.
+        Single value threshold forces us to be safe since it needs always work (implying a less efficient approach). A dynamic threshold could help us
+        discrminate more points before convolutional filtering and gain in precision (we would avoid ups and downs more efficiently).
+        
+        Suggested aproach: Calculate the mean value over a fixed time interval (like 1 hour). Use a fraction of this mean as your
+        threshold (like 1/4). Mean value should always be around the weight of the mouse, so a fraction is a good guess for our threshold.
+        We can repeat that for the next time interval to have a dynamic threshold following the general tendency of the weight. Time interval length
+        should be chosen to match how fast weight is expected to change.
+
+        Looping on all time intervals to calculate the threshold for each of them. Store them in an array to have the dynamic behaviour of our threshold.
+        Give this array to another function that would remove all data points under the threshold for all time intervals.
+
+        Arguments: 
+            - time_window_length: length in hours of the time window used
+        """
+        pass
+
 
     def remove_values_under_threshold(self, threshold: float=5):
         """ Remove every data points under a specified threshold
