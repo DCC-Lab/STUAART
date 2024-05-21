@@ -18,15 +18,15 @@ save_figure = False
 
 data = np.array(pd.read_csv(your_path))
 
-
 # -----------
+# Individual scales
 
 time = data[:,0]/(1000 * 60 * 60) # time in hours
 data1 = data[:,1] # weight measurements scale 1, 300g
 data2 = data[:,2] # weight measurements scale 1, 100g
 data3 = data[:,3] # weight measurements scale 1, 100g
 
-real_data = np.array([[time[0], time[-1]],[29.5, 29.5]])
+real_data = np.array([[time[0], time[-1]],[29.5, 29.5]]) # measured weight of the mouse
 
 # This is used in case we want to amplify the drift for testing
 # data1[3000:] += 3000
@@ -36,11 +36,13 @@ data1 = Data(data1, time)
 data2 = Data(data2, time)
 data3 = Data(data3, time)
 
+# Step 1 : Clean the signal and ready the data for the analysis
+# set baseline, correct for shifts of weight over time, remove outliers with a simple threshold. 
+
 # if the measurements are higher than the threshold [g], for sure they are outliers
 threshold1 = [-10, 40]
 threshold2 = [-10, 40]
 threshold3 = [-10, 40]
-
 
 data1.set_outliers_threshold(threshold1)
 data2.set_outliers_threshold(threshold2)
@@ -58,8 +60,6 @@ data1.find_baseline()
 data2.find_baseline()
 data3.find_baseline()
 
-
-
 # data1.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data1, is_saved=save_figure, real_data=real_data)
 # data2.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data2, is_saved=save_figure, real_data=real_data)
 # data3.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data3, is_saved=save_figure, real_data=real_data)
@@ -68,31 +68,35 @@ data1.subtract_baseline()
 data2.subtract_baseline()
 data3.subtract_baseline()
 
+# Obsolete : Isolate the peaks to identify the moments where the mouse if weighted. Les entre-deux sont tannants à gérer. Revient au problème de changer le threshold parce que le poids de la souris change dans le temps. 
+# data1.set_weight_threshold()
+# data2.set_weight_threshold()
+# data3.set_weight_threshold()
 
-data1.set_weight_threshold()
-data2.set_weight_threshold()
-data3.set_weight_threshold()
+# data1.find_peak_average_values()
+# data2.find_peak_average_values()
+# data3.find_peak_average_values()
 
-data1.find_peak_average_values()
-data2.find_peak_average_values()
-data3.find_peak_average_values()
+# data1.find_all_peaks_values()
+# data2.find_all_peaks_values()
+# data3.find_all_peaks_values()
 
-data1.find_all_peaks_values()
-data2.find_all_peaks_values()
-data3.find_all_peaks_values()
+# -------
+# Cage 
 
 data_list = [data1, data2, data3]
 cage = Cage(data_list, time)
 
 mean = np.mean(cage.data)
 
+# TODO : 
+# Save the raw data somewhere. 
 data_copy = np.copy(cage.data)
 time_copy = np.copy(cage.time)
 
 cage.remove_values_under_threshold(5)
 cage.convolution_filter(600, 3)
 # cage.fft_filter(cutoff_freq=50)
-
 
 plt.plot(time_copy, data_copy, label="Not filtered")
 plt.plot(cage.time, cage.data, label="Filtered")
