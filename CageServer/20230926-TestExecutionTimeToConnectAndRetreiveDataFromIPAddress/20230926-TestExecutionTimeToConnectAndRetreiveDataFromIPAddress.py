@@ -33,7 +33,7 @@ for j in range(0,nb_of_tests):
 
 	end = time.time()
 	now = dt.datetime.now()
-	data[j] = [now.date(), now.strftime("%H:%M:%S"), time_to_wait, end-start, total_characters, size_of_data, result_connection] 
+	data[j] = [now.date(), now.strftime("%H:%M:%S"), time_to_wait, end-start, total_characters, size_of_data, result_connection]
 	print(j)
 	data_df = pd.DataFrame(data).T
 	print(data_df)
