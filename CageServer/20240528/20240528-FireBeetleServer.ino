@@ -20,9 +20,9 @@
  created for arduino 25 Nov 2012
  by Tom Igoe
 
-ported for sparkfun esp32 
+ported for sparkfun esp32
 31.01.2017 by Jan Hendrik Berlin
- 
+
  */
 
 #include <WiFi.h>
@@ -30,92 +30,105 @@ ported for sparkfun esp32
 #include <SPI.h>
 #include <time.h>
 
-File myFile; // initialize the file
-const int SS_pin = 2; // seule pin de carte SD à spécifier 
+File myFile;          // initialize the file
+const int SS_pin = 2; // seule pin de carte SD à spécifier
 
 int reading = 10;
 
-const char* SSID     = "Colloque-CRIUSMQ"; //of the router
-const char* PASSWORD = "29e6c5aac7"; //password of the router
-WiFiServer server(80); // créer un serveur qui écoute les clients qui veulent s'y connecter 
+const char *SSID = "Colloque-CRIUSMQ"; // of the router
+const char *PASSWORD = "29e6c5aac7";   // password of the router
+WiFiServer server(80);                 // créer un serveur qui écoute les clients qui veulent s'y connecter
 
-const char* REFRESH_CODE = "refresh";
+const char *REFRESH_CODE = "refresh";
 
 char today[11];
 
-void connect_to_wifi() {
-      // We start by connecting to a WiFi network
-    Serial.println();
-    Serial.println();
-    Serial.print("Connecting to ");
-    Serial.println(SSID);
-    WiFi.begin(SSID, PASSWORD);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("");
-    Serial.println("WiFi connected.");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
-    server.begin();
+void connect_to_wifi()
+{
+  // We start by connecting to a WiFi network
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(SSID);
+  WiFi.begin(SSID, PASSWORD);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  server.begin();
 }
-
 
 void setup()
 {
-    Serial.begin(115200);
-    connect_to_wifi();
+  Serial.begin(115200);
+  connect_to_wifi();
 }
 
-void loop(){
+void loop()
+{
 
- WiFiClient client = server.available();   // listen for incoming client
+  WiFiClient client = server.available(); // listen for incoming client
 
-  if (client) {                             // if you get a client,
-    Serial.println("New Client.");           // print a message out the serial port
-    String clientData = "";                // make a String to hold incoming data from the client
-    while (client.connected()) {            // loop while the client's connected
-      if (client.available()) {             // if there's bytes to read from the client,
-        char c = client.read();             // read a byte, then
-        Serial.write(c);                    // print it out the serial monitor
-        if (c == '\n') {                    // if the byte is a newline character
+  if (client)
+  {                                // if you get a client,
+    Serial.println("New Client."); // print a message out the serial port
+    String clientData = "";        // make a String to hold incoming data from the client
+    while (client.connected())
+    { // loop while the client's connected
+      if (client.available())
+      {                         // if there's bytes to read from the client,
+        char c = client.read(); // read a byte, then
+        Serial.write(c);        // print it out the serial monitor
+        if (c == '\n')
+        { // if the byte is a newline character
 
           // if the current line is blank, you got two newline characters in a row.
           // that's the end of the client HTTP request, so send a response:
-          if (currentLine.length() == 0) {
+          if (currentLine.length() == 0)
+          {
             // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
             // and a content-type so the client knows what's coming, then a blank line:
             client.println("HTTP/1.1 200 OK");
             client.println("Content-type:text/html");
             client.println();
 
-            if(!SD.begin(SS_pin)){
+            if (!SD.begin(SS_pin))
+            {
               Serial.println("Card Mount Failed");
               return;
-              }
-              
+            }
+
             uint8_t cardType = SD.cardType();
-            
-            if(cardType == CARD_NONE){
+
+            if (cardType == CARD_NONE)
+            {
               Serial.println("No SD card attached");
               return;
             }
 
-            if (clientData.indexOf(REFRESH_CODE) >= 0) { // If the refresh code is passed, give the client the newest data
+            if (clientData.indexOf(REFRESH_CODE) >= 0)
+            {                                  // If the refresh code is passed, give the client the newest data
               myFile = SD.open("/test_2.csv"); // This would be the 'today' file not yet completed.
             }
-            else {
+            else
+            {
               myFile = SD.open("/test_1.csv");
             }
-            
-            if(!myFile) {
+
+            if (!myFile)
+            {
               Serial.println("Failed to open file for reading");
               return;
             }
 
             Serial.println("Read from file : ");
-            while(myFile.available()) {
+            while (myFile.available())
+            {
               client.println(myFile.read()); // ICI : print in decimal
             }
             myFile.close();
@@ -125,7 +138,9 @@ void loop(){
             // break out of the while loop:
             break;
           }
-        } else {
+        }
+        else
+        {
           clientData += c;
         }
       }
