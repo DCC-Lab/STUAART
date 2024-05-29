@@ -35,11 +35,14 @@ const int SS_pin = 2; // seule pin de carte SD à spécifier
 
 int reading = 10;
 
-const char *SSID = "Colloque-CRIUSMQ"; // of the router
-const char *PASSWORD = "29e6c5aac7";   // password of the router
+const char *SSID = "TP-Link_37E9"; // of the router
+const char *PASSWORD = "15351210";   // password of the router
 WiFiServer server(80);                 // créer un serveur qui écoute les clients qui veulent s'y connecter
 
 const char *REFRESH_CODE = "refresh";
+
+const char *TODAY_FILE_NAME = "/today.csv";
+const char *YESTERDAY_FILE_NAME = "/yesterday.csv";
 
 char today[11];
 
@@ -66,7 +69,60 @@ void connect_to_wifi()
 void setup()
 {
   Serial.begin(115200);
+
+  create_test_data();
+
   connect_to_wifi();
+}
+
+void create_test_data()
+{
+  write_file(SD, YESTERDAY_FILE_NAME);
+  write_file(SD, TODAY_FILE_NAME);
+}
+
+void write_file(fs::FS &fs, const char *path, int message)
+{
+
+  while (!Serial)
+  {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+
+  Serial.print("Initializing SD card...");
+
+  if (!SD.begin(SS_pin))
+  {
+    Serial.println("initialization failed!");
+    return;
+  }
+  Serial.println("initialization done.");
+
+  // open the file. note that only one file can be open at a time,
+  myFile = SD.open(path, FILE_WRITE);
+
+  // if the file opened okay, write to it:
+  if (myFile)
+  {
+    struct tm timeinfo;
+    if (!getLocalTime(&timeinfo))
+    {
+      Serial.println("Failed to obtain time");
+      return;
+    }
+    Serial.print(("Writing to file..."));
+    myFile.print(&timeinfo, "%H:%M:%S");
+    myFile.print(",");
+    myFile.println(message);
+    // close the file:
+    myFile.close();
+    Serial.println("done.");
+  }
+  else
+  {
+    // if the file didn't open, print an error:
+    Serial.println("error opening file");
+  }
 }
 
 void loop()
@@ -112,12 +168,12 @@ void loop()
             }
 
             if (clientData.indexOf(REFRESH_CODE) >= 0)
-            {                                  // If the refresh code is passed, give the client the newest data
-              myFile = SD.open("/test_2.csv"); // This would be the 'today' file not yet completed.
+            {// If the refresh code is passed, give the client the newest data
+              myFile = SD.open(TODAY_FILE_NAME); // This would be the 'today' file not yet completed.
             }
             else
             {
-              myFile = SD.open("/test_1.csv");
+              myFile = SD.open(YESTERDAY_FILE_NAME);
             }
 
             if (!myFile)
