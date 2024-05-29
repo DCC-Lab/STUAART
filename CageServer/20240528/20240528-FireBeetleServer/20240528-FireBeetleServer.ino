@@ -30,19 +30,23 @@ ported for sparkfun esp32
 #include <SPI.h>
 #include <time.h>
 
-File myFile;          // initialize the file
-const int SS_pin = 2; // seule pin de carte SD à spécifier
+File myFile;           // initialize the file
+const int SS_pin = 21; // seule pin de carte SD à spécifier
 
 int reading = 10;
 
 const char *SSID = "TP-Link_37E9"; // of the router
-const char *PASSWORD = "15351210";   // password of the router
-WiFiServer server(80);                 // créer un serveur qui écoute les clients qui veulent s'y connecter
+const char *PASSWORD = "15351210"; // password of the router
+WiFiServer server(80);             // créer un serveur qui écoute les clients qui veulent s'y connecter
 
 const char *REFRESH_CODE = "refresh";
 
 const char *TODAY_FILE_NAME = "/today.csv";
 const char *YESTERDAY_FILE_NAME = "/yesterday.csv";
+
+const char *NTP_SERVER = "pool.ntp.org";
+const long GMT_OFFSET_SEC = -18000;
+const int DAYLIGHT_OFFSET_SEC = 3600;
 
 char today[11];
 
@@ -69,16 +73,17 @@ void connect_to_wifi()
 void setup()
 {
   Serial.begin(115200);
-
-  create_test_data();
+  configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
 
   connect_to_wifi();
+
+  create_test_data();
 }
 
 void create_test_data()
 {
-  write_file(SD, YESTERDAY_FILE_NAME);
-  write_file(SD, TODAY_FILE_NAME);
+  write_file(SD, YESTERDAY_FILE_NAME, 10);
+  write_file(SD, TODAY_FILE_NAME, 11);
 }
 
 void write_file(fs::FS &fs, const char *path, int message)
@@ -134,72 +139,71 @@ void loop()
   {                                // if you get a client,
     Serial.println("New Client."); // print a message out the serial port
     String clientData = "";        // make a String to hold incoming data from the client
+    char c = 'v';
+    char oldC = ' ';
     while (client.connected())
     { // loop while the client's connected
       if (client.available())
-      {                         // if there's bytes to read from the client,
-        char c = client.read(); // read a byte, then
-        Serial.write(c);        // print it out the serial monitor
+      {                    // if there's bytes to read from the client,
+        c = client.read(); // read a byte, then
+        Serial.write(c);   // print it out the serial monitor
         if (c == '\n')
         { // if the byte is a newline character
 
-          // if the current line is blank, you got two newline characters in a row.
-          // that's the end of the client HTTP request, so send a response:
-          if (currentLine.length() == 0)
-          {
-            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
-            // and a content-type so the client knows what's coming, then a blank line:
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-type:text/html");
-            client.println();
-
-            if (!SD.begin(SS_pin))
-            {
-              Serial.println("Card Mount Failed");
-              return;
-            }
-
-            uint8_t cardType = SD.cardType();
-
-            if (cardType == CARD_NONE)
-            {
-              Serial.println("No SD card attached");
-              return;
-            }
-
-            if (clientData.indexOf(REFRESH_CODE) >= 0)
-            {// If the refresh code is passed, give the client the newest data
-              myFile = SD.open(TODAY_FILE_NAME); // This would be the 'today' file not yet completed.
-            }
-            else
-            {
-              myFile = SD.open(YESTERDAY_FILE_NAME);
-            }
-
-            if (!myFile)
-            {
-              Serial.println("Failed to open file for reading");
-              return;
-            }
-
-            Serial.println("Read from file : ");
-            while (myFile.available())
-            {
-              client.println(myFile.read()); // ICI : print in decimal
-            }
-            myFile.close();
-
-            // The HTTP response ends with another blank line:
-            client.println();
-            // break out of the while loop:
-            break;
-          }
         }
         else
         {
           clientData += c;
         }
       }
+      else
+      {
+        client.println("HTTP/1.1 200 OK");
+        client.println("Content-type:text/html");
+        client.println();
+
+        if (!SD.begin(SS_pin))
+        {
+          Serial.println("Card Mount Failed");
+          return;
+        }
+
+        uint8_t cardType = SD.cardType();
+
+        if (cardType == CARD_NONE)
+        {
+          Serial.println("No SD card attached");
+          return;
+        }
+
+        if (clientData.indexOf(REFRESH_CODE) >= 0)
+        {                                    // If the refresh code is passed, give the client the newest data
+          myFile = SD.open(TODAY_FILE_NAME); // This would be the 'today' file not yet completed.
+        }
+        else
+        {
+          myFile = SD.open(YESTERDAY_FILE_NAME);
+        }
+
+        if (!myFile)
+        {
+          Serial.println("Failed to open file for reading");
+          return;
+        }
+
+        Serial.println("Read from file : ");
+        while (myFile.available())
+        {
+          client.println(myFile.read()); // ICI : print in decimal
+        }
+        myFile.close();
+
+        // The HTTP response ends with another blank line:
+        client.println();
+        // break out of the while loop:
+        break;
+      }
+      oldC = c;
     }
     // close the connection:
     client.stop();
