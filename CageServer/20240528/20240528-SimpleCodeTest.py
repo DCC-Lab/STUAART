@@ -3,19 +3,20 @@ import time
 import pandas as pd
 import datetime as dt
 import sys
-import random
 import tkinter as tk
 
-ALL_IPS = ["172.16.13.10"]
+ALL_IPS = ["192.168.0.101"]
 
 window = tk.Tk()
 status = tk.Label(text='Waiting')
-status.pack()
+status.pack(ipadx=100, ipady=50)
 
 
 def fetch_data(data_for_server):
     for i in range(0, len(ALL_IPS)):
         total_characters = 0
+        start = time.time()
+        
         try:
             status.config(text="Loading " + ALL_IPS[i])
             web_url = urllib.request.urlopen(
@@ -24,6 +25,7 @@ def fetch_data(data_for_server):
             html_data = 0
             total_characters += 0
             size_of_data = 0
+            status.config(text="URL ERROR " + web_url)
             print("Network Error, " + web_url)
 
         else:
@@ -34,19 +36,24 @@ def fetch_data(data_for_server):
             # 200 if the connection was done well
             end = time.time()
             now = dt.datetime.now()
-            data = [now.date(), now.strftime("%H:%M:%S"), time_to_wait, end -
+            data = [now.date(), now.strftime("%H:%M:%S"), end -
                     start, total_characters, size_of_data, web_url.getcode()]
             data_df = pd.DataFrame(data).T
-            print(data_df)
-            print(html_data)
+            number_list = html_data.decode().split('\r\n')
+            message = ''
+            for number in number_list:
+                if number.isnumeric():                    
+                    message += chr(int(number))
+            print(message)
+            
 
 
 def refresh():
-    fetch_data("refresh")
+    fetch_data("refresh\n\n".encode('utf-8'))
 
 
 button = tk.Button(text='Refresh', command=refresh)
-button.pack()
+button.pack(pady=50)
 
 window.mainloop()
 
@@ -58,6 +65,5 @@ for j in range(0, nb_of_tests):
     time_to_wait = 30
     status.config(text="Waiting")
     time.sleep(time_to_wait)
-    start = time.time()
     fetch_data(None)
     print(j)
