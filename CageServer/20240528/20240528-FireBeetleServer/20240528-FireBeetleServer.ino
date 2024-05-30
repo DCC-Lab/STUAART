@@ -70,7 +70,7 @@ void connect_to_wifi()
   server.begin();
 }
 
-void write_file(fs::FS &fs, const char *path, int message)
+void write_file(fs::FS &fs, const char *path, char *message)
 {
 
   while (!Serial)
@@ -100,8 +100,6 @@ void write_file(fs::FS &fs, const char *path, int message)
       return;
     }
     Serial.print(("Writing to file..."));
-    myFile.print(&timeinfo, "%H:%M:%S");
-    myFile.print(",");
     myFile.println(message);
     // close the file:
     myFile.close();
@@ -116,8 +114,8 @@ void write_file(fs::FS &fs, const char *path, int message)
 
 void create_test_data()
 {
-  write_file(SD, YESTERDAY_FILE_NAME, 10);
-  write_file(SD, TODAY_FILE_NAME, 11);
+  write_file(SD, YESTERDAY_FILE_NAME, "time (ms), reading 1, reading 2, reading 3\n663,-583076.00,691074.00,4554467.00");
+  write_file(SD, TODAY_FILE_NAME, "time (ms), reading 1, reading 2, reading 3\n663,-583076.00,691074.00,4554467.00");
 }
 
 void setup()
@@ -187,7 +185,9 @@ void loop()
         Serial.println("Read from file : ");
         while (myFile.available())
         {
-          client.println(myFile.read()); // ICI : print in decimal
+          char c = myFile.read();
+          Serial.print(c);
+          client.print(c); // ICI : print in decimal
         }
         myFile.close();
 

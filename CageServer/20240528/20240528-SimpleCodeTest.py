@@ -4,6 +4,7 @@ import pandas as pd
 import datetime as dt
 import sys
 import tkinter as tk
+import os
 
 ALL_IPS = ["192.168.0.101"]
 
@@ -12,44 +13,55 @@ status = tk.Label(text='Waiting')
 status.pack(ipadx=100, ipady=50)
 
 
-def fetch_data(data_for_server):
-    for i in range(0, len(ALL_IPS)):
-        try:
-            status.config(text="Loading " + ALL_IPS[i])
-            web_url = urllib.request.urlopen(
-                "http://"+ALL_IPS[i]+"/", data=data_for_server)
-        except urllib.error.URLError:
-            status.config(text="URL ERROR " + web_url)
-            print("Network Error, " + web_url)
-            return False
+def fetch_data(data_for_server, index):
+    '''
+    Fetches the data from index'th ip listed in ALL_IPS.
+    Returns False if there is an error while fetching the data.
+    Returns True if it succeeds writing the file.
+    
+        Parameters:
+            data_for_server (bytes): Data to send to the server.
+            index (int): The index in the array of ips to fetch the data from.
 
-        else:
-            html_data = web_url.read()
-            # sys.getsizeof() returns the size of the object in bytes
-            # 200 if the connection was done well
-            number_list = html_data.decode().split('\r\n')
-            message = ''
-            for number in number_list:
-                if number.isnumeric():                    
-                    message += chr(int(number))
-            print(message)
-            status.config(text="Waiting")
-            return True
+        Returns:
+            (bool): Whether the data was successfully saved.
+    '''
+
+    try:
+        status.config(text="Loading " + ALL_IPS[index])
+        web_url = urllib.request.urlopen(
+            "http://"+ALL_IPS[index]+"/", data=data_for_server)
+    except:
+        status.config(text="URL ERROR")
+        print("Network Error")
+        return False
+
+    else:
+        html_data = web_url.read()
+        print(html_data)
+        status.config(text="Waiting")
+        pathToFile = os.path.join(os.path.expanduser('~'), 'Documents', 'SmartCageData', str(ALL_IPS[index]))
+        os.makedirs(pathToFile,exist_ok=True)
+        f = open(os.path.join(pathToFile, dt.datetime.now().strftime("%d_%m_%Y-%H_%M_%S") + '.csv'), 'w')
+        f.write(html_data.decode())
+        return True
 
 
 def refresh():
-    fetch_data("refresh\n\n".encode('utf-8'))
+    for i in range(len(ALL_IPS)):
+        fetch_data("refresh\n\n".encode('utf-8'), i)
 
-def fetch_loop():
-    if (fetch_data(None)):
-        window.after(10000, fetch_loop)
+def fetch_loop(index):
+    if (fetch_data(None, index)):
+        window.after(10000, fetch_loop, index)
     else :
-        window.after(1000, fetch_loop)
+        window.after(1000, fetch_loop, index)
 
 
 button = tk.Button(text='Refresh', command=refresh)
 button.pack(pady=50)
 
-fetch_loop()
+for i in range(len(ALL_IPS)):
+    fetch_loop(i)
 
 window.mainloop()
