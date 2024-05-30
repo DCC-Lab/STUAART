@@ -147,14 +147,7 @@ void loop()
       {                    // if there's bytes to read from the client,
         c = client.read(); // read a byte, then
         Serial.write(c);   // print it out the serial monitor
-        if (c == '\n')
-        { // if the byte is a newline character
-
-        }
-        else
-        {
-          clientData += c;
-        }
+        clientData += c;
       }
       else
       {
