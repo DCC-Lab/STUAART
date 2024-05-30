@@ -51,10 +51,18 @@ def fetch_data(data_for_server, index):
 
 
 def refresh():
+    '''
+    Method called by the refresh button in the UI.
+    Gives to the servers 'refresh' in bytes as data.
+    '''
     for i in range(len(ALL_IPS)):
         fetch_data("refresh\n\n".encode('utf-8'), i)
 
 def fetch_loop(index):
+    '''
+    Loops infinitely with spaces of 10000 milliseconds between each data fetch.
+    Fetches data from the server, if it fails, retries faster (1000 milliseconds).
+    '''
     if (fetch_data(None, index)):
         window.after(10000, fetch_loop, index)
     else :
