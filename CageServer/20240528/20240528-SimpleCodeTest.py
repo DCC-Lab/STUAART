@@ -42,8 +42,11 @@ def fetch_data(data_for_server, index):
         status.config(text="Waiting")
         pathToFile = os.path.join(os.path.expanduser('~'), 'Documents', 'SmartCageData', str(ALL_IPS[index]))
         os.makedirs(pathToFile,exist_ok=True)
-        f = open(os.path.join(pathToFile, dt.datetime.now().strftime("%d_%m_%Y-%H_%M_%S") + '.csv'), 'w')
-        f.write(html_data.decode())
+        f = open(os.path.join(pathToFile, dt.datetime.now().strftime("%d_%m_%Y-%H_%M_%S") + '.log'), 'w')
+        f.close()
+        decodedMessage = html_data.decode().split('\r\n')
+        f = open(os.path.join(pathToFile, decodedMessage[0]), 'w')
+        f.write(''.join(decodedMessage[1:]))
         return True
 
 

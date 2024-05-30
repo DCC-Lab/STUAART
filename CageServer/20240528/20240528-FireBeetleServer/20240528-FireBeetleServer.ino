@@ -183,6 +183,7 @@ void loop()
         }
 
         Serial.println("Read from file : ");
+        client.println(myFile.name());
         while (myFile.available())
         {
           char c = myFile.read();
