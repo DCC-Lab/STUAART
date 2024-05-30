@@ -70,22 +70,6 @@ void connect_to_wifi()
   server.begin();
 }
 
-void setup()
-{
-  Serial.begin(115200);
-  configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
-
-  connect_to_wifi();
-
-  create_test_data();
-}
-
-void create_test_data()
-{
-  write_file(SD, YESTERDAY_FILE_NAME, 10);
-  write_file(SD, TODAY_FILE_NAME, 11);
-}
-
 void write_file(fs::FS &fs, const char *path, int message)
 {
 
@@ -128,6 +112,22 @@ void write_file(fs::FS &fs, const char *path, int message)
     // if the file didn't open, print an error:
     Serial.println("error opening file");
   }
+}
+
+void create_test_data()
+{
+  write_file(SD, YESTERDAY_FILE_NAME, 10);
+  write_file(SD, TODAY_FILE_NAME, 11);
+}
+
+void setup()
+{
+  Serial.begin(115200);
+  configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
+
+  connect_to_wifi();
+
+  create_test_data();
 }
 
 void loop()
