@@ -5,10 +5,19 @@ import scipy.fft as fft
 class Cage():
 
     def __init__(self, data_list: list, time: np.ndarray):
-        self.time = time
+        self.raw_time = time # kepts in memory the raw data
+        self.time = self.raw_time # might change
         
         array = np.array(data_list)
-        self.data = np.sum(array, axis=0)
+        self.raw_data = np.sum(array, axis=0) # kepts in memory the raw data
+        self.data = self.raw_data # will change 
+
+
+    def reset_data(self):
+        """
+        Resets the data to the raw data.
+        """
+        self.data = self.raw_data
 
     def remove_outliers(self, upper_threshold: float=45, window_length: int=20, change_tolerance: float=5):
         """ 
@@ -95,7 +104,7 @@ class Cage():
         # shift time back to zero
         self.time -= self.time[0]
 
-    def convolution_filter(self, length: int=10, iteration: int=1, kernel_type='average'):
+    def convolution_filter_with_padding_edge(self, length: int=10, iteration: int=1, kernel_type='average'):
         """ Convolution filter on the signal. This filter is meant to smooth up the signal
         and remove outliers without any threshold
 
@@ -110,28 +119,30 @@ class Cage():
 
         # for now, this if statement is useless but shows an approriate structure
         # for more kernel types, an example for gaussian is below
+        input_data_length = self.data.shape[0]
         if kernel_type == 'average':
             # create an array of approriate length of 1/length at every position
             # this is the specific case of moving average
             filtering_array = np.ones(length)/length
             # doing the convolution the specified number of times
             for i in range(iteration):
-                # 'same' arg is used to get an array of same size as self.data
-                # boundaries values are affected since the overlap between the kernel and data
-                # is not perfect. These values will later be chopped off.
-                self.data = np.convolve(self.data, filtering_array, mode='same')
+                # 'same' arg is used to get an array of same size as self.data. Boundary effects are corrected with edge padding. The extra data on the edges are removed after the convolution with slicing. 
+                pad_width = len(filtering_array) // 2
+                padded_data = np.pad(self.data, pad_width, mode='mean')
+                self.data = np.convolve(padded_data, filtering_array, mode='same')
+                self.data = self.data[int(length/2):int(length/2+input_data_length)]
 
-        # not implemented yet
-        # if kernel_type == 'gaussian':
-            # filtering_array = a gaussian array
-            # self.data = np.convolve(self.data, filtering_array, mode='same')
+    def compute_mean_data(self, smooth_level: int=3):
+        """
+        Computes the mean of the weight to smoothen it maximally and only see the tendency of the weight change over time.
+        First removes all data points under 10 g. 
+        Then convolves the data using 600 points. 
 
-        # only keeping values not affected by boundary overlap
-        self.data = self.data[length: len(self.data) - length]
-        self.time = self.time[length: len(self.time) - length]
+        smooth_level : The higher, the smoother. Actively, it changes the number of iterations of convolution. 
+        """
+        self.remove_values_under_threshold(10)
+        self.convolution_filter_with_padding_edge(length=600, iteration=smooth_level)
 
-        # shifting time back to zero
-        self.time -= self.time[0]
 
     def fft_filter(self, cutoff_freq: float=60):
         """ Low pass fft filter on the signal. A simple filter is implemented for now. A sharp cut is done
