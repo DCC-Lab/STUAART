@@ -33,23 +33,24 @@ ported for sparkfun esp32
 File myFile;           // initialize the file
 const int SS_pin = 21; // seule pin de carte SD à spécifier
 
-int reading = 10;
-
 const char *SSID = "TP-Link_37E9"; // of the router
 const char *PASSWORD = "15351210"; // password of the router
 WiFiServer server(80);             // créer un serveur qui écoute les clients qui veulent s'y connecter
 
-const char *REFRESH_CODE = "refresh";
+const char *REFRESH_CODE = "refresh"; // must be the same as in the python code, otherwise they won't be able to recognize one another
 
 const char *TODAY_FILE_NAME = "/today.csv";
 const char *YESTERDAY_FILE_NAME = "/yesterday.csv";
 
+//Infos of the time provider server
 const char *NTP_SERVER = "pool.ntp.org";
 const long GMT_OFFSET_SEC = -18000;
 const int DAYLIGHT_OFFSET_SEC = 3600;
 
-char today[11];
-
+/*
+This function tries to connect to the wifi using the SSID and the PASSWORD.
+Retries every 500 milliseconds until it succeeds and then prints the local IP.
+*/
 void connect_to_wifi()
 {
   // We start by connecting to a WiFi network
@@ -70,9 +71,13 @@ void connect_to_wifi()
   server.begin();
 }
 
-void write_file(fs::FS &fs, const char *path, char *message)
-{
 
+/*
+Writes a file in the SD card at the specified path. Puts in the specified message.
+Writes in the serial consol error if it doesn't succeed.
+*/
+void write_file(const char *path, char *message)
+{
   while (!Serial)
   {
     ; // wait for serial port to connect. Needed for native USB port only
@@ -93,12 +98,6 @@ void write_file(fs::FS &fs, const char *path, char *message)
   // if the file opened okay, write to it:
   if (myFile)
   {
-    struct tm timeinfo;
-    if (!getLocalTime(&timeinfo))
-    {
-      Serial.println("Failed to obtain time");
-      return;
-    }
     Serial.print(("Writing to file..."));
     myFile.println(message);
     // close the file:
@@ -112,25 +111,40 @@ void write_file(fs::FS &fs, const char *path, char *message)
   }
 }
 
+
+/*
+Creates two files for our test, a file representing yesterday's work, and one today's work.
+Puts in them some test csv data.
+*/
 void create_test_data()
 {
-  write_file(SD, YESTERDAY_FILE_NAME, "time (ms), reading 1, reading 2, reading 3\n663,-583076.00,691074.00,4554467.00");
-  write_file(SD, TODAY_FILE_NAME, "time (ms), reading 1, reading 2, reading 3\n663,-583076.00,691074.00,4554467.00");
+  write_file(YESTERDAY_FILE_NAME, "time (ms), reading 1, reading 2, reading 3\n663,-583076.00,691074.00,4554467.00");
+  write_file(TODAY_FILE_NAME, "time (ms), reading 1, reading 2, reading 3\n663,-583076.00,691074.00,4554467.00");
 }
 
+
+/*
+Initializes console, connects to the wifi, the local time and creates the initial test data.
+*/
 void setup()
 {
   Serial.begin(115200);
-  configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
 
   connect_to_wifi();
+
+  configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
 
   create_test_data();
 }
 
+
+/*
+Loops, waiting for a client connection.
+When there is a client, reads the connection data, then sends either yesterday's data or today's.
+Sends today's if the REFRESH_CODE is present in the connection data.
+*/
 void loop()
 {
-
   WiFiClient client = server.available(); // listen for incoming client
 
   if (client)
