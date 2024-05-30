@@ -39,18 +39,23 @@ def fetch_data(data_for_server, index):
 
     else:
         html_data = web_url.read()
+        decodedMessage = html_data.decode().split('\r\n')
+        fileTitle = decodedMessage[0]
+        
         print(html_data)
         status.config(text="Waiting")
         pathToFile = os.path.join(os.path.expanduser('~'), 'Documents', 'SmartCageData', str(ALL_IPS[index]))
         logPath = os.path.join(pathToFile, 'logs')
         os.makedirs(logPath, exist_ok=True)
         f = open(os.path.join(logPath, dt.datetime.now().strftime("%d_%m_%Y-%H_%M_%S") + '.log'), 'w')
-        f.writelines(['Time to fetch : ' + str(time.time()-start) + 'ms\n',
+        
+        
+        f.writelines(['File fetched : ' + fileTitle + '\n',
+                      'Time to fetch : ' + str(time.time()-start) + 'ms\n',
                       'Number of characters : ' + str(len(html_data)) + '\n',
                       'Web code : ' + str(web_url.getcode())])
         f.close()
-        decodedMessage = html_data.decode().split('\r\n')
-        f = open(os.path.join(pathToFile, decodedMessage[0]), 'w')
+        f = open(os.path.join(pathToFile, fileTitle), 'w')
         f.write(''.join(decodedMessage[1:]))
         return True
 
