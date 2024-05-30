@@ -87,19 +87,18 @@ data3.subtract_baseline()
 data_list = [data1, data2, data3]
 cage = Cage(data_list, time)
 
-mean = np.mean(cage.data)
+# Compute average weigth over time
+cage.compute_mean_data()
 
-# TODO : 
-# Save the raw data somewhere. 
-data_copy = np.copy(cage.data)
-time_copy = np.copy(cage.time)
-
-cage.remove_values_under_threshold(5)
-cage.convolution_filter(600, 3)
-# cage.fft_filter(cutoff_freq=50)
-
-plt.plot(time_copy, data_copy, label="Not filtered")
+plt.plot(cage.raw_time, cage.raw_data, color="k", label="Not filtered")
 plt.plot(cage.time, cage.data, label="Filtered")
-plt.plot([cage.time[0], cage.time[-1]], [mean, mean], linestyle='dotted', label="Mean of unfiltered")
+plt.scatter(real_data[0], real_data[1], s=100, alpha=0.7, c="y", marker="*", label="Real data")
 plt.legend()
+plt.xlabel("Time [hour]", fontsize=20)
+plt.ylabel("Weight [g]", fontsize=20)
 plt.show()
+
+
+
+
+
