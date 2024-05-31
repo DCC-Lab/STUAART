@@ -88,15 +88,20 @@ def fetch_loop(index):
     Fetches data from the server, if it fails, retries faster (1000 milliseconds).
     '''
     if (fetch_data(None, index)):
-        window.after(10000, fetch_loop, index)
+        window.after(60000, fetch_loop, index)
     else :
         window.after(1000, fetch_loop, index)
 
 
+def start_fetch_loop():
+    for i in range(len(ALL_IPS)):
+        fetch_loop(i)
+
 button = tk.Button(text='Refresh', command=refresh)
 button.pack(pady=50)
 
-for i in range(len(ALL_IPS)):
-    fetch_loop(i)
+print((60 - dt.datetime.now().second + 10) * 1000)
+
+window.after((60 - dt.datetime.now().second + 10) * 1000, start_fetch_loop)
 
 window.mainloop()
