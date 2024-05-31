@@ -39,13 +39,13 @@ WiFiServer server(80);             // créer un serveur qui écoute les clients 
 
 const char *REFRESH_CODE = "refresh"; // must be the same as in the python code, otherwise they won't be able to recognize one another
 
-const char *TODAY_FILE_NAME = "/today.csv";
-const char *YESTERDAY_FILE_NAME = "/yesterday.csv";
-
 //Infos of the time provider server
 const char *NTP_SERVER = "pool.ntp.org";
 const long GMT_OFFSET_SEC = -18000;
 const int DAYLIGHT_OFFSET_SEC = 3600;
+
+char today[16];
+char yesterday[16];
 
 /*
 This function tries to connect to the wifi using the SSID and the PASSWORD.
@@ -73,10 +73,44 @@ void connect_to_wifi()
 
 
 /*
+Gets through the time server today's date.
+*/
+void get_todays_date(){
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    Serial.println("Failed to obtain time");
+  return;
+  }
+  int year = timeinfo.tm_year + 1900;
+  int month = timeinfo.tm_mon +1;
+  int day = timeinfo.tm_mday;
+  int minute = timeinfo.tm_min;//TODO: remove minute, this is to test the behaviour is OK.
+  snprintf(today, sizeof(today), "/%04d.%02d.%02d.csv", year, month, minute);
+}
+
+
+/*
+Gets through the time server yesterday's date.
+*/
+void get_yesterdays_date(){
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    Serial.println("Failed to obtain time");
+  return;
+  }
+  int year = timeinfo.tm_year + 1900;
+  int month = timeinfo.tm_mon +1;
+  int day = timeinfo.tm_mday-1;
+  int minute = timeinfo.tm_min-1;//TODO: remove minute, this is to test the behaviour is OK.
+  snprintf(yesterday, sizeof(yesterday), "/%04d.%02d.%02d.csv", year, month, minute);
+}
+
+
+/*
 Writes a file in the SD card at the specified path. Puts in the specified message.
 Writes in the serial consol error if it doesn't succeed.
 */
-void write_file(const char *path, char *message)
+void write_file(const char *path, char *message, char *mode)
 {
   while (!Serial)
   {
@@ -93,7 +127,7 @@ void write_file(const char *path, char *message)
   Serial.println("initialization done.");
 
   // open the file. note that only one file can be open at a time,
-  myFile = SD.open(path, FILE_WRITE);
+  myFile = SD.open(path, mode);
 
   // if the file opened okay, write to it:
   if (myFile)
@@ -108,6 +142,34 @@ void write_file(const char *path, char *message)
   {
     // if the file didn't open, print an error:
     Serial.println("error opening file");
+  }
+}
+
+
+/*
+Writes a clean file header for csv file.
+*/
+void write_file_heading(char *file_name) {
+    Serial.print(F("Writing heading..."));
+    Serial.println(FILE_WRITE);
+    write_file(file_name, "time (ms), reading 1, reading 2\n", FILE_WRITE);
+}
+
+
+/*
+This method will be where we save the real data. For now it creates fake data.
+*/
+void save_data()
+{
+  get_todays_date();
+
+  if (!SD.exists(today))
+  {
+    write_file_heading(today);
+  }
+  else
+  {//Commented out for now for testing
+    // write_file(today, "\n 1", FILE_APPEND);
   }
 }
 
@@ -132,6 +194,8 @@ Sends today's if the REFRESH_CODE is present in the connection data.
 */
 void loop()
 {
+  save_data();
+
   WiFiClient client = server.available(); // listen for incoming client
 
   if (client)
@@ -169,12 +233,22 @@ void loop()
         }
 
         if (clientData.indexOf(REFRESH_CODE) >= 0)
-        {                                    // If the refresh code is passed, give the client the newest data
-          myFile = SD.open(TODAY_FILE_NAME); // This would be the 'today' file not yet completed.
+        {             
+          get_todays_date();       // If the refresh code is passed, give the client the newest data
+          myFile = SD.open(today); // This would be the 'today' file not yet completed.
         }
         else
         {
-          myFile = SD.open(YESTERDAY_FILE_NAME);
+          get_yesterdays_date();
+          if (SD.exists(yesterday))
+          {
+            myFile = SD.open(yesterday);
+          }
+          else
+          {
+            Serial.println("yesterdays file doesnt exist!");
+            myFile = SD.open(today);
+          }
         }
 
         if (!myFile)
