@@ -1,37 +1,10 @@
-/*
- WiFi Web Server LED Blink
-
- A simple web server that lets you blink an LED via the web.
- This sketch will print the IP address of your WiFi Shield (once connected)
- to the Serial monitor. From there, you can open that address in a web browser
- to turn on and off the LED on pin 5.
-
- If the IP address of your shield is yourAddress:
- http://yourAddress/H turns the LED on
- http://yourAddress/L turns it off
-
- This example is written for a network using WPA2 encryption. For insecure
- WEP or WPA, change the Wifi.begin() call and use Wifi.setMinSecurity() accordingly.
-
- Circuit:
- * WiFi shield attached
- * LED attached to pin 5
-
- created for arduino 25 Nov 2012
- by Tom Igoe
-
-ported for sparkfun esp32
-31.01.2017 by Jan Hendrik Berlin
-
- */
-
 #include <WiFi.h>
 #include <SD.h>
 #include <SPI.h>
 #include <time.h>
 
 File myFile;           // initialize the file
-const int SS_pin = 21; // seule pin de carte SD à spécifier
+const int SS_PIN = 21; // seule pin de carte SD à spécifier
 
 const char *SSID = "TP-Link_37E9"; // of the router
 const char *PASSWORD = "15351210"; // password of the router
@@ -51,7 +24,7 @@ char yesterday[16];
 This function tries to connect to the wifi using the SSID and the PASSWORD.
 Retries every 500 milliseconds until it succeeds and then prints the local IP.
 */
-void connect_to_wifi()
+void connectToWifi()
 {
   // We start by connecting to a WiFi network
   Serial.println();
@@ -75,7 +48,7 @@ void connect_to_wifi()
 /*
 Gets through the time server today's date.
 */
-void get_todays_date(){
+void getTodaysDate(){
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
     Serial.println("Failed to obtain time");
@@ -92,7 +65,7 @@ void get_todays_date(){
 /*
 Gets through the time server yesterday's date.
 */
-void get_yesterdays_date(){
+void getYesterdaysDate(){
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
     Serial.println("Failed to obtain time");
@@ -110,7 +83,7 @@ void get_yesterdays_date(){
 Writes a file in the SD card at the specified path. Puts in the specified message.
 Writes in the serial consol error if it doesn't succeed.
 */
-void write_file(const char *path, char *message, char *mode)
+void writeFile(const char *path, char *message, char *mode)
 {
   while (!Serial)
   {
@@ -119,7 +92,7 @@ void write_file(const char *path, char *message, char *mode)
 
   Serial.print("Initializing SD card...");
 
-  if (!SD.begin(SS_pin))
+  if (!SD.begin(SS_PIN))
   {
     Serial.println("initialization failed!");
     return;
@@ -149,27 +122,27 @@ void write_file(const char *path, char *message, char *mode)
 /*
 Writes a clean file header for csv file.
 */
-void write_file_heading(char *file_name) {
+void writeFileHeader(char *file_name) {
     Serial.print(F("Writing heading..."));
     Serial.println(FILE_WRITE);
-    write_file(file_name, "time (ms), reading 1, reading 2\n", FILE_WRITE);
+    writeFile(file_name, "time (ms), reading 1, reading 2\n", FILE_WRITE);
 }
 
 
 /*
 This method will be where we save the real data. For now it creates fake data.
 */
-void save_data()
+void saveData()
 {
-  get_todays_date();
+  getTodaysDate();
 
   if (!SD.exists(today))
   {
-    write_file_heading(today);
+    writeFileHeader(today);
   }
   else
   {//Commented out for now for testing
-    // write_file(today, "\n 1", FILE_APPEND);
+    // writeFile(today, "\n 1", FILE_APPEND);
   }
 }
 
@@ -181,7 +154,7 @@ void setup()
 {
   Serial.begin(115200);
 
-  connect_to_wifi();
+  connectToWifi();
 
   configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
 }
@@ -194,7 +167,7 @@ Sends today's if the REFRESH_CODE is present in the connection data.
 */
 void loop()
 {
-  save_data();
+  saveData();
 
   WiFiClient client = server.available(); // listen for incoming client
 
@@ -218,7 +191,7 @@ void loop()
         client.println("Content-type:text/html");
         client.println();
 
-        if (!SD.begin(SS_pin))
+        if (!SD.begin(SS_PIN))
         {
           Serial.println("Card Mount Failed");
           return;
@@ -234,12 +207,12 @@ void loop()
 
         if (clientData.indexOf(REFRESH_CODE) >= 0)
         {             
-          get_todays_date();       // If the refresh code is passed, give the client the newest data
+          getTodaysDate();       // If the refresh code is passed, give the client the newest data
           myFile = SD.open(today); // This would be the 'today' file not yet completed.
         }
         else
         {
-          get_yesterdays_date();
+          getYesterdaysDate();
           if (SD.exists(yesterday))
           {
             myFile = SD.open(yesterday);
