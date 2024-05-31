@@ -5,11 +5,23 @@ import datetime as dt
 import tkinter as tk
 import os
 
-ALL_IPS = ["192.168.0.101"]
+NBR_OF_IPS = 3
+
+INITIAL_IP = 101
+
+IP_HEADER = "192.168.0."
+
+ALL_IPS = []
 
 window = tk.Tk()
 status = tk.Label(text='Waiting')
 status.pack(ipadx=100, ipady=50)
+
+
+def initialize_ips():
+    for i in range(NBR_OF_IPS):
+        ALL_IPS.append(IP_HEADER + str(INITIAL_IP+i))
+    print(ALL_IPS)
 
 
 def create_log_file(path_to_file, file_title, start_time, data, web_code):
@@ -99,7 +111,7 @@ def fetch_loop(index):
     if (fetch_data(None, index)):
         window.after(60000, fetch_loop, index)
     else :
-        window.after(1000, fetch_loop, index)
+        window.after(30000, fetch_loop, index)
 
 
 def start_fetch_loop():
@@ -112,6 +124,8 @@ def start_fetch_loop():
 
 button = tk.Button(text='Refresh', command=refresh)
 button.pack(pady=50)
+
+initialize_ips()
 
 print((60 - dt.datetime.now().second + 10) * 1000)
 
