@@ -2,7 +2,6 @@ import urllib.request
 import time
 import pandas as pd
 import datetime as dt
-import sys
 import tkinter as tk
 import os
 
@@ -20,7 +19,7 @@ def create_log_file(pathToFile, fileTitle, startTime, data, webCode):
     
     
     f.writelines(['File fetched : ' + fileTitle + '\n',
-                    'Time to fetch : ' + str(time.time()-startTime) + 'ms\n',
+                    'Time to fetch : ' + str(time.time()-startTime) + 's\n',
                     'Number of characters : ' + str(len(data)) + '\n',
                     'Web code : ' + webCode])
     f.close()
@@ -51,10 +50,10 @@ def fetch_data(data_for_server, index):
         print("Network Error")
         data = ''
         code = '404'
-        if web_url:
+        if 'web_url' in locals():
             data = web_url.read()
             code = str(web_url.getcode())
-        create_log_file(pathToFile, fileTitle, start, data, code)
+        create_log_file(pathToFile, 'error', start, data, code)
         return False
 
     else:
