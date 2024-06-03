@@ -17,6 +17,7 @@ const char *NTP_SERVER = "pool.ntp.org";
 const long GMT_OFFSET_SEC = -18000;
 const int DAYLIGHT_OFFSET_SEC = 3600;
 
+//Buffer chars for saving files
 char today[16];
 char yesterday[16];
 
@@ -187,10 +188,6 @@ void loop()
       }
       else
       {
-        client.println("HTTP/1.1 200 OK");
-        client.println("Content-type:text/html");
-        client.println();
-
         if (!SD.begin(SS_PIN))
         {
           Serial.println("Card Mount Failed");
@@ -231,6 +228,10 @@ void loop()
         }
 
         Serial.println("Read from file : ");
+        
+        client.println("HTTP/1.1 200 OK");
+        client.println("Content-type:text/html");
+        client.println();
         client.println(myFile.name());
         while (myFile.available())
         {
