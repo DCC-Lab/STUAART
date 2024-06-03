@@ -87,16 +87,28 @@ data3.subtract_baseline()
 data_list = [data1, data2, data3]
 cage = Cage(data_list, time)
 
+
 # Compute average weigth over time
-cage.compute_mean_data()
+# cage.compute_mean_data()
+
+# plt.plot(cage.raw_time, cage.raw_data, color="k", label="Not filtered")
+# plt.plot(cage.time, cage.data, label="Filtered")
+# plt.scatter(real_data[0], real_data[1], s=100, alpha=0.7, c="y", marker="*", label="Real data")
+# plt.legend()
+# plt.xlabel("Time [hour]", fontsize=20)
+# plt.ylabel("Weight [g]", fontsize=20)
+# plt.show()
+
+# Identify hanging moments with convolution
+cage.convolution_filter_with_padding_edge()
 
 plt.plot(cage.raw_time, cage.raw_data, color="k", label="Not filtered")
 plt.plot(cage.time, cage.data, label="Filtered")
-plt.scatter(real_data[0], real_data[1], s=100, alpha=0.7, c="y", marker="*", label="Real data")
 plt.legend()
 plt.xlabel("Time [hour]", fontsize=20)
 plt.ylabel("Weight [g]", fontsize=20)
 plt.show()
+
 
 
 
