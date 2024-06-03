@@ -5,7 +5,7 @@ import datetime as dt
 import tkinter as tk
 import os
 
-NBR_OF_IPS = 3
+NBR_OF_IPS = 1
 
 IP_HEADER = "192.168.0."
 
@@ -14,8 +14,8 @@ INITIAL_IP = 101
 ALL_IPS = []
 
 window = tk.Tk()
-status = tk.Label(text='Waiting')
-status.pack(ipadx=100, ipady=50)
+status_Label = tk.Label(text='Waiting')
+status_Label.pack(ipadx=100, ipady=50)
 
 
 def initialize_ips():
@@ -30,7 +30,7 @@ def initialize_ips():
     print(ALL_IPS)
 
 
-def create_log_file(path_to_file, file_title, start_time, data, web_code):
+def create_log_file(path_to_file, file_title, start_time, data, status):
     '''
     Creates a log file at the specified path, with the specified information.
     
@@ -43,13 +43,13 @@ def create_log_file(path_to_file, file_title, start_time, data, web_code):
     '''
     log_path = os.path.join(path_to_file, 'logs')
     os.makedirs(log_path, exist_ok=True)
-    f = open(os.path.join(log_path, dt.datetime.now().strftime("%d_%m_%Y-%H_%M_%S") + '.log'), 'w')
+    f = open(os.path.join(log_path, dt.datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + '.log'), 'w')
     
     
     f.writelines(['File fetched : ' + file_title + '\n',
                     'Time to fetch : ' + str(time.time()-start_time) + 's\n',
                     'Number of characters : ' + str(len(data)) + '\n',
-                    'Web code : ' + web_code])
+                    'Web code : ' + status])
     f.close()
 
 
@@ -70,18 +70,18 @@ def fetch_data(data_for_server, index):
     try:
         start = time.time()
         path_to_file = os.path.join(os.path.expanduser('~'), 'Documents', 'SmartCageData', str(ALL_IPS[index]))
-        status.config(text="Loading " + ALL_IPS[index])
+        status_Label.config(text="Loading " + ALL_IPS[index])
         web_url = urllib.request.urlopen(
             "http://"+ALL_IPS[index]+"/", data=data_for_server, timeout=3)
     except:
-        status.config(text="URL ERROR")
+        status_Label.config(text="URL ERROR")
         print("Network Error")
         data = ''
-        code = '404'
+        status = '404'
         if 'web_url' in locals():
             data = web_url.read()
-            code = str(web_url.getcode())
-        create_log_file(path_to_file, 'not applicable', start, data, code)
+            status = f'{web_url.status} {web_url.reason}'
+        create_log_file(path_to_file, 'not applicable', start, data, status)
         return False
 
     else:
@@ -90,10 +90,9 @@ def fetch_data(data_for_server, index):
         file_title = decoded_message[0]
         
         print(html_data)
-        status.config(text="Waiting")
+        status_Label.config(text="Waiting")
         
-        
-        create_log_file(path_to_file, file_title, start, html_data, str(web_url.getcode()))
+        create_log_file(path_to_file, file_title, start, html_data, f'{web_url.status} {web_url.reason}')
         
         f = open(os.path.join(path_to_file, file_title), 'w')
         f.write(''.join(decoded_message[1:]))
