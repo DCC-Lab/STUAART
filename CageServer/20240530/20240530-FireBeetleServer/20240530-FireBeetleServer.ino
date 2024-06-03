@@ -176,13 +176,11 @@ void loop()
   {                                // if you get a client,
     Serial.println("New Client."); // print a message out the serial port
     String clientData = "";        // make a String to hold incoming data from the client
-    char c = 'v';
-    char oldC = ' ';
     while (client.connected())
     { // loop while the client's connected
       if (client.available())
       {                    // if there's bytes to read from the client,
-        c = client.read(); // read a byte, then
+        char c = client.read(); // read a byte, then
         Serial.write(c);   // print it out the serial monitor
         clientData += c;
       }
@@ -251,7 +249,6 @@ void loop()
         // break out of the while loop:
         break;
       }
-      oldC = c;
     }
     // close the connection:
     client.stop();
