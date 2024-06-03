@@ -110,8 +110,8 @@ def refresh():
 
 def fetch_loop(index):
     '''
-    Loops infinitely with spaces of 10000 milliseconds between each data fetch.
-    Fetches data from the server, if it fails, retries faster (1000 milliseconds).
+    Loops infinitely with spaces of 60000 milliseconds between each data fetch.
+    Fetches data from the server, if it fails, retries faster (30000 milliseconds).
     '''
     if (fetch_data(None, index)):
         window.after(60000, fetch_loop, index)
