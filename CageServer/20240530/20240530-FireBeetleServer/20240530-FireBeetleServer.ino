@@ -202,10 +202,13 @@ void loop()
           return;
         }
 
+        String httpReason = "OK";
+
         if (clientData.indexOf(REFRESH_CODE) >= 0)
         {             
           getTodaysDate();       // If the refresh code is passed, give the client the newest data
           myFile = SD.open(today); // This would be the 'today' file not yet completed.
+          httpReason = "REFRESHED TODAY";
         }
         else
         {
@@ -213,11 +216,13 @@ void loop()
           if (SD.exists(yesterday))
           {
             myFile = SD.open(yesterday);
+            httpReason = "DEFAULT YESTERDAY";
           }
           else
           {
             Serial.println("yesterdays file doesnt exist!");
             myFile = SD.open(today);
+            httpReason = "YESTERDAY MISSING FILE"; // This case is specifically for if we start the cage close after midnight but before the python code tried to fetch yesterday's data.
           }
         }
 
@@ -229,7 +234,7 @@ void loop()
 
         Serial.println("Read from file : ");
         
-        client.println("HTTP/1.1 200 OK");
+        client.println("HTTP/1.1 200 " + httpReason);
         client.println("Content-type:text/html");
         client.println();
         client.println(myFile.name());
