@@ -7,9 +7,9 @@ import os
 
 NBR_OF_IPS = 3
 
-INITIAL_IP = 101
-
 IP_HEADER = "192.168.0."
+
+INITIAL_IP = 101
 
 ALL_IPS = []
 
@@ -19,6 +19,12 @@ status.pack(ipadx=100, ipady=50)
 
 
 def initialize_ips():
+    '''
+    Creates an array of IP addresses based on IP_HEADER, INITIAL_IP and NBR_OF_IPS.
+    NBR_OF_IPS tells this method how many ips you want to create,
+    IP_HEADER gives the sub-address where to create the IP and
+    INITIAL_IP is the first IP that will be used for a smart cage.
+    '''
     for i in range(NBR_OF_IPS):
         ALL_IPS.append(IP_HEADER + str(INITIAL_IP+i))
     print(ALL_IPS)
