@@ -95,7 +95,7 @@ def fetch_data(data_for_server, index):
         create_log_file(path_to_file, file_title, start, html_data, f'{web_url.status} {web_url.reason}')
         
         f = open(os.path.join(path_to_file, file_title), 'w')
-        f.write(''.join(decoded_message[1:]))
+        f.write('\n'.join(decoded_message[1:]))
         return True
 
 
