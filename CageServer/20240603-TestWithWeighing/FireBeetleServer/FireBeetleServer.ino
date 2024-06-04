@@ -1,7 +1,17 @@
+#include "LoadCell.h"
+#include "LoadCellController.h"
 #include <WiFi.h>
 #include <SD.h>
 #include <SPI.h>
 #include <time.h>
+
+LoadCell loadCell1;
+LoadCell loadCell2;
+LoadCell loadCell3;
+LoadCellController controller;
+const int SCK_PIN = 17; //clock des loadcell/HX711
+
+const int MODE_PIN = 13; //Switch pin allowing to put in setup mode.
 
 File myFile;           // initialize the file
 const int SS_PIN = 21; // seule pin de carte SD à spécifier
@@ -20,6 +30,9 @@ const int DAYLIGHT_OFFSET_SEC = 3600;
 //Buffer chars for saving files
 char today[16];
 char yesterday[16];
+
+unsigned long timestamp = 0;
+const int SAVE_DATA_INTERVAL = 100;
 
 /*
 This function tries to connect to the wifi using the SSID and the PASSWORD.
@@ -84,7 +97,7 @@ void getYesterdaysDate(){
 Writes a file in the SD card at the specified path. Puts in the specified message.
 Writes in the serial consol error if it doesn't succeed.
 */
-void writeFile(const char *path, char *message, char *mode)
+void writeFile(const char *path, const char *message, const char *mode)
 {
   while (!Serial)
   {
@@ -126,7 +139,7 @@ Writes a clean file header for csv file.
 void writeFileHeader(char *file_name) {
     Serial.print(F("Writing heading..."));
     Serial.println(FILE_WRITE);
-    writeFile(file_name, "time (ms), reading 1, reading 2\n", FILE_WRITE);
+    writeFile(file_name, "time (ms), reading 1, reading 2, reading 3", FILE_WRITE);
 }
 
 
@@ -141,10 +154,18 @@ void saveData()
   {
     writeFileHeader(today);
   }
-  else
-  {//Commented out for now for testing
-    // writeFile(today, "\n 1", FILE_APPEND);
-  }
+
+  float weight1 = controller.get_weight(1);
+  float weight2 = controller.get_weight(2);
+  float weight3 = controller.get_weight(3);
+
+  String fileLine = "";
+  
+  fileLine += String(millis(), DEC) + "," + weight1 + "," + weight2 + "," + weight3;
+
+  Serial.println(fileLine.c_str());
+
+  writeFile(today, fileLine.c_str(), FILE_APPEND);
 }
 
 
@@ -158,6 +179,27 @@ void setup()
   connectToWifi();
 
   configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
+
+  pinMode(MODE_PIN, INPUT_PULLDOWN);
+  controller.add_loadcell(loadCell1, 27, SCK_PIN); // loadcell number, dout, sck
+  controller.add_loadcell(loadCell2, 9, SCK_PIN); // loadcell number, dout, sck
+  controller.add_loadcell(loadCell3, 5, SCK_PIN); // loadcell number, dout, sck
+  controller.set_all_loadcells_scale_coeff_n_readings(50);
+  controller.set_all_loadcells_tare_n_readings(2);
+  controller.set_all_loadcells_weight_n_readings(1);
+
+  if (digitalRead(MODE_PIN) == LOW)
+  {
+    Serial.println("Starting in auto mode");
+    controller.tare_all_loadcells(false);
+    controller.read_all_scale_coeff_from_persistent_memory();
+  }
+  else
+  {
+    Serial.println("Starting in manual calibration mode");
+    controller.tare_all_loadcells();
+    controller.calibrate_all_loadcells();
+  }
 }
 
 
@@ -168,7 +210,14 @@ Sends today's if the REFRESH_CODE is present in the connection data.
 */
 void loop()
 {
-  saveData();
+  unsigned long currentMillis = millis();
+  long long timeDelta = currentMillis - timestamp;
+
+  if (abs(timeDelta) >= SAVE_DATA_INTERVAL)
+  {
+    timestamp = currentMillis;
+    saveData();
+  }
 
   WiFiClient client = server.available(); // listen for incoming client
 
@@ -218,7 +267,7 @@ void loop()
           }
           else
           {
-            Serial.println("yesterdays file doesnt exist!");
+            Serial.println("yesterdays file doesn't exist!");
             myFile = SD.open(today);
             httpReason = "YESTERDAY MISSING FILE"; // This case is specifically for if we start the cage close after midnight but before the python code tried to fetch yesterday's data.
           }
