@@ -137,9 +137,9 @@ void writeFile(const char *path, const char *message, const char *mode)
 Writes a clean file header for csv file.
 */
 void writeFileHeader(char *file_name) {
-    Serial.print(F("Writing heading..."));
-    Serial.println(FILE_WRITE);
-    writeFile(file_name, "time (ms), reading 1, reading 2, reading 3", FILE_WRITE);
+  Serial.print(F("Writing heading..."));
+  Serial.println(FILE_WRITE);
+  writeFile(file_name, "time (ms), reading 1, reading 2, reading 3", FILE_WRITE);
 }
 
 
