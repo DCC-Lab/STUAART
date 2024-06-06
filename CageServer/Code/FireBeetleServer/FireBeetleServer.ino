@@ -152,7 +152,14 @@ void saveData()
 
   if (!SD.exists(today))
   {
+    configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
+
+    getTodaysDate();//This is to make sure we update the time correctly and we don't write into tomorrows file accidentally because Arduino's time might drift.
+
+  if (!SD.exists(today))
+  {
     writeFileHeader(today);
+    }
   }
 
   float weight1 = controller.get_weight(1);
