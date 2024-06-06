@@ -19,6 +19,7 @@ class Cage():
         Resets the data to the raw data.
         """
         self.data = self.raw_data
+        self.time = self.raw_time
 
     def when_mouse_is_in(self):
         """
@@ -186,13 +187,13 @@ class Cage():
         self.remove_outliers()
         self.convolution_filter_with_padding_edge(length=600, iteration=smooth_level)
 
-
-    def compute_hanging(self, threshold:int = 10 first_day:bool = False, produce_graph:bool = False):
+    def compute_hanging(self, threshold: int=10, bins: float=0.5, first_day: bool =False, produce_graph: bool=False):
         """
         Hanging is when the weight data drops to 0g for more than 1 second. 
         A convolution is done on a small window length (15 points) to smooth the data just enough to identify the moments when the weight data drops to 0g. 
         A threshold is set so that all weight data going under the threshold in the convoluted weight data is when the mouse is hanging. 
         If it is the first day, then the first weight data are at 0g, but they are not hanging data, as the mouse is not in yet. 
+        The bins variable indicates how you want the hanging frequency to be computed. 0.5 is 30 min, 1 is one hour. 
 
         TODO : Hanging frequency, so how many times the mouse is hanging per hour. 
         """
@@ -200,10 +201,10 @@ class Cage():
         self.remove_outliers()
         self.convolution_filter_with_padding_edge(length=15)
 
-        hanging_data = cage.data[cage.data < threshold]
-        index_hanging_data = np.where(cage.data < threshold)[0]
-        hanging_time = cage.time[index_hanging_data]
-        hanging_indicator = np.where(cage.data < threshold, 1, 0) # 1 = the mouse is hanging at that time, otherwise 0
+        hanging_data = self.data[self.data < threshold]
+        index_hanging_data = np.where(self.data < threshold)[0]
+        hanging_time = self.time[index_hanging_data]
+        hanging_indicator = np.where(self.data < threshold, 1, 0) # 1 = the mouse is hanging at that time, otherwise 0
         start_indices = np.where((hanging_indicator[:-1] == 0) & (hanging_indicator[1:] == 1))[0] + 1 # Find the start indices of sequences of 1s
         end_indices = np.where((hanging_indicator[:-1] == 1) & (hanging_indicator[1:] == 0))[0] # Find the end indices of sequences of 1s
 
@@ -215,10 +216,22 @@ class Cage():
             end_indices = end_indices[end_indices > index_when_mouse_is_in]
 
         # gets the times when the mouse starts and ends hanging
-        start_hanging = cage.time[start_indices]
-        end_hanging = cage.time[end_indices]
+        start_hanging = self.time[start_indices]
+        end_hanging = self.time[end_indices]
 
         self.total_time_hanging = np.sum(np.subtract(end_hanging, start_hanging))
+
+        # computes hanging frequency
+        self.hanging_frequency = []
+        for i in np.arange(bins, self.time[-1], bins):
+            if i == bins:
+                hanging_times = np.where(start_hanging < i)[0].shape[0]
+                self.hanging_frequency.append(hanging_times)
+            else:
+                hanging_times = np.where((start_hanging < i) & (start_hanging > i - bins))[0].shape[0]
+                self.hanging_frequency.append(hanging_times)
+        self.hanging_frequency = np.array(self.hanging_frequency)
+        print(self.hanging_frequency)
 
         if produce_graph:
             plt.figure(figsize=(13,7))

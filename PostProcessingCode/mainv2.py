@@ -126,11 +126,10 @@ for i in range(true_hanging_time[:,1].shape[0]):
 	ending_time.append(total_hours)
 
 
-
 # Fetch hanging data from weight data
 cage.remove_outliers()
 cage.convolution_filter_with_padding_edge(length=15)
-# cage.compute_hanging(self, threshold:int = 10 first_day:bool = False, produce_graph:bool = False)
+cage.compute_hanging()
 
 # get data only under 10 g
 hanging_data = cage.data[cage.data < 10]
