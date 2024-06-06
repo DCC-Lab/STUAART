@@ -31,8 +31,11 @@ const int DAYLIGHT_OFFSET_SEC = 3600;
 char today[16];
 char yesterday[16];
 
-unsigned long timestamp = 0;
+unsigned long saveTimestamp = 0;
 const int SAVE_DATA_INTERVAL = 100;
+
+unsigned long reconnectTimestamp = 0;
+const int RECONNECT_WIFI_INTERVAL = 3600000;
 
 /*
 This function tries to connect to the wifi using the SSID and the PASSWORD.
@@ -66,13 +69,13 @@ void getTodaysDate(){
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
     Serial.println("Failed to obtain time");
-  return;
+    return;
   }
   int year = timeinfo.tm_year + 1900;
   int month = timeinfo.tm_mon +1;
   int day = timeinfo.tm_mday;
-  int minute = timeinfo.tm_min;//TODO: remove minute, this is to test the behaviour is OK.
-  snprintf(today, sizeof(today), "/%04d.%02d.%02d.csv", year, month, minute);
+  // int minute = timeinfo.tm_min;//TODO: remove minute, this is to test the behaviour is OK.
+  snprintf(today, sizeof(today), "/%04d.%02d.%02d.csv", year, month, day);
 }
 
 
@@ -83,13 +86,13 @@ void getYesterdaysDate(){
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
     Serial.println("Failed to obtain time");
-  return;
+    return;
   }
   int year = timeinfo.tm_year + 1900;
   int month = timeinfo.tm_mon +1;
   int day = timeinfo.tm_mday-1;
-  int minute = timeinfo.tm_min-1;//TODO: remove minute, this is to test the behaviour is OK.
-  snprintf(yesterday, sizeof(yesterday), "/%04d.%02d.%02d.csv", year, month, minute);
+  // int minute = timeinfo.tm_min-1;//TODO: remove minute, this is to test the behaviour is OK.
+  snprintf(yesterday, sizeof(yesterday), "/%04d.%02d.%02d.csv", year, month, day);
 }
 
 
@@ -104,14 +107,14 @@ void writeFile(const char *path, const char *message, const char *mode)
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  Serial.print("Initializing SD card...");
+  // Serial.print("Initializing SD card...");
 
   if (!SD.begin(SS_PIN))
   {
     Serial.println("initialization failed!");
     return;
   }
-  Serial.println("initialization done.");
+  // Serial.println("initialization done.");
 
   // open the file. note that only one file can be open at a time,
   myFile = SD.open(path, mode);
@@ -119,11 +122,11 @@ void writeFile(const char *path, const char *message, const char *mode)
   // if the file opened okay, write to it:
   if (myFile)
   {
-    Serial.print(("Writing to file..."));
+    // Serial.print(("Writing to file..."));
     myFile.println(message);
     // close the file:
     myFile.close();
-    Serial.println("done.");
+    // Serial.println("done.");
   }
   else
   {
@@ -137,9 +140,9 @@ void writeFile(const char *path, const char *message, const char *mode)
 Writes a clean file header for csv file.
 */
 void writeFileHeader(char *file_name) {
-    Serial.print(F("Writing heading..."));
-    Serial.println(FILE_WRITE);
-    writeFile(file_name, "time (ms), reading 1, reading 2, reading 3", FILE_WRITE);
+  Serial.print(F("Writing heading..."));
+  Serial.println(FILE_WRITE);
+  writeFile(file_name, "time (ms), reading 1, reading 2, reading 3", FILE_WRITE);
 }
 
 
@@ -170,7 +173,7 @@ void saveData()
   
   fileLine += String(millis(), DEC) + "," + weight1 + "," + weight2 + "," + weight3;
 
-  Serial.println(fileLine.c_str());
+  // Serial.println(fileLine.c_str());
 
   writeFile(today, fileLine.c_str(), FILE_APPEND);
 }
@@ -218,26 +221,34 @@ Sends today's if the REFRESH_CODE is present in the connection data.
 void loop()
 {
   unsigned long currentMillis = millis();
-  long long timeDelta = currentMillis - timestamp;
+  long long saveTimeDelta = currentMillis - saveTimestamp;
 
-  if (abs(timeDelta) >= SAVE_DATA_INTERVAL)
+  if (abs(saveTimeDelta) >= SAVE_DATA_INTERVAL)
   {
-    timestamp = currentMillis;
+    saveTimestamp = currentMillis;
     saveData();
+  }
+
+  long long reconnectTimeDelta = currentMillis - reconnectTimestamp;
+
+  if (abs(reconnectTimeDelta) >= RECONNECT_WIFI_INTERVAL)
+  {
+    reconnectTimestamp = currentMillis;
+    connectToWifi();
   }
 
   WiFiClient client = server.available(); // listen for incoming client
 
   if (client)
   {                                // if you get a client,
-    Serial.println("New Client."); // print a message out the serial port
+    // Serial.println("New Client."); // print a message out the serial port
     String clientData = "";        // make a String to hold incoming data from the client
     while (client.connected())
     { // loop while the client's connected
       if (client.available())
       {                    // if there's bytes to read from the client,
         char c = client.read(); // read a byte, then
-        Serial.write(c);   // print it out the serial monitor
+        // Serial.write(c);   // print it out the serial monitor
         clientData += c;
       }
       else
@@ -286,7 +297,7 @@ void loop()
           return;
         }
 
-        Serial.println("Read from file : ");
+        // Serial.println("Read from file : ");
         
         client.println("HTTP/1.1 200 " + httpReason);
         client.println("Content-type:text/html");
@@ -295,7 +306,7 @@ void loop()
         while (myFile.available())
         {
           char c = myFile.read();
-          Serial.print(c);
+          // Serial.print(c);
           client.print(c); // ICI : print in decimal
         }
         myFile.close();
@@ -308,6 +319,6 @@ void loop()
     }
     // close the connection:
     client.stop();
-    Serial.println("Client Disconnected.");
+    // Serial.println("Client Disconnected.");
   }
 }
