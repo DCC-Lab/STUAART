@@ -126,7 +126,7 @@ void writeFile(const char *path, const char *message, const char *mode)
   // if the file opened okay, write to it:
   if (myFile)
   {
-    Serial.print(("Writing to file..."));
+    // Serial.print(("Writing to file..."));
     myFile.println(message);
     // close the file:
     myFile.close();
@@ -143,7 +143,7 @@ void writeFile(const char *path, const char *message, const char *mode)
 /*
 Writes a clean file header for csv file.
 */
-void writeFileHeader(const char *file_name) {
+void writeFileHeader(char *file_name) {
   Serial.print(F("Writing heading..."));
   Serial.println(FILE_WRITE);
   writeFile(file_name, "time (ms), reading 1, reading 2, reading 3", FILE_WRITE);
@@ -259,7 +259,8 @@ void loop()
   WiFiClient client = server.available(); // listen for incoming client
 
   if (client)
-  {                                // if you get a client,
+  {              
+    client.setNoDelay(1);                  // if you get a client,
     // Serial.println("New Client."); // print a message out the serial port
     String clientData = "";        // make a String to hold incoming data from the client
     while (client.connected())
@@ -288,33 +289,33 @@ void loop()
 
         String httpReason = "OK";
 
-        if (clientData.indexOf(REFRESH_CODE) >= 0)
-        {             
-          getTodaysDate();       // If the refresh code is passed, give the client the newest data
-          myFile = SD.open(today); // This would be the 'today' file not yet completed.
-          httpReason = "REFRESHED TODAY";
-        }
-        else
-        {
-          getYesterdaysDate();
-          if (SD.exists(yesterday))
-          {
-            myFile = SD.open(yesterday);
-            httpReason = "DEFAULT YESTERDAY";
-          }
-          else
-          {
-            Serial.println("yesterdays file doesn't exist!");
-            myFile = SD.open(today);
-            httpReason = "YESTERDAY MISSING FILE"; // This case is specifically for if we start the cage close after midnight but before the python code tried to fetch yesterday's data.
-          }
-        }
+        // if (clientData.indexOf(REFRESH_CODE) >= 0)
+        // {             
+        //   getTodaysDate();       // If the refresh code is passed, give the client the newest data
+        //   myFile = SD.open(today); // This would be the 'today' file not yet completed.
+        //   httpReason = "REFRESHED TODAY";
+        // }
+        // else
+        // {
+        //   getYesterdaysDate();
+        //   if (SD.exists(yesterday))
+        //   {
+        //     myFile = SD.open(yesterday);
+        //     httpReason = "DEFAULT YESTERDAY";
+        //   }
+        //   else
+        //   {
+        //     Serial.println("yesterdays file doesn't exist!");
+        //     myFile = SD.open(today);
+        //     httpReason = "YESTERDAY MISSING FILE"; // This case is specifically for if we start the cage close after midnight but before the python code tried to fetch yesterday's data.
+        //   }
+        // }
 
-        if (!myFile)
-        {
-          Serial.println("Failed to open file for reading");
-          return;
-        }
+        // if (!myFile)
+        // {
+        //   Serial.println("Failed to open file for reading");
+        //   return;
+        // }
 
         // Serial.println("Read from file : ");
         
@@ -329,19 +330,26 @@ void loop()
 
         while (myFile.available())
         {
-          Serial.println("printing to client");
-          char c = myFile.read();
-          Serial.print(c);
-          client.print(c);
-          // readBuffer[readIndex] = myFile.read();
-          // readIndex++;
+          // Serial.println("printing to client");
+          // char c = myFile.read();
+          // Serial.print(c);
+          // client.print(c);
+          readBuffer[readIndex] = myFile.read();
+          readIndex++;
           
-          // if (readIndex > 127)
-          // {
-          //   Serial.print(readBuffer);
-          //   client.print(readBuffer); // ICI : print in decimal
-          // }
+          if (readIndex > 127)
+          {
+            readIndex = 0;
+            // Serial.print(readBuffer);
+            client.print(readBuffer); // ICI : print in decimal
+          }
         }
+        
+        if (readIndex > 0)
+        {
+          client.print(readBuffer);
+        }
+
         myFile.close();
 
         // The HTTP response ends with another blank line:
