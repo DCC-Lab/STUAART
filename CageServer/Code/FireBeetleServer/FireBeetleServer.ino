@@ -116,13 +116,17 @@ void writeFile(const char *path, const char *message, const char *mode)
   }
   // Serial.println("initialization done.");
 
+  // Serial.print(path);
+  // Serial.print(" ");
+  // Serial.println(mode);
+
   // open the file. note that only one file can be open at a time,
   myFile = SD.open(path, mode);
 
   // if the file opened okay, write to it:
   if (myFile)
   {
-    // Serial.print(("Writing to file..."));
+    Serial.print(("Writing to file..."));
     myFile.println(message);
     // close the file:
     myFile.close();
@@ -139,7 +143,7 @@ void writeFile(const char *path, const char *message, const char *mode)
 /*
 Writes a clean file header for csv file.
 */
-void writeFileHeader(char *file_name) {
+void writeFileHeader(const char *file_name) {
   Serial.print(F("Writing heading..."));
   Serial.println(FILE_WRITE);
   writeFile(file_name, "time (ms), reading 1, reading 2, reading 3", FILE_WRITE);
@@ -210,6 +214,21 @@ void setup()
     controller.tare_all_loadcells();
     controller.calibrate_all_loadcells();
   }
+
+  if (SD.exists("/test.csv"))
+  {
+    int a = SD.remove("/test.csv");
+
+    Serial.println(a);
+  }
+
+  writeFileHeader("/test.csv");
+  Serial.println("header");
+  writeFile("/test.csv", "10,10,10,10", FILE_APPEND);
+  writeFile("/test.csv", "11,10,10,10", FILE_APPEND);
+  writeFile("/test.csv", "12,10,10,10", FILE_APPEND);
+  writeFile("/test.csv", "13,10,10,10", FILE_APPEND);
+  writeFile("/test.csv", "14,10,10,10", FILE_APPEND);
 }
 
 
@@ -226,7 +245,7 @@ void loop()
   if (abs(saveTimeDelta) >= SAVE_DATA_INTERVAL)
   {
     saveTimestamp = currentMillis;
-    saveData();
+    // saveData();
   }
 
   long long reconnectTimeDelta = currentMillis - reconnectTimestamp;
@@ -299,15 +318,29 @@ void loop()
 
         // Serial.println("Read from file : ");
         
+        myFile = SD.open("/test.csv");
+
         client.println("HTTP/1.1 200 " + httpReason);
         client.println("Content-type:text/html");
         client.println();
         client.println(myFile.name());
+        char readBuffer[128];
+        int readIndex = 0;
+
         while (myFile.available())
         {
+          Serial.println("printing to client");
           char c = myFile.read();
-          // Serial.print(c);
-          client.print(c); // ICI : print in decimal
+          Serial.print(c);
+          client.print(c);
+          // readBuffer[readIndex] = myFile.read();
+          // readIndex++;
+          
+          // if (readIndex > 127)
+          // {
+          //   Serial.print(readBuffer);
+          //   client.print(readBuffer); // ICI : print in decimal
+          // }
         }
         myFile.close();
 
