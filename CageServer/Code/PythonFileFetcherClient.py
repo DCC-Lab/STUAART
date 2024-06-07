@@ -146,7 +146,7 @@ def fetch_loop(index):
     if (fetch_data(None, index)):
         window.after(6 * 60 * 60 * 1000, fetch_loop, index)
     else :
-        window.after(30000, fetch_loop, index)
+        window.after(1000 * 60 * 60, fetch_loop, index)
 
 
 def start_fetch_loop():
