@@ -159,9 +159,9 @@ void saveData()
 
     getTodaysDate();//This is to make sure we update the time correctly and we don't write into tomorrows file accidentally because Arduino's time might drift.
 
-  if (!SD.exists(today))
-  {
-    writeFileHeader(today);
+    if (!SD.exists(today))
+    {
+      writeFileHeader(today);
     }
   }
 
