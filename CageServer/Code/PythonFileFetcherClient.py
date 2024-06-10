@@ -31,6 +31,14 @@ def initialize_ips():
 
 
 def save_to_caffeine_server(subfolder, local_file_path, file_title):
+    '''
+    Saves the file located at local_file_path to the server via ssh, under the subfolder with the given file_title.
+    
+        Parameters:
+            subfolder (string): The path where the file should be saved on the server.
+            local_file_path (string): The path where the file is saved locally.
+            file_title (string): The name to be given to the file on the server.
+    '''
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh_client.connect(SERVER_HOST, username=SERVER_USERNAME, password=SERVER_PASSWORD)
