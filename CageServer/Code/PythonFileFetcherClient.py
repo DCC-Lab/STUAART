@@ -73,7 +73,7 @@ def create_log_file(path_to_file, ip, file_title, start_time, data, status):
                     'Web code : ' + status])
     f.close()
     
-    save_to_caffeine_server(f'{ip}/logs', local_file_path, file_title)
+    save_to_caffeine_server(f'{ip}/logs', local_file_path, log_title)
 
 
 def fetch_data(data_for_server, index):
