@@ -6,6 +6,7 @@ import tkinter as tk
 import os
 import paramiko
 from Constants import *
+import threading
 
 NBR_OF_IPS = 1
 IP_HEADER = "192.168.0."
@@ -174,6 +175,17 @@ time_till_midnight = (24 - dt.datetime.now().hour) * 1000 * 60 * 60 + (30 - dt.d
 
 print(time_till_midnight)
 
-window.after(time_till_midnight, start_fetch_loop)
+# window.after(time_till_midnight, start_fetch_loop)
+
+def current_time():
+    print(dt.datetime.now().strftime("%H:%M:%S"))
+    t2 = threading.Timer(60, current_time)
+    t2.daemon = True
+    t2.start()
+
+# t = threading.Timer(60, current_time)
+# t.daemon = True
+# t.start()
+current_time()
 
 window.mainloop()
