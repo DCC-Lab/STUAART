@@ -201,21 +201,6 @@ void setup()
     controller.tare_all_loadcells();
     controller.calibrate_all_loadcells();
   }
-
-  if (SD.exists("/test.csv"))
-  {
-    int a = SD.remove("/test.csv");
-
-    Serial.println(a);
-  }
-
-  writeFileHeader("/test.csv");
-  Serial.println("header");
-  writeFile("/test.csv", "10,10,10,10", FILE_APPEND);
-  writeFile("/test.csv", "11,10,10,10", FILE_APPEND);
-  writeFile("/test.csv", "12,10,10,10", FILE_APPEND);
-  writeFile("/test.csv", "13,10,10,10", FILE_APPEND);
-  writeFile("/test.csv", "14,10,10,10", FILE_APPEND);
 }
 
 
