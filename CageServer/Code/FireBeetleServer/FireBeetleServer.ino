@@ -74,7 +74,6 @@ void getTodaysDate(){
   int year = timeinfo.tm_year + 1900;
   int month = timeinfo.tm_mon +1;
   int day = timeinfo.tm_mday;
-  // int minute = timeinfo.tm_min;//TODO: remove minute, this is to test the behaviour is OK.
   snprintf(today, sizeof(today), "/%04d.%02d.%02d.csv", year, month, day);
 }
 
@@ -91,7 +90,6 @@ void getYesterdaysDate(){
   int year = timeinfo.tm_year + 1900;
   int month = timeinfo.tm_mon +1;
   int day = timeinfo.tm_mday-1;
-  // int minute = timeinfo.tm_min-1;//TODO: remove minute, this is to test the behaviour is OK.
   snprintf(yesterday, sizeof(yesterday), "/%04d.%02d.%02d.csv", year, month, day);
 }
 
@@ -107,18 +105,11 @@ void writeFile(const char *path, const char *message, const char *mode)
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  // Serial.print("Initializing SD card...");
-
   if (!SD.begin(SS_PIN))
   {
     Serial.println("initialization failed!");
     return;
   }
-  // Serial.println("initialization done.");
-
-  // Serial.print(path);
-  // Serial.print(" ");
-  // Serial.println(mode);
 
   // open the file. note that only one file can be open at a time,
   myFile = SD.open(path, mode);
@@ -126,11 +117,9 @@ void writeFile(const char *path, const char *message, const char *mode)
   // if the file opened okay, write to it:
   if (myFile)
   {
-    // Serial.print(("Writing to file..."));
     myFile.println(message);
     // close the file:
     myFile.close();
-    // Serial.println("done.");
   }
   else
   {
@@ -176,8 +165,6 @@ void saveData()
   String fileLine = "";
   
   fileLine += String(millis(), DEC) + "," + weight1 + "," + weight2 + "," + weight3;
-
-  // Serial.println(fileLine.c_str());
 
   writeFile(today, fileLine.c_str(), FILE_APPEND);
 }
@@ -260,15 +247,12 @@ void loop()
 
   if (client)
   {              
-    // client.setNoDelay(1);                  // if you get a client,
-    // Serial.println("New Client."); // print a message out the serial port
     String clientData = "";        // make a String to hold incoming data from the client
     while (client.connected())
     { // loop while the client's connected
       if (client.available())
       {                    // if there's bytes to read from the client,
         char c = client.read(); // read a byte, then
-        // Serial.write(c);   // print it out the serial monitor
         clientData += c;
       }
       else
@@ -317,10 +301,6 @@ void loop()
           return;
         }
 
-        // Serial.println("Read from file : ");
-        
-        // myFile = SD.open("/2024.06.06.csv");
-
         client.println("HTTP/1.1 200 " + httpReason);
         client.println("Content-type:text/html");
         client.println();
@@ -337,6 +317,5 @@ void loop()
     }
     // close the connection:
     client.stop();
-    // Serial.println("Client Disconnected.");
   }
 }
