@@ -147,7 +147,7 @@ def refresh():
 
 def fetch_loop(index):
     '''
-    Loops infinitely with spaces of 6 hours between each data fetch.
+    Loops infinitely with spaces of 12 hours between each data fetch.
     Fetches data from the server, if it fails, retries faster (1 hour).
     '''
     if (fetch_data(None, index)):
