@@ -151,7 +151,7 @@ def fetch_loop(index):
     Fetches data from the server, if it fails, retries faster (1 hour).
     '''
     if (fetch_data(None, index)):
-        time.sleep(6 * 60 * 60)
+        time.sleep(12 * 60 * 60)
         fetch_loop(index)
     else:
         time.sleep(60 * 60)
