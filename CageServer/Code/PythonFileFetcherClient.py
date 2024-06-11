@@ -14,6 +14,8 @@ INITIAL_IP = 101
 
 ALL_IPS = []
 
+WAIT_THREADS = []
+
 window = tk.Tk()
 status_Label = tk.Label(text='Waiting')
 status_Label.pack(ipadx=100, ipady=50)
@@ -145,43 +147,36 @@ def refresh():
 
 def fetch_loop(index):
     '''
-    Loops infinitely with spaces of 60000 milliseconds between each data fetch.
-    Fetches data from the server, if it fails, retries faster (30000 milliseconds).
+    Loops infinitely with spaces of 6 hours between each data fetch.
+    Fetches data from the server, if it fails, retries faster (1 hour).
     '''
     if (fetch_data(None, index)):
-        window.after(6 * 60 * 60 * 1000, fetch_loop, index)
-    else :
-        window.after(1000 * 60 * 60, fetch_loop, index)
+        time.sleep(6 * 60 * 60)
+        fetch_loop(index)
+    else:
+        time.sleep(60 * 60)
+        fetch_loop(index)
 
 
-def start_fetch_loop():
+def start_fetch_loop(time_delay):
     '''
     This method is to delay starting the fetching loop.
-    With Tkinter we can delay calling a method by a number of milliseconds.
+    It creates a thread for every IP so the downloads take place in parallel.
     '''
     for i in range(len(ALL_IPS)):
-        fetch_loop(i)
+        WAIT_THREADS.append(threading.Timer(time_delay, fetch_loop, [i]))
+        WAIT_THREADS[i].daemon = True
+        WAIT_THREADS[i].start()
 
 button = tk.Button(text='Refresh', command=refresh)
 button.pack(pady=50)
 
 initialize_ips()
 
-time_till_midnight = (24 - dt.datetime.now().hour) * 1000 * 60 * 60 + (30 - dt.datetime.now().minute) * 1000 * 60
+time_till_midnight = (24 - dt.datetime.now().hour) * 60 * 60 + (30 - dt.datetime.now().minute) * 60
 
 print(time_till_midnight)
 
-# window.after(time_till_midnight, start_fetch_loop)
-
-def current_time():
-    print(dt.datetime.now().strftime("%H:%M:%S"))
-    t2 = threading.Timer(60, current_time)
-    t2.daemon = True
-    t2.start()
-
-# t = threading.Timer(60, current_time)
-# t.daemon = True
-# t.start()
-current_time()
+start_fetch_loop(time_till_midnight)
 
 window.mainloop()
