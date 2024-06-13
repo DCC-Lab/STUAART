@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import exceptions
 import scipy.fft as fft
+from scipy.signal import find_peaks
 
 class Cage():
 
@@ -214,13 +215,36 @@ class Cage():
         self.reset_data()
         self.remove_outliers()
         self.convolution_filter_with_padding_edge(length=15)
+        conv_data = self.data 
+        conv_time = self.time 
+        self.convolution_filter_with_padding_edge(kernel_type="high-pass")
 
-        hanging_data = self.data[self.data < threshold]
-        index_hanging_data = np.where(self.data < threshold)[0]
-        hanging_time = self.time[index_hanging_data]
-        hanging_indicator = np.where(self.data < threshold, 1, 0) # 1 = the mouse is hanging at that time, otherwise 0
-        start_indices = np.where((hanging_indicator[:-1] == 0) & (hanging_indicator[1:] == 1))[0] + 1 # Find the start indices of sequences of 1s
-        end_indices = np.where((hanging_indicator[:-1] == 1) & (hanging_indicator[1:] == 0))[0] # Find the end indices of sequences of 1s
+        hanging_indices = find_peaks(abs(cage.data), height=15, distance=10)[0]
+        start_indices = []
+        end_indices = []
+        i = 0
+        while i in range(hanging_indices.shape[0]-1):
+            start = hanging_indices[i]
+            end = hanging_indices[i+1]
+
+            if cage.time[end] - cage.time[start] > 180/60/60:
+            # if the hanging event lasts for more than 3 minutes, do not consider
+            i += 1
+
+            elif cage.time[end] - cage.time[start] < 1/60/60:
+            # if the hanging event lasts less than a second, do not consider
+            i += 1
+
+            else:
+            # verifies if the selected range has at least one second of weight measurement under 10g. If so, it is indeed hanging. Otherwise, it is not hanging. 
+            under_10_indices = np.where(conv_data[start:end] < 10)[0]
+            if under_10_indices.shape[0] > 1/60/60:
+                start_indices.append(start)
+                end_indices.append(end)
+                i += 2
+            else:
+                i += 1
+
 
         if first_day:
             # remove indices that are under the index when the mouse is in 
