@@ -21,6 +21,7 @@ class Cage():
         self.data = self.raw_data
         self.time = self.raw_time
 
+
     def when_mouse_is_in(self):
         """
         Identifies the moment when the mouse is in the cage. 
@@ -36,6 +37,7 @@ class Cage():
                 break
         self.time_when_mouse_is_in = self.time[i+length]
         self.weight_when_mouse_is_in = self.data[i+length]
+
 
     def remove_outliers(self, upper_threshold: float=45, change_tolerance: float=5):
         """ 
@@ -124,6 +126,7 @@ class Cage():
         # for now, this statement is useless but shows an approriate structure
         # for more kernel types, an example for gaussian is below
         input_data_length = self.data.shape[0]
+
         if kernel_type == 'average':
             # create an array of approriate length of 1/length at every position
             # this is the specific case of moving average
@@ -135,6 +138,17 @@ class Cage():
                 padded_data = np.pad(self.data, pad_width, mode='mean')
                 self.data = np.convolve(padded_data, filtering_array, mode='same')
                 self.data = self.data[int(length/2):int(length/2+input_data_length)]
+
+        if kernel_type == "high-pass" :
+            filtering_array = np.array([-1, -1, 0, 0, 0, 0, 0, 1, 1])  # High-pass filter
+            # doing the convolution the specified number of times
+            for i in range(iteration):
+                # 'same' arg is used to get an array of same size as self.data. Boundary effects are corrected with edge padding. The extra data on the edges are removed after the convolution with slicing. 
+                pad_width = len(filtering_array) // 2
+                padded_data = np.pad(self.data, pad_width, mode='mean')
+                self.data = np.convolve(padded_data, filtering_array, mode='same')
+                self.data = self.data[int(length/2):int(length/2+input_data_length)]
+
 
 
     def fft_filter(self, cutoff_freq: float=60):
@@ -175,6 +189,7 @@ class Cage():
         # update Cage object
         self.data = np.abs(filtered_array)
 
+
     def compute_mean_data(self, smooth_level: int=3):
         """
         Computes the mean of the weight to smoothen it maximally and only see the tendency of the weight change over time.
@@ -187,7 +202,8 @@ class Cage():
         self.remove_outliers()
         self.convolution_filter_with_padding_edge(length=600, iteration=smooth_level)
 
-    def compute_hanging(self, threshold: int=10, bins: float=0.5, first_day: bool =False, produce_graph: bool=False):
+
+    def compute_hanging(self, threshold: int=10, bins: float=0.5, first_day: bool=False, produce_graph: bool=False):
         """
         Hanging is when the weight data drops to 0g for more than 1 second. 
         A convolution is done on a small window length (15 points) to smooth the data just enough to identify the moments when the weight data drops to 0g. 
@@ -229,22 +245,20 @@ class Cage():
                 hanging_times = np.where((start_hanging < i) & (start_hanging > i - bins))[0].shape[0]
                 self.hanging_frequency.append(hanging_times)
         self.hanging_frequency = np.array(self.hanging_frequency)
-        print(self.hanging_frequency)
 
         if produce_graph:
             plt.figure(figsize=(13,7))
             for i in range(start_hanging.shape[0]):
                 if i == 0:
-                   plt.fill_between(cage.raw_time, np.amax(cage.raw_data), where=(cage.raw_time >= start_hanging[i]) & (cage.raw_time <= end_hanging[i]), color="red", alpha=0.7, label="Hanging - Data analysis")
+                    plt.fill_between(self.raw_time, np.amax(self.raw_data), where=(self.raw_time >= start_hanging[i]) & (self.raw_time <= end_hanging[i]), color="red", alpha=0.7, label="Hanging - Data analysis")
                 else:
-                    plt.fill_between(cage.raw_time, np.amax(cage.raw_data), where=(cage.raw_time >= start_hanging[i]) & (cage.raw_time <= end_hanging[i]), color="red", alpha=0.7)
+                    plt.fill_between(self.raw_time, np.amax(self.raw_data), where=(self.raw_time >= start_hanging[i]) & (self.raw_time <= end_hanging[i]), color="red", alpha=0.7)
 
             plt.plot(self.raw_time, self.raw_data, color="k", label="Not filtered")
-            plt.plot(self.time, self.data, label="Convoluted (15)")
+            plt.plot(self.time, self.data, label="Convoluted")
             plt.legend()
             plt.xlabel("Time [hour]", fontsize=20)
             plt.ylabel("Fake weight data [g]", fontsize=20)
-            plt.title(f"Total time accuracy : {accuracy_total_time_hanging}% \n Accuracy hanging identification : {accuracy_hanging_identification}% ")
             plt.show()
 
 

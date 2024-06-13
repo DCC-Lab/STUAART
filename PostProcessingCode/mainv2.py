@@ -22,12 +22,12 @@ data = np.array(pd.read_csv(your_path))
 # -----------
 # Individual scales
 
-time = data[:,0]/(1000 * 60) # time in min
+time = data[:,0]/(1000 * 60 * 60) # time in hours
 data1 = data[:,1] # weight measurements scale 1, 300g
 data2 = data[:,2] # weight measurements scale 1, 100g
 data3 = data[:,3] # weight measurements scale 1, 100g
 
-# real_data = np.array([[time[0], time[-1]],[29.5, 29.5]]) # measured weight of the mouse
+real_data = np.array([[time[0], time[-1]],[29.5, 29.5]]) # measured weight of the mouse
 
 # This is used in case we want to amplify the drift for testing
 # data1[3000:] += 3000
@@ -115,7 +115,7 @@ index_when_mouse_is_in = np.where(cage.time == cage.time_when_mouse_is_in)[0][0]
 
 
 # ACCESS HANGING DATA
-Hanging data from video, reference
+# Hanging data from video, reference
 true_hanging_time = np.array(pd.read_csv("/Users/valeriepineaunoel/Documents/PhD/Results/20240407-AcquireWeightForALongTimeNoAutotareMouse588/video3h/20240407-AcquireWeightFor3hoursMouse5883-BehaviourDataAdterWatching/Hanging.csv"))
 time_hanging = true_hanging_time[:,-1]
 
@@ -140,19 +140,26 @@ for i in range(true_hanging_time[:,1].shape[0]):
 # Fetch hanging data from weight data
 cage.remove_outliers()
 cage.convolution_filter_with_padding_edge(length=15)
-cage.compute_hanging()
+cage.convolution_filter_with_padding_edge(kernel_type="high-pass")
+# cage.compute_hanging(first_day=True)
 
 # get data only under 10 g
-hanging_data = cage.data[cage.data < 10]
-index_hanging_data = np.where(cage.data < 10)[0]
-hanging_time = cage.time[index_hanging_data]
-hanging_indicator = np.where(cage.data < 10, 1, 0) # 1 = the mouse is hanging at that time, otherwise 0
-start_indices = np.where((hanging_indicator[:-1] == 0) & (hanging_indicator[1:] == 1))[0] + 1 # Find the start indices of sequences of 1s
-end_indices = np.where((hanging_indicator[:-1] == 1) & (hanging_indicator[1:] == 0))[0] # Find the end indices of sequences of 1s
+# hanging_data = cage.data[cage.data < 10]
+# index_hanging_data = np.where(cage.data < 10)[0]
+# hanging_time = cage.time[index_hanging_data]
+# hanging_indicator = np.where(cage.data < 10, 1, 0) # 1 = the mouse is hanging at that time, otherwise 0
+# start_indices = np.where((hanging_indicator[:-1] == 0) & (hanging_indicator[1:] == 1))[0] + 1 # Find the start indices of sequences of 1s
+# end_indices = np.where((hanging_indicator[:-1] == 1) & (hanging_indicator[1:] == 0))[0] # Find the end indices of sequences of 1s
+
+start_indices = np.where(cage.data > 15)[0]
+end_indices = np.where(cage.data < -15)[0]
+# TODO : Filtrer les indices pour que j'aille juste un indice par événement de hanging
+print(start_indices, start_indices.shape)
+print(end_indices, end_indices.shape)
 
 # remove indices that are under the index when the mouse is in 
-start_indices = start_indices[start_indices > index_when_mouse_is_in]
-end_indices = end_indices[end_indices > index_when_mouse_is_in]
+# start_indices = start_indices[start_indices > index_when_mouse_is_in]
+# end_indices = end_indices[end_indices > index_when_mouse_is_in + 50]
 
 # gets the times when the mouse starts and ends hanging
 start_hanging = cage.time[start_indices]
@@ -189,14 +196,15 @@ for i in range(len(starting_time)):
 		plt.fill_between(cage.raw_time, np.amax(cage.raw_data), where=(cage.raw_time >= starting_time[i]) & (cage.raw_time <= ending_time[i]), color="gray", alpha=0.7)
 
 # fill between the moment where the mouse is hanging from my weight data analysis
-for i in range(start_hanging.shape[0]):
-	if i == 0:
-		plt.fill_between(cage.raw_time, np.amax(cage.raw_data), where=(cage.raw_time >= start_hanging[i]) & (cage.raw_time <= end_hanging[i]), color="red", alpha=0.7, label="Hanging - Data analysis")
-	else:
-		plt.fill_between(cage.raw_time, np.amax(cage.raw_data), where=(cage.raw_time >= start_hanging[i]) & (cage.raw_time <= end_hanging[i]), color="red", alpha=0.7)
+# for i in range(start_hanging.shape[0]):
+# 	if i == 0:
+# 		plt.fill_between(cage.raw_time, np.amax(cage.raw_data), where=(cage.raw_time >= start_hanging[i]) & (cage.raw_time <= end_hanging[i]), color="red", alpha=0.7, label="Hanging - Data analysis")
+# 	else:
+# 		plt.fill_between(cage.raw_time, np.amax(cage.raw_data), where=(cage.raw_time >= start_hanging[i]) & (cage.raw_time <= end_hanging[i]), color="red", alpha=0.7)
 
+print(cage.data, cage.data.shape)
 plt.plot(cage.raw_time, cage.raw_data, color="k", label="Not filtered")
-plt.plot(cage.time, cage.data, label="Convoluted (15)")
+plt.plot(cage.time, cage.data, linewidth=5, alpha=0.5, label="Convoluted")
 plt.scatter(real_data[0], real_data[1], s=100, alpha=0.7, c="y", marker="*", label="Real data")
 plt.legend()
 plt.title(f"Total time accuracy : {accuracy_total_time_hanging}% \n Accuracy hanging identification : {accuracy_hanging_identification}% ")
