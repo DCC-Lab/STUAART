@@ -96,11 +96,13 @@ data3.subtract_baseline()
 data_list = [data1, data2, data3]
 cage = Cage(data_list, time)
 
+
 # FIND WHEN MOUSE GETS IN THE CAGE
 cage.when_mouse_is_in()
 index_when_mouse_is_in = np.where(cage.time == cage.time_when_mouse_is_in)[0][0]
 
 # COMPUTE AVERAGE WEIGHT OVER TIME
+
 # cage.compute_mean_data()
 
 # plt.plot(cage.raw_time, cage.raw_data, color="k", label="Not filtered")
@@ -110,6 +112,7 @@ index_when_mouse_is_in = np.where(cage.time == cage.time_when_mouse_is_in)[0][0]
 # plt.xlabel("Time [hour]", fontsize=20)
 # plt.ylabel("Weight [g]", fontsize=20)
 # plt.show()
+
 
 # ACCESS HANGING DATA
 Hanging data from video, reference
@@ -196,26 +199,5 @@ plt.plot(cage.raw_time, cage.raw_data, color="k", label="Not filtered")
 plt.plot(cage.time, cage.data, label="Convoluted (15)")
 plt.scatter(real_data[0], real_data[1], s=100, alpha=0.7, c="y", marker="*", label="Real data")
 plt.legend()
-plt.xlabel("Time [hour]", fontsize=20)
-plt.ylabel("Fake weight data [g]", fontsize=20)
 plt.title(f"Total time accuracy : {accuracy_total_time_hanging}% \n Accuracy hanging identification : {accuracy_hanging_identification}% ")
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
