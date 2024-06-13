@@ -4,11 +4,11 @@ import pandas as pd
 import datetime as dt
 import tkinter as tk
 import os
+import paramiko
+from Constants import *
 
 NBR_OF_IPS = 1
-
 IP_HEADER = "192.168.0."
-
 INITIAL_IP = 101
 
 ALL_IPS = []
@@ -30,7 +30,34 @@ def initialize_ips():
     print(ALL_IPS)
 
 
-def create_log_file(path_to_file, file_title, start_time, data, status):
+def save_to_caffeine_server(subfolder, local_file_path, file_title):
+    '''
+    Saves the file located at local_file_path to the server via ssh, under the subfolder with the given file_title.
+    
+        Parameters:
+            subfolder (string): The path where the file should be saved on the server.
+            local_file_path (string): The path where the file is saved locally.
+            file_title (string): The name to be given to the file on the server.
+    '''
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh_client.connect(SERVER_HOST, username=SERVER_USERNAME, password=SERVER_PASSWORD)
+    
+    sftp = ssh_client.open_sftp()
+    
+    remote_path = f"{SERVER_PATH}/{subfolder}/"
+    
+    try:
+        sftp.chdir(remote_path)  # Test if remote_path exists
+    except IOError:
+        sftp.mkdir(remote_path)  # Create remote_path
+        
+    sftp.put(local_file_path, remote_path + file_title)
+    sftp.close()
+    ssh_client.close()
+
+
+def create_log_file(path_to_file, ip, file_title, start_time, data, status):
     '''
     Creates a log file at the specified path, with the specified information.
     
@@ -43,7 +70,9 @@ def create_log_file(path_to_file, file_title, start_time, data, status):
     '''
     log_path = os.path.join(path_to_file, 'logs')
     os.makedirs(log_path, exist_ok=True)
-    f = open(os.path.join(log_path, dt.datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + '.log'), 'w')
+    log_title = dt.datetime.now().strftime("%Y_%m_%d-%H_%M_%S") + '.log'
+    local_file_path = os.path.join(log_path, log_title)
+    f = open(local_file_path, 'w')
     
     
     f.writelines(['File fetched : ' + file_title + '\n',
@@ -51,6 +80,8 @@ def create_log_file(path_to_file, file_title, start_time, data, status):
                     'Number of characters : ' + str(len(data)) + '\n',
                     'Web code : ' + status])
     f.close()
+    
+    save_to_caffeine_server(f'{ip}/logs', local_file_path, file_title)
 
 
 def fetch_data(data_for_server, index):
@@ -66,10 +97,11 @@ def fetch_data(data_for_server, index):
         Returns:
             (bool): Whether the data was successfully saved.
     '''
+    ip = str(ALL_IPS[index])
 
     try:
         start = time.time()
-        path_to_file = os.path.join(os.path.expanduser('~'), 'Documents', 'SmartCageData', str(ALL_IPS[index]))
+        path_to_file = os.path.join(os.path.expanduser('~'), 'Documents', 'SmartCageData', ip)
         status_Label.config(text="Loading " + ALL_IPS[index])
         web_url = urllib.request.urlopen(
             "http://"+ALL_IPS[index]+"/", data=data_for_server, timeout=3)
@@ -81,7 +113,7 @@ def fetch_data(data_for_server, index):
         if 'web_url' in locals():
             data = web_url.read()
             status = f'{web_url.status} {web_url.reason}'
-        create_log_file(path_to_file, 'not applicable', start, data, status)
+        create_log_file(path_to_file, ip, 'not applicable', start, data, status)
         return False
 
     else:
@@ -92,10 +124,16 @@ def fetch_data(data_for_server, index):
         print(html_data)
         status_Label.config(text="Waiting")
         
-        create_log_file(path_to_file, file_title, start, html_data, f'{web_url.status} {web_url.reason}')
+        create_log_file(path_to_file, ip, file_title, start, html_data, f'{web_url.status} {web_url.reason}')
         
-        f = open(os.path.join(path_to_file, file_title), 'w')
+        local_file_path = os.path.join(path_to_file, file_title)
+        
+        f = open(local_file_path, 'w')
         f.write('\n'.join(decoded_message[1:]))
+        f.close()
+        
+        save_to_caffeine_server(ip, local_file_path, file_title)
+        
         return True
 
 
@@ -114,7 +152,7 @@ def fetch_loop(index):
     Fetches data from the server, if it fails, retries faster (30000 milliseconds).
     '''
     if (fetch_data(None, index)):
-        window.after(60000, fetch_loop, index)
+        window.after(6 * 60 * 60 * 1000, fetch_loop, index)
     else :
         window.after(30000, fetch_loop, index)
 
@@ -132,8 +170,10 @@ button.pack(pady=50)
 
 initialize_ips()
 
-print((60 - dt.datetime.now().second + 10) * 1000)
+time_till_midnight = (24 - dt.datetime.now().hour) * 1000 * 60 * 60 + (30 - dt.datetime.now().minute) * 1000 * 60
 
-window.after((60 - dt.datetime.now().second + 10) * 1000, start_fetch_loop)
+print(time_till_midnight)
+
+window.after(time_till_midnight, start_fetch_loop)
 
 window.mainloop()
