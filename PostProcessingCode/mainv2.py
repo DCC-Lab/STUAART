@@ -22,12 +22,12 @@ data = np.array(pd.read_csv(your_path))
 # -----------
 # Individual scales
 
-time = data[:,0]/(1000 * 60 * 60) # time in hours
+time = data[:,0]/(1000 * 60) # time in min
 data1 = data[:,1] # weight measurements scale 1, 300g
 data2 = data[:,2] # weight measurements scale 1, 100g
 data3 = data[:,3] # weight measurements scale 1, 100g
 
-real_data = np.array([[time[0], time[-1]],[29.5, 29.5]]) # measured weight of the mouse
+# real_data = np.array([[time[0], time[-1]],[29.5, 29.5]]) # measured weight of the mouse
 
 # This is used in case we want to amplify the drift for testing
 # data1[3000:] += 3000
@@ -82,6 +82,14 @@ data3.subtract_baseline()
 # data2.find_all_peaks_values()
 # data3.find_all_peaks_values()
 
+# plt.plot(time, data1, color=color_data1, label="Scale 1")
+# plt.plot(time, data2, color=color_data2, label="Scale 2")
+# plt.plot(time, data3, color=color_data3, label="Scale 3")
+# plt.xlabel("Time [min]", fontsize=16)
+# plt.ylabel("Weight [g]", fontsize=16)
+# plt.legend()
+# plt.show()
+
 # -------
 # Cage 
 
@@ -104,7 +112,7 @@ index_when_mouse_is_in = np.where(cage.time == cage.time_when_mouse_is_in)[0][0]
 # plt.show()
 
 # ACCESS HANGING DATA
-# Hanging data from video, reference
+Hanging data from video, reference
 true_hanging_time = np.array(pd.read_csv("/Users/valeriepineaunoel/Documents/PhD/Results/20240407-AcquireWeightForALongTimeNoAutotareMouse588/video3h/20240407-AcquireWeightFor3hoursMouse5883-BehaviourDataAdterWatching/Hanging.csv"))
 time_hanging = true_hanging_time[:,-1]
 
@@ -167,7 +175,6 @@ compare = (hanging_indicator == 1) & (indicator_hanging_reference == 1) # verifi
 number_of_success = np.where(compare == True)[0].shape[0]
 number_of_hanging_reference = np.where(indicator_hanging_reference == 1)[0].shape[0]
 accuracy_hanging_identification = number_of_success/number_of_hanging_reference*100
-
 
 
 plt.figure(figsize=(13,7))

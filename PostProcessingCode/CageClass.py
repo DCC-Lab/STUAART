@@ -39,7 +39,7 @@ class Cage():
 
     def remove_outliers(self, upper_threshold: float=45, change_tolerance: float=5):
         """ 
-        TODO
+        Data can be more cleaned up by removing outliers, first with a simple threshold, then by verifying if a data point 
         """
 
         # rough filtering by removing any values over the specified threshold
@@ -110,7 +110,7 @@ class Cage():
 
     def convolution_filter_with_padding_edge(self, length: int=10, iteration: int=1, kernel_type='average'):
         """ Convolution filter on the signal. This filter is meant to smooth up the signal
-        and remove outliers without any threshold
+        and remove outliers without any threshold. The edges are padded to correct for boundary effects. 
 
         Arguments:
             - length: length of the kernel to convolve on signal. default is 10
@@ -194,8 +194,6 @@ class Cage():
         A threshold is set so that all weight data going under the threshold in the convoluted weight data is when the mouse is hanging. 
         If it is the first day, then the first weight data are at 0g, but they are not hanging data, as the mouse is not in yet. 
         The bins variable indicates how you want the hanging frequency to be computed. 0.5 is 30 min, 1 is one hour. 
-
-        TODO : Hanging frequency, so how many times the mouse is hanging per hour. 
         """
         self.reset_data()
         self.remove_outliers()
