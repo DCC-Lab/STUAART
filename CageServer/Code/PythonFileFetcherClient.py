@@ -81,7 +81,7 @@ def create_log_file(path_to_file, ip, file_title, start_time, data, status):
                     'Web code : ' + status])
     f.close()
     
-    save_to_caffeine_server(f'{ip}/logs', local_file_path, file_title)
+    save_to_caffeine_server(f'{ip}/logs', local_file_path, log_title)
 
 
 def fetch_data(data_for_server, index):
@@ -102,7 +102,6 @@ def fetch_data(data_for_server, index):
     try:
         start = time.time()
         path_to_file = os.path.join(os.path.expanduser('~'), 'Documents', 'SmartCageData', ip)
-        status_Label.config(text="Loading " + ALL_IPS[index])
         web_url = urllib.request.urlopen(
             "http://"+ALL_IPS[index]+"/", data=data_for_server, timeout=3)
     except:
@@ -120,9 +119,6 @@ def fetch_data(data_for_server, index):
         html_data = web_url.read()
         decoded_message = html_data.decode().split('\r\n')
         file_title = decoded_message[0]
-        
-        print(html_data)
-        status_Label.config(text="Waiting")
         
         create_log_file(path_to_file, ip, file_title, start, html_data, f'{web_url.status} {web_url.reason}')
         
@@ -154,7 +150,7 @@ def fetch_loop(index):
     if (fetch_data(None, index)):
         window.after(6 * 60 * 60 * 1000, fetch_loop, index)
     else :
-        window.after(30000, fetch_loop, index)
+        window.after(1000 * 60 * 60, fetch_loop, index)
 
 
 def start_fetch_loop():
