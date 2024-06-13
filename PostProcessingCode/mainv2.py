@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from DataClass import Data
 from CageClass import Cage
 from datetime import datetime
+from scipy.signal import find_peaks
 
 color_data1 = "b"
 color_data2 = "r"
@@ -140,6 +141,8 @@ for i in range(true_hanging_time[:,1].shape[0]):
 # Fetch hanging data from weight data
 cage.remove_outliers()
 cage.convolution_filter_with_padding_edge(length=15)
+conv_time = cage.time 
+conv_data = cage.data
 cage.convolution_filter_with_padding_edge(kernel_type="high-pass")
 # cage.compute_hanging(first_day=True)
 
@@ -151,15 +154,78 @@ cage.convolution_filter_with_padding_edge(kernel_type="high-pass")
 # start_indices = np.where((hanging_indicator[:-1] == 0) & (hanging_indicator[1:] == 1))[0] + 1 # Find the start indices of sequences of 1s
 # end_indices = np.where((hanging_indicator[:-1] == 1) & (hanging_indicator[1:] == 0))[0] # Find the end indices of sequences of 1s
 
-start_indices = np.where(cage.data > 15)[0]
-end_indices = np.where(cage.data < -15)[0]
-# TODO : Filtrer les indices pour que j'aille juste un indice par événement de hanging
-print(start_indices, start_indices.shape)
-print(end_indices, end_indices.shape)
+# positive_high_pass_indices = np.where(cage.data > 15)[0]
+# negative_high_pass_indices = np.where(cage.data < -15)[0]
+# print(positive_high_pass_indices, positive_high_pass_indices.shape)
+# print(negative_high_pass_indices, negative_high_pass_indices.shape)
+
+# diff_start = np.diff(positive_high_pass_indices)
+# diff_end = np.diff(negative_high_pass_indices)
+
+# patch_ends_start = np.where(diff_start != 1)[0]
+# patch_ends_end = np.where(diff_end != 1)[0]
+
+# patch_ends_start = np.append(patch_ends_start, len(positive_high_pass_indices) - 1)
+# path_ends_end = np.append(patch_ends_end, len(negative_high_pass_indices)-1)
+
+# patch_start = 0
+# start_indices = []
+# for nb in patch_ends_start:
+# 	patch_range = positive_high_pass_indices[patch_start:nb+1]
+# 	mean_index = int(np.mean(patch_range))
+# 	start_indices.append(mean_index)
+# 	patch_start = nb + 1
+
+# patch_start = 0
+# end_indices = []
+# for nb in patch_ends_end:
+# 	patch_range = negative_high_pass_indices[patch_start:nb+1]
+# 	mean_index = int(np.mean(patch_range))
+# 	end_indices.append(mean_index)
+# 	patch_start = nb + 1
+
+# start_indices = np.array(start_indices)
+# end_indices = np.array(end_indices)
+
+# Finds peaks of high-pass filtered data and identifies the start and the end indices of the hanging events. 
+hanging_indices = find_peaks(abs(cage.data), height=15, distance=10)[0]
+print(hanging_indices)
+start_indices = []
+end_indices = []
+i = 0
+while i in range(hanging_indices.shape[0]-1):
+	start = hanging_indices[i]
+	end = hanging_indices[i+1]
+	if end - start > 900:
+		# if the hanging event lasts for more than 3 minutes, do not consider
+		i += 1
+	elif end - start < 5:
+		# if the hanging event lasts less than a second, do not consider
+		i += 1
+	else:
+		# verifies if the selected range has at least one second of weight measurement under 10g. If so, it is indeed hanging. Otherwise, it is not hanging. 
+		under_10_indices = np.where(conv_data[start:end] < 10)[0]
+		if under_10_indices.shape[0] > 5:
+			start_indices.append(start)
+			end_indices.append(end)
+			i += 2
+		else:
+			i += 1
+
+start_indices = np.array(start_indices)
+end_indices = np.array(end_indices)
+hanging_indicator = np.zeros(shape=cage.data.shape)
+for start, end in zip(start_indices, end_indices):
+    hanging_indicator[start:end + 1] = 1
+
+# end_indices = find_peaks(cage.data, height=(-50,-14), distance=10)[0]
 
 # remove indices that are under the index when the mouse is in 
-# start_indices = start_indices[start_indices > index_when_mouse_is_in]
-# end_indices = end_indices[end_indices > index_when_mouse_is_in + 50]
+start_indices = start_indices[start_indices > index_when_mouse_is_in]
+end_indices = end_indices[end_indices > index_when_mouse_is_in]
+
+print(start_indices, start_indices.shape)
+print(end_indices, end_indices.shape)
 
 # gets the times when the mouse starts and ends hanging
 start_hanging = cage.time[start_indices]
@@ -196,16 +262,18 @@ for i in range(len(starting_time)):
 		plt.fill_between(cage.raw_time, np.amax(cage.raw_data), where=(cage.raw_time >= starting_time[i]) & (cage.raw_time <= ending_time[i]), color="gray", alpha=0.7)
 
 # fill between the moment where the mouse is hanging from my weight data analysis
-# for i in range(start_hanging.shape[0]):
-# 	if i == 0:
-# 		plt.fill_between(cage.raw_time, np.amax(cage.raw_data), where=(cage.raw_time >= start_hanging[i]) & (cage.raw_time <= end_hanging[i]), color="red", alpha=0.7, label="Hanging - Data analysis")
-# 	else:
-# 		plt.fill_between(cage.raw_time, np.amax(cage.raw_data), where=(cage.raw_time >= start_hanging[i]) & (cage.raw_time <= end_hanging[i]), color="red", alpha=0.7)
+for i in range(start_hanging.shape[0]):
+	if i == 0:
+		plt.fill_between(cage.raw_time, 50, where=(cage.raw_time >= start_hanging[i]) & (cage.raw_time <= end_hanging[i]), color="red", alpha=0.7, label="Hanging - Data analysis")
+	else:
+		plt.fill_between(cage.raw_time, 50, where=(cage.raw_time >= start_hanging[i]) & (cage.raw_time <= end_hanging[i]), color="red", alpha=0.7)
 
-print(cage.data, cage.data.shape)
 plt.plot(cage.raw_time, cage.raw_data, color="k", label="Not filtered")
-plt.plot(cage.time, cage.data, linewidth=5, alpha=0.5, label="Convoluted")
-plt.scatter(real_data[0], real_data[1], s=100, alpha=0.7, c="y", marker="*", label="Real data")
+plt.plot(conv_time, conv_data, linewidth=3, alpha=0.5, color="g", label="Convoluted (15) before high-pass")
+plt.plot(cage.time, cage.data, linewidth=3, alpha=0.5, color="b", label="High-pass")
+plt.scatter(real_data[0], real_data[1], s=150, alpha=0.7, c="y", marker="*", label="Real data")
 plt.legend()
 plt.title(f"Total time accuracy : {accuracy_total_time_hanging}% \n Accuracy hanging identification : {accuracy_hanging_identification}% ")
+plt.xlabel("Time [hour]", fontsize=16)
+plt.ylabel("Weight [g]", fontsize=16)
 plt.show()
