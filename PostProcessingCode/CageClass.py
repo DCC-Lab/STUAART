@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import exceptions
 import scipy.fft as fft
 from scipy.signal import find_peaks
 
@@ -229,21 +228,22 @@ class Cage():
 
             if cage.time[end] - cage.time[start] > 180/60/60:
             # if the hanging event lasts for more than 3 minutes, do not consider
-            i += 1
+                i += 1
 
             elif cage.time[end] - cage.time[start] < 1/60/60:
             # if the hanging event lasts less than a second, do not consider
-            i += 1
+                i += 1
 
             else:
             # verifies if the selected range has at least one second of weight measurement under 10g. If so, it is indeed hanging. Otherwise, it is not hanging. 
-            under_10_indices = np.where(conv_data[start:end] < 10)[0]
-            if under_10_indices.shape[0] > 1/60/60:
-                start_indices.append(start)
-                end_indices.append(end)
-                i += 2
-            else:
-                i += 1
+                under_10_indices = np.where(conv_data[start:end] < 10)[0]
+
+                if under_10_indices.shape[0] > 1/60/60:
+                    start_indices.append(start)
+                    end_indices.append(end)
+                    i += 2
+                else:
+                    i += 1
 
 
         if first_day:

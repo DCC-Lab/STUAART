@@ -38,6 +38,10 @@ data1 = Data(data1, time)
 data2 = Data(data2, time)
 data3 = Data(data3, time)
 
+# data1.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data1, is_saved=save_figure, real_data=None)
+# data2.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data2, is_saved=save_figure, real_data=None)
+# data3.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data3, is_saved=save_figure, real_data=None)
+
 # Step 1 : Clean the signal and ready the data for the analysis
 # set baseline, correct for shifts of weight over time, remove outliers with a simple threshold. 
 
@@ -62,9 +66,9 @@ data1.find_baseline()
 data2.find_baseline()
 data3.find_baseline()
 
-# data1.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data1, is_saved=save_figure, real_data=real_data)
-# data2.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data2, is_saved=save_figure, real_data=real_data)
-# data3.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data3, is_saved=save_figure, real_data=real_data)
+# data1.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data1, is_saved=save_figure, real_data=None)
+# data2.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data2, is_saved=save_figure, real_data=None)
+# data3.plot_signal(threshold=False, peaks=False, baseline=True, color=color_data3, is_saved=save_figure, real_data=None)
 
 data1.subtract_baseline()
 data2.subtract_baseline()
@@ -83,14 +87,6 @@ data3.subtract_baseline()
 # data2.find_all_peaks_values()
 # data3.find_all_peaks_values()
 
-# plt.plot(time, data1, color=color_data1, label="Scale 1")
-# plt.plot(time, data2, color=color_data2, label="Scale 2")
-# plt.plot(time, data3, color=color_data3, label="Scale 3")
-# plt.xlabel("Time [min]", fontsize=16)
-# plt.ylabel("Weight [g]", fontsize=16)
-# plt.legend()
-# plt.show()
-
 # -------
 # Cage 
 
@@ -103,12 +99,14 @@ cage = Cage(data_list, time)
 # index_when_mouse_is_in = np.where(cage.time == cage.time_when_mouse_is_in)[0][0]
 
 # COMPUTE AVERAGE WEIGHT OVER TIME
-
-# cage.compute_mean_data()
+# cage.remove_outliers()
 
 # plt.plot(cage.raw_time, cage.raw_data, color="k", label="Not filtered")
-# plt.plot(cage.time, cage.data, label="Filtered")
-# plt.scatter(real_data[0], real_data[1], s=100, alpha=0.7, c="y", marker="*", label="Real data")
+# plt.plot(cage.time, cage.data, c="g", linewidth=4, alpha=0.6, label="Outliers removed")
+# cage.reset_data()
+# cage.compute_mean_data()
+# plt.plot(cage.time, cage.data, c="b", linewidth=4, alpha=0.6, label="Filtered")
+# # plt.scatter(real_data[0], real_data[1], s=100, alpha=0.7, c="y", marker="*", label="Real data")
 # plt.legend()
 # plt.xlabel("Time [hour]", fontsize=20)
 # plt.ylabel("Weight [g]", fontsize=20)
