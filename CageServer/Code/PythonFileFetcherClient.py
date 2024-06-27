@@ -42,22 +42,30 @@ def save_to_caffeine_server(subfolder, local_file_path, file_title):
             local_file_path (string): The path where the file is saved locally.
             file_title (string): The name to be given to the file on the server.
     '''
-    ssh_client = paramiko.SSHClient()
-    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh_client.connect(SERVER_HOST, username=SERVER_USERNAME, password=SERVER_PASSWORD)
-    
-    sftp = ssh_client.open_sftp()
-    
-    remote_path = f"{SERVER_PATH}/{subfolder}/"
-    
     try:
-        sftp.chdir(remote_path)  # Test if remote_path exists
-    except IOError:
-        sftp.mkdir(remote_path)  # Create remote_path
+        # print(subfolder)
+        # print(local_file_path)
+        # print(file_title)
         
-    sftp.put(local_file_path, remote_path + file_title)
-    sftp.close()
-    ssh_client.close()
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh_client.connect(SERVER_HOST, username=SERVER_USERNAME, password=SERVER_PASSWORD)
+        
+        sftp = ssh_client.open_sftp()
+        
+        remote_path = f"{SERVER_PATH}/{subfolder}/"
+        
+        try:
+            sftp.chdir(remote_path)  # Test if remote_path exists
+        except IOError:
+            sftp.mkdir(remote_path)  # Create remote_path
+            
+        sftp.put(local_file_path, remote_path + file_title)
+        sftp.close()
+        ssh_client.close()
+        print('success')
+    except Exception as e:
+        print('Failed to save to server. Exception is : ', e)
 
 
 def create_log_file(path_to_file, ip, file_title, start_time, data, status):
