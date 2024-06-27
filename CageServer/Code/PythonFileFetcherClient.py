@@ -33,7 +33,7 @@ def initialize_ips():
     print(ALL_IPS)
 
 
-def save_to_caffeine_server(subfolder, local_file_path, file_title):
+def save_to_caffeine_server(subfolders, local_file_path, file_title):
     '''
     Saves the file located at local_file_path to the server via ssh, under the subfolder with the given file_title.
     
@@ -50,20 +50,20 @@ def save_to_caffeine_server(subfolder, local_file_path, file_title):
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh_client.connect(SERVER_HOST, username=SERVER_USERNAME, password=SERVER_PASSWORD)
-        
         sftp = ssh_client.open_sftp()
         
-        remote_path = f"{SERVER_PATH}/{subfolder}/"
+        remote_path = f"{SERVER_PATH}/"
         
-        try:
-            sftp.chdir(remote_path)  # Test if remote_path exists
-        except IOError:
-            sftp.mkdir(remote_path)  # Create remote_path
+        for subfolder in subfolders:
+            remote_path += f'{subfolder}/'
+            try:
+                sftp.chdir(remote_path)  # Test if remote_path exists
+            except IOError:
+                sftp.mkdir(remote_path)  # Create remote_path
             
         sftp.put(local_file_path, remote_path + file_title)
         sftp.close()
         ssh_client.close()
-        print('success')
     except Exception as e:
         print('Failed to save to server. Exception is : ', e)
 
@@ -92,7 +92,7 @@ def create_log_file(path_to_file, ip, file_title, start_time, data, status):
                     'Web code : ' + status])
     f.close()
     
-    save_to_caffeine_server(f'{ip}/logs', local_file_path, log_title)
+    save_to_caffeine_server([ip, 'logs'], local_file_path, log_title)
 
 
 def fetch_data(data_for_server, index):
@@ -139,7 +139,7 @@ def fetch_data(data_for_server, index):
         f.write('\n'.join(decoded_message[1:]))
         f.close()
         
-        save_to_caffeine_server(ip, local_file_path, file_title)
+        save_to_caffeine_server([ip], local_file_path, file_title)
         
         return True
 
