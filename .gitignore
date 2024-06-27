@@ -25,3 +25,7 @@ PostProcessingCode/__pycache__/path.cpython-310.pyc
 PostProcessingCode/__pycache__/path.cpython-310.pyc
 PostProcessingCode/__pycache__/DataClass.cpython-310.pyc
 CageServer/Code/Constants.py
+.vscode/
+*.spec
+CageServer/Code/build
+CageServer/Code/dist
