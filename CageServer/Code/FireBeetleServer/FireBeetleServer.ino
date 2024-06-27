@@ -32,7 +32,7 @@ char today[16];
 char yesterday[16];
 
 unsigned long saveTimestamp = 0;
-const int SAVE_DATA_INTERVAL = 100;
+const int SAVE_DATA_INTERVAL = 0;
 
 unsigned long reconnectTimestamp = 0;
 const int RECONNECT_WIFI_INTERVAL = 3600000;
