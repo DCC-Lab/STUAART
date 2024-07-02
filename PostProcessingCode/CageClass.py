@@ -2,44 +2,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import exceptions
 import scipy.fft as fft
-
 class Cage():
 
     def __init__(self, data_list: list, time: np.ndarray):
-        self.raw_time = time # kepts in memory the raw data
-        self.time = self.raw_time # might change
+        self.time = time
         
         array = np.array(data_list)
-        self.raw_data = np.sum(array, axis=0) # kepts in memory the raw data
-        self.data = self.raw_data # will change 
+        self.data = np.sum(array, axis=0)
 
-
-    def reset_data(self):
-        """
-        Resets the data to the raw data.
-        """
-        self.data = self.raw_data
-        self.time = self.raw_time
-
-    def when_mouse_is_in(self):
-        """
-        Identifies the moment when the mouse is in the cage. 
-        Data acquisition starts with a plateau at 0g. When the mouse is in, the mean weight goes up.
-        Creates two class variables with the time and the weight data when the mouse is in. 
-        """
-        length = 5
-        for i in range(self.data.shape[0]):
-            mean = np.mean(self.data[i: i+length])
-            if np.isclose(mean, 0, atol=1): # + or - one gram is still considered at 0g. 
-                i += length
-            else:
-                break
-        self.time_when_mouse_is_in = self.time[i+length]
-        self.weight_when_mouse_is_in = self.data[i+length]
-
-    def remove_outliers(self, upper_threshold: float=45, change_tolerance: float=5):
+    def remove_outliers(self, upper_threshold: float=45, window_length: int=20, change_tolerance: float=5):
         """ 
-        Data can be more cleaned up by removing outliers, first with a simple threshold, then by verifying if a data point 
+            in progress, not satisfying yet
+            i don't know if it will be useful
         """
 
         # rough filtering by removing any values over the specified threshold
@@ -47,21 +21,35 @@ class Cage():
         under_threshold_index = np.argwhere(np.abs(self.data) < upper_threshold)
         self.data = self.data[under_threshold_index].squeeze()
         self.time = self.time[under_threshold_index.squeeze()]
-        
+
+        # removing all negative values
+        # get all index where condition is met
+        positive_values_index = np.argwhere(self.data >= 0)
+        self.data = self.data[positive_values_index].squeeze()
+        self.time = self.time[positive_values_index.squeeze()]
+
+
         # removing all values of spontaneous peaks
         # looping on all values
         mean = np.mean(self.data)
         outliers_index = []
         for i, value in enumerate(self.data):
-            # do not consider the first and last data points 
-            if i == 0 or i == self.data.shape[0]-1:
-                continue
+            # only considering windows that are clear from start
+            if i >= window_length:
+                # slicing window of interest
+                window_array = self.data[i - window_length: i]
+                # getting maximum of the window
+                maximum_in_window = np.max(window_array)
+                # index of maximum
+                maximum_index = np.argmax(window_array) + i - window_length
 
-            # if data before and after are very different, remove the point 
-            data_before = self.data[i-1]
-            data_after = self.data[i+1]
-            if abs(value - data_before) > change_tolerance and abs(value - data_after) > change_tolerance:
-                outliers_index.append(i)
+                # calculating the average difference from neighbors
+                average_difference = np.sum(maximum_in_window - window_array)/(window_length - 1)
+                # difference between maximum in window and average of all signal
+                difference_max_with_mean = np.abs(maximum_in_window - mean)
+
+                if average_difference < change_tolerance:
+                    outliers_index.append(maximum_index)
         # delete data points considered as outliers
         self.data = np.delete(self.data, outliers_index)
         self.time = np.delete(self.time, outliers_index)
@@ -107,10 +95,9 @@ class Cage():
         # shift time back to zero
         self.time -= self.time[0]
 
-
-    def convolution_filter_with_padding_edge(self, length: int=10, iteration: int=1, kernel_type='average'):
+    def convolution_filter(self, length: int=10, iteration: int=1, kernel_type='average'):
         """ Convolution filter on the signal. This filter is meant to smooth up the signal
-        and remove outliers without any threshold. The edges are padded to correct for boundary effects. 
+        and remove outliers without any threshold
 
         Arguments:
             - length: length of the kernel to convolve on signal. default is 10
@@ -121,21 +108,30 @@ class Cage():
         if iteration <= 0:
             raise ValueError("Number of iteration cannot be under 1")
 
-        # for now, this statement is useless but shows an approriate structure
+        # for now, this if statement is useless but shows an approriate structure
         # for more kernel types, an example for gaussian is below
-        input_data_length = self.data.shape[0]
         if kernel_type == 'average':
             # create an array of approriate length of 1/length at every position
             # this is the specific case of moving average
             filtering_array = np.ones(length)/length
             # doing the convolution the specified number of times
             for i in range(iteration):
-                # 'same' arg is used to get an array of same size as self.data. Boundary effects are corrected with edge padding. The extra data on the edges are removed after the convolution with slicing. 
-                pad_width = len(filtering_array) // 2
-                padded_data = np.pad(self.data, pad_width, mode='mean')
-                self.data = np.convolve(padded_data, filtering_array, mode='same')
-                self.data = self.data[int(length/2):int(length/2+input_data_length)]
+                # 'same' arg is used to get an array of same size as self.data
+                # boundaries values are affected since the overlap between the kernel and data
+                # is not perfect. These values will later be chopped off.
+                self.data = np.convolve(self.data, filtering_array, mode='same')
 
+        # not implemented yet
+        # if kernel_type == 'gaussian':
+            # filtering_array = a gaussian array
+            # self.data = np.convolve(self.data, filtering_array, mode='same')
+
+        # only keeping values not affected by boundary overlap
+        self.data = self.data[length: len(self.data) - length]
+        self.time = self.time[length: len(self.time) - length]
+
+        # shifting time back to zero
+        self.time -= self.time[0]
 
     def fft_filter(self, cutoff_freq: float=60):
         """ Low pass fft filter on the signal. A simple filter is implemented for now. A sharp cut is done
@@ -172,79 +168,11 @@ class Cage():
         # regenerate filtered signal
         filtered_array = fft.ifft(filtered_amplitudes)
 
+
+        ## potting for debugging
+        # plt.plot(freqs, amplitudes)
+        # plt.plot(freqs, filtered_amplitudes)
+        # plt.show()
+
         # update Cage object
         self.data = np.abs(filtered_array)
-
-    def compute_mean_data(self, smooth_level: int=3):
-        """
-        Computes the mean of the weight to smoothen it maximally and only see the tendency of the weight change over time.
-        First removes all data points under 10 g. 
-        Then convolves the data using 600 points. 
-
-        smooth_level : The higher, the smoother. Actively, it changes the number of iterations of convolution. 
-        """
-        self.remove_values_under_threshold(10)
-        self.remove_outliers()
-        self.convolution_filter_with_padding_edge(length=600, iteration=smooth_level)
-
-    def compute_hanging(self, threshold: int=10, bins: float=0.5, first_day: bool =False, produce_graph: bool=False):
-        """
-        Hanging is when the weight data drops to 0g for more than 1 second. 
-        A convolution is done on a small window length (15 points) to smooth the data just enough to identify the moments when the weight data drops to 0g. 
-        A threshold is set so that all weight data going under the threshold in the convoluted weight data is when the mouse is hanging. 
-        If it is the first day, then the first weight data are at 0g, but they are not hanging data, as the mouse is not in yet. 
-        The bins variable indicates how you want the hanging frequency to be computed. 0.5 is 30 min, 1 is one hour. 
-        """
-        self.reset_data()
-        self.remove_outliers()
-        self.convolution_filter_with_padding_edge(length=15)
-
-        hanging_data = self.data[self.data < threshold]
-        index_hanging_data = np.where(self.data < threshold)[0]
-        hanging_time = self.time[index_hanging_data]
-        hanging_indicator = np.where(self.data < threshold, 1, 0) # 1 = the mouse is hanging at that time, otherwise 0
-        start_indices = np.where((hanging_indicator[:-1] == 0) & (hanging_indicator[1:] == 1))[0] + 1 # Find the start indices of sequences of 1s
-        end_indices = np.where((hanging_indicator[:-1] == 1) & (hanging_indicator[1:] == 0))[0] # Find the end indices of sequences of 1s
-
-        if first_day:
-            # remove indices that are under the index when the mouse is in 
-            self.when_mouse_is_in()
-            index_when_mouse_is_in = np.where(self.time == self.time_when_mouse_is_in)[0][0]
-            start_indices = start_indices[start_indices > index_when_mouse_is_in]
-            end_indices = end_indices[end_indices > index_when_mouse_is_in]
-
-        # gets the times when the mouse starts and ends hanging
-        start_hanging = self.time[start_indices]
-        end_hanging = self.time[end_indices]
-
-        self.total_time_hanging = np.sum(np.subtract(end_hanging, start_hanging))
-
-        # computes hanging frequency
-        self.hanging_frequency = []
-        for i in np.arange(bins, self.time[-1], bins):
-            if i == bins:
-                hanging_times = np.where(start_hanging < i)[0].shape[0]
-                self.hanging_frequency.append(hanging_times)
-            else:
-                hanging_times = np.where((start_hanging < i) & (start_hanging > i - bins))[0].shape[0]
-                self.hanging_frequency.append(hanging_times)
-        self.hanging_frequency = np.array(self.hanging_frequency)
-        print(self.hanging_frequency)
-
-        if produce_graph:
-            plt.figure(figsize=(13,7))
-            for i in range(start_hanging.shape[0]):
-                if i == 0:
-                   plt.fill_between(cage.raw_time, np.amax(cage.raw_data), where=(cage.raw_time >= start_hanging[i]) & (cage.raw_time <= end_hanging[i]), color="red", alpha=0.7, label="Hanging - Data analysis")
-                else:
-                    plt.fill_between(cage.raw_time, np.amax(cage.raw_data), where=(cage.raw_time >= start_hanging[i]) & (cage.raw_time <= end_hanging[i]), color="red", alpha=0.7)
-
-            plt.plot(self.raw_time, self.raw_data, color="k", label="Not filtered")
-            plt.plot(self.time, self.data, label="Convoluted (15)")
-            plt.legend()
-            plt.xlabel("Time [hour]", fontsize=20)
-            plt.ylabel("Fake weight data [g]", fontsize=20)
-            plt.title(f"Total time accuracy : {accuracy_total_time_hanging}% \n Accuracy hanging identification : {accuracy_hanging_identification}% ")
-            plt.show()
-
-
