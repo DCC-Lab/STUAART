@@ -43,10 +43,6 @@ def save_to_caffeine_server(subfolders, local_file_path, file_title):
             file_title (string): The name to be given to the file on the server.
     '''
     try:
-        # print(subfolder)
-        # print(local_file_path)
-        # print(file_title)
-        
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh_client.connect(SERVER_HOST, username=SERVER_USERNAME, password=SERVER_PASSWORD)
