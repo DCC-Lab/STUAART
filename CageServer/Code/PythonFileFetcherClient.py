@@ -6,6 +6,7 @@ import tkinter as tk
 import os
 import paramiko
 from Constants import *
+from tkcalendar import Calendar
 
 NBR_OF_IPS = 1
 IP_HEADER = "192.168.0."
@@ -16,6 +17,11 @@ ALL_IPS = []
 window = tk.Tk()
 status_Label = tk.Label(text='Waiting')
 status_Label.pack(ipadx=100, ipady=50)
+
+today = dt.datetime.now()
+
+calendar = Calendar(window, selectmode='day', year=today.year, month=today.month, day=today.day, date_pattern='yyyy.mm.dd')
+calendar.pack(ipadx=75, ipady=25, padx=20)
 
 
 def initialize_ips():
@@ -94,7 +100,6 @@ def fetch_data(data_for_server, index):
     try:
         start = time.time()
         path_to_file = os.path.join(os.path.expanduser('~'), 'Documents', 'SmartCageData', ip)
-        status_Label.config(text="Loading " + ALL_IPS[index])
         web_url = urllib.request.urlopen(
             "http://"+ALL_IPS[index]+"/", data=data_for_server, timeout=3)
     except:
@@ -112,9 +117,6 @@ def fetch_data(data_for_server, index):
         html_data = web_url.read()
         decoded_message = html_data.decode().split('\r\n')
         file_title = decoded_message[0]
-        
-        print(html_data)
-        status_Label.config(text="Waiting")
         
         create_log_file(path_to_file, ip, file_title, start, html_data, f'{web_url.status} {web_url.reason}')
         
@@ -156,6 +158,14 @@ def start_fetch_loop():
     '''
     for i in range(len(ALL_IPS)):
         fetch_loop(i)
+
+def fetch_date():
+    for i in range(len(ALL_IPS)):
+        fetch_data(f'/{calendar.get_date()}.csv'.encode('utf-8'), i)
+
+
+calendar_fetch_button = tk.Button(text='Fetch date', command=fetch_date)
+calendar_fetch_button.pack(pady=5)
 
 button = tk.Button(text='Refresh', command=refresh)
 button.pack(pady=50)
