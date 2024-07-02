@@ -38,7 +38,7 @@ def save_to_caffeine_server(subfolders, local_file_path, file_title):
     Saves the file located at local_file_path to the server via ssh, under the subfolder with the given file_title.
     
         Parameters:
-            subfolder (string): The path where the file should be saved on the server.
+            subfolders (string []): The path where the file should be saved on the server. It goes : subfolders[0]/subfolders[1]...
             local_file_path (string): The path where the file is saved locally.
             file_title (string): The name to be given to the file on the server.
     '''
