@@ -22,7 +22,6 @@ WiFiServer server(80);             // créer un serveur qui écoute les clients 
 
 const char *REFRESH_CODE = "refresh"; // must be the same as in the python code, otherwise they won't be able to recognize one another
 
-
 const char *CSV_FILE_EXTENSION = ".csv";
 
 //Infos of the time provider server
@@ -77,7 +76,6 @@ void getTodaysDate(){
   int year = timeinfo.tm_year + 1900;
   int month = timeinfo.tm_mon +1;
   int day = timeinfo.tm_mday;
-  // int minute = timeinfo.tm_min;//TODO: remove minute, this is to test the behaviour is OK.
   snprintf(today, sizeof(today), "/%04d.%02d.%02d.csv", year, month, day);
 }
 
@@ -94,7 +92,6 @@ void getYesterdaysDate(){
   int year = timeinfo.tm_year + 1900;
   int month = timeinfo.tm_mon +1;
   int day = timeinfo.tm_mday-1;
-  // int minute = timeinfo.tm_min-1;//TODO: remove minute, this is to test the behaviour is OK.
   snprintf(yesterday, sizeof(yesterday), "/%04d.%02d.%02d.csv", year, month, day);
 }
 
@@ -110,14 +107,11 @@ void writeFile(const char *path, const char *message, const char *mode)
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  // Serial.print("Initializing SD card...");
-
   if (!SD.begin(SS_PIN))
   {
     Serial.println("initialization failed!");
     return;
   }
-  // Serial.println("initialization done.");
 
   // open the file. note that only one file can be open at a time,
   myFile = SD.open(path, mode);
@@ -125,11 +119,9 @@ void writeFile(const char *path, const char *message, const char *mode)
   // if the file opened okay, write to it:
   if (myFile)
   {
-    // Serial.print(("Writing to file..."));
     myFile.println(message);
     // close the file:
     myFile.close();
-    // Serial.println("done.");
   }
   else
   {
@@ -162,9 +154,9 @@ void saveData()
 
     getTodaysDate();//This is to make sure we update the time correctly and we don't write into tomorrows file accidentally because Arduino's time might drift.
 
-  if (!SD.exists(today))
-  {
-    writeFileHeader(today);
+    if (!SD.exists(today))
+    {
+      writeFileHeader(today);
     }
   }
 
@@ -175,8 +167,6 @@ void saveData()
   String fileLine = "";
   
   fileLine += String(millis(), DEC) + "," + weight1 + "," + weight2 + "," + weight3;
-
-  // Serial.println(fileLine.c_str());
 
   writeFile(today, fileLine.c_str(), FILE_APPEND);
 }
@@ -243,15 +233,13 @@ void loop()
   WiFiClient client = server.available(); // listen for incoming client
 
   if (client)
-  {                                // if you get a client,
-    // Serial.println("New Client."); // print a message out the serial port
+  {              
     String clientData = "";        // make a String to hold incoming data from the client
     while (client.connected())
     { // loop while the client's connected
       if (client.available())
       {                    // if there's bytes to read from the client,
         char c = client.read(); // read a byte, then
-        // Serial.write(c);   // print it out the serial monitor
         clientData += c;
       }
       else
@@ -272,15 +260,17 @@ void loop()
 
         String httpReason = "OK";
 
+        int csvIndex = clientData.indexOf(CSV_FILE_EXTENSION);
+
         if (clientData.indexOf(REFRESH_CODE) >= 0)
         {             
           getTodaysDate();       // If the refresh code is passed, give the client the newest data
           myFile = SD.open(today); // This would be the 'today' file not yet completed.
           httpReason = "REFRESHED TODAY";
         }
-        else if (clientData.indexOf(CSV_FILE_EXTENSION) >= 0)
+        else if (csvIndex >= 0)
         {
-          myFile = SD.open(clientData);
+          myFile = SD.open(clientData.substring(csvIndex - 11, csvIndex+4));
           httpReason = "CUSTOM DATE";
         }
         else
@@ -305,18 +295,12 @@ void loop()
           return;
         }
 
-        // Serial.println("Read from file : ");
-        
         client.println("HTTP/1.1 200 " + httpReason);
         client.println("Content-type:text/html");
         client.println();
         client.println(myFile.name());
-        while (myFile.available())
-        {
-          char c = myFile.read();
-          // Serial.print(c);
-          client.print(c); // ICI : print in decimal
-        }
+        client.write(myFile);
+
         myFile.close();
 
         // The HTTP response ends with another blank line:
@@ -327,6 +311,5 @@ void loop()
     }
     // close the connection:
     client.stop();
-    // Serial.println("Client Disconnected.");
   }
 }
