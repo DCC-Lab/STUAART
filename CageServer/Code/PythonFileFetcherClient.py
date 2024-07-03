@@ -3,16 +3,19 @@ import time
 import pandas as pd
 import datetime as dt
 import tkinter as tk
+from tkcalendar import Calendar
 import os
 import paramiko
 from Constants import *
-from tkcalendar import Calendar
+import threading
 
 NBR_OF_IPS = 1
 IP_HEADER = "192.168.0."
 INITIAL_IP = 101
 
 ALL_IPS = []
+
+WAIT_THREADS = []
 
 window = tk.Tk()
 status_Label = tk.Label(text='Waiting')
@@ -37,6 +40,14 @@ def initialize_ips():
 
 
 def save_to_caffeine_server(subfolder, local_file_path, file_title):
+    '''
+    Saves the file located at local_file_path to the server via ssh, under the subfolder with the given file_title.
+    
+        Parameters:
+            subfolder (string): The path where the file should be saved on the server.
+            local_file_path (string): The path where the file is saved locally.
+            file_title (string): The name to be given to the file on the server.
+    '''
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh_client.connect(SERVER_HOST, username=SERVER_USERNAME, password=SERVER_PASSWORD)
@@ -79,7 +90,7 @@ def create_log_file(path_to_file, ip, file_title, start_time, data, status):
                     'Web code : ' + status])
     f.close()
     
-    save_to_caffeine_server(f'{ip}/logs', local_file_path, file_title)
+    save_to_caffeine_server(f'{ip}/logs', local_file_path, log_title)
 
 
 def fetch_data(data_for_server, index):
@@ -142,22 +153,26 @@ def refresh():
 
 def fetch_loop(index):
     '''
-    Loops infinitely with spaces of 60000 milliseconds between each data fetch.
-    Fetches data from the server, if it fails, retries faster (30000 milliseconds).
+    Loops infinitely with spaces of 12 hours between each data fetch.
+    Fetches data from the server, if it fails, retries faster (1 hour).
     '''
     if (fetch_data(None, index)):
-        window.after(6 * 60 * 60 * 1000, fetch_loop, index)
-    else :
-        window.after(30000, fetch_loop, index)
+        time.sleep(12 * 60 * 60)
+        fetch_loop(index)
+    else:
+        time.sleep(60 * 60)
+        fetch_loop(index)
 
 
-def start_fetch_loop():
+def start_fetch_loop(time_delay):
     '''
     This method is to delay starting the fetching loop.
-    With Tkinter we can delay calling a method by a number of milliseconds.
+    It creates a thread for every IP so the downloads take place in parallel.
     '''
     for i in range(len(ALL_IPS)):
-        fetch_loop(i)
+        WAIT_THREADS.append(threading.Timer(time_delay, fetch_loop, [i]))
+        WAIT_THREADS[i].daemon = True
+        WAIT_THREADS[i].start()
 
 def fetch_date():
     for i in range(len(ALL_IPS)):
@@ -172,10 +187,10 @@ button.pack(pady=50)
 
 initialize_ips()
 
-time_till_midnight = (24 - dt.datetime.now().hour) * 1000 * 60 * 60 + (30 - dt.datetime.now().minute) * 1000 * 60
+time_till_midnight = (24 - dt.datetime.now().hour) * 60 * 60 + (30 - dt.datetime.now().minute) * 60
 
 print(time_till_midnight)
 
-window.after(time_till_midnight, start_fetch_loop)
+start_fetch_loop(time_till_midnight)
 
 window.mainloop()

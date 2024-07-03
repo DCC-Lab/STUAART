@@ -1,7 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import exceptions
-
 
 class Data(np.ndarray):
 
@@ -149,7 +147,6 @@ class Data(np.ndarray):
         """
         Removes the data higher or lower than self.outliers_threshold. 
         """
-        exceptions.variable_is_defined(self.outliers_threshold)
         self[:] = np.where(self < self.outliers_threshold[0], 0, self)
         self[:] = np.where(self > self.outliers_threshold[1], 0, self)
         return self
@@ -222,12 +219,9 @@ class Data(np.ndarray):
         """
         peak_averages = []
         peak_times = []
-        i = 0
         for start_index, end_index in peaks_index_intervalls:
             mean_index = int(np.mean([start_index, end_index]))
             peak_average = np.mean(self[start_index: end_index])
-            i+= 1
-
             peak_averages.append(peak_average)
             peak_times.append(self.time[mean_index])
 
