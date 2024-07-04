@@ -175,6 +175,9 @@ def start_fetch_loop(time_delay):
         WAIT_THREADS[i].start()
 
 def fetch_date():
+    '''
+    This method tries to fetch the file associated to the currently selected date on the calendar.
+    '''
     for i in range(len(ALL_IPS)):
         fetch_data(f'/{calendar.get_date()}.csv'.encode('utf-8'), i)
 
