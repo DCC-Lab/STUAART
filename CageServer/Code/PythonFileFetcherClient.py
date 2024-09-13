@@ -39,31 +39,35 @@ def initialize_ips():
     print(ALL_IPS)
 
 
-def save_to_caffeine_server(subfolder, local_file_path, file_title):
+def save_to_caffeine_server(subfolders, local_file_path, file_title):
     '''
     Saves the file located at local_file_path to the server via ssh, under the subfolder with the given file_title.
     
         Parameters:
-            subfolder (string): The path where the file should be saved on the server.
+            subfolders (string []): The path where the file should be saved on the server. It goes : subfolders[0]/subfolders[1]...
             local_file_path (string): The path where the file is saved locally.
             file_title (string): The name to be given to the file on the server.
     '''
-    ssh_client = paramiko.SSHClient()
-    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh_client.connect(SERVER_HOST, username=SERVER_USERNAME, password=SERVER_PASSWORD)
-    
-    sftp = ssh_client.open_sftp()
-    
-    remote_path = f"{SERVER_PATH}/{subfolder}/"
-    
     try:
-        sftp.chdir(remote_path)  # Test if remote_path exists
-    except IOError:
-        sftp.mkdir(remote_path)  # Create remote_path
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh_client.connect(SERVER_HOST, username=SERVER_USERNAME, password=SERVER_PASSWORD)
+        sftp = ssh_client.open_sftp()
         
-    sftp.put(local_file_path, remote_path + file_title)
-    sftp.close()
-    ssh_client.close()
+        remote_path = f"{SERVER_PATH}/"
+        
+        for subfolder in subfolders:
+            remote_path += f'{subfolder}/'
+            try:
+                sftp.chdir(remote_path)  # Test if remote_path exists
+            except IOError:
+                sftp.mkdir(remote_path)  # Create remote_path
+            
+        sftp.put(local_file_path, remote_path + file_title)
+        sftp.close()
+        ssh_client.close()
+    except Exception as e:
+        print('Failed to save to server. Exception is : ', e)
 
 
 def create_log_file(path_to_file, ip, file_title, start_time, data, status):
@@ -90,7 +94,7 @@ def create_log_file(path_to_file, ip, file_title, start_time, data, status):
                     'Web code : ' + status])
     f.close()
     
-    save_to_caffeine_server(f'{ip}/logs', local_file_path, log_title)
+    save_to_caffeine_server([ip, 'logs'], local_file_path, log_title)
 
 
 def fetch_data(data_for_server, index):
@@ -137,7 +141,7 @@ def fetch_data(data_for_server, index):
         f.write('\n'.join(decoded_message[1:]))
         f.close()
         
-        save_to_caffeine_server(ip, local_file_path, file_title)
+        save_to_caffeine_server([ip], local_file_path, file_title)
         
         return True
 
