@@ -3,6 +3,7 @@ import time
 import pandas as pd
 import datetime as dt
 import tkinter as tk
+from tkcalendar import Calendar
 import os
 import paramiko
 from Constants import *
@@ -19,6 +20,11 @@ WAIT_THREADS = []
 window = tk.Tk()
 status_Label = tk.Label(text='Waiting')
 status_Label.pack(ipadx=100, ipady=50)
+
+today = dt.datetime.now()
+
+calendar = Calendar(window, selectmode='day', year=today.year, month=today.month, day=today.day, date_pattern='yyyy.mm.dd')
+calendar.pack(ipadx=75, ipady=25, padx=20)
 
 
 def initialize_ips():
@@ -167,6 +173,17 @@ def start_fetch_loop(time_delay):
         WAIT_THREADS.append(threading.Timer(time_delay, fetch_loop, [i]))
         WAIT_THREADS[i].daemon = True
         WAIT_THREADS[i].start()
+
+def fetch_date():
+    '''
+    This method tries to fetch the file associated to the currently selected date on the calendar.
+    '''
+    for i in range(len(ALL_IPS)):
+        fetch_data(f'/{calendar.get_date()}.csv'.encode('utf-8'), i)
+
+
+calendar_fetch_button = tk.Button(text='Fetch date', command=fetch_date)
+calendar_fetch_button.pack(pady=5)
 
 button = tk.Button(text='Refresh', command=refresh)
 button.pack(pady=50)

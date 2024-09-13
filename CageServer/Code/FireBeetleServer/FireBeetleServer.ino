@@ -22,6 +22,8 @@ WiFiServer server(80);             // créer un serveur qui écoute les clients 
 
 const char *REFRESH_CODE = "refresh"; // must be the same as in the python code, otherwise they won't be able to recognize one another
 
+const char *CSV_FILE_EXTENSION = ".csv";
+
 //Infos of the time provider server
 const char *NTP_SERVER = "pool.ntp.org";
 const long GMT_OFFSET_SEC = -18000;
@@ -258,11 +260,18 @@ void loop()
 
         String httpReason = "OK";
 
+        int csvIndex = clientData.indexOf(CSV_FILE_EXTENSION);
+
         if (clientData.indexOf(REFRESH_CODE) >= 0)
         {             
           getTodaysDate();       // If the refresh code is passed, give the client the newest data
           myFile = SD.open(today); // This would be the 'today' file not yet completed.
           httpReason = "REFRESHED TODAY";
+        }
+        else if (csvIndex >= 0)
+        {
+          myFile = SD.open(clientData.substring(csvIndex - 11, csvIndex+4));
+          httpReason = "CUSTOM DATE";
         }
         else
         {
