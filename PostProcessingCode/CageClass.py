@@ -410,71 +410,48 @@ class Cage():
         fig, axs = plt.subplots(nrows=self.number_of_scales, ncols=1, figsize=(13,7))
 
         for n in range(self.number_of_scales):
-            end_indices = find_peaks(self.data_per_scale[n], height=15, distance=10)[0]
-            start_indices = find_peaks(-self.data_per_scale[n], height=15, distance=10)[0]
+
+            event_indices = find_peaks(abs(self.data_per_scale[n]), height=15, distance=10)[0]
+            time_on_scale = 0
+            start_indices = []
+            end_indices = []
+            mouse_on_scale = np.zeros(shape=self.time.shape)
+            for i in range(event_indices.shape[0]-1):
+                start = event_indices[i]
+                end = event_indices[i+1]
+
+                time_between_start_and_end = self.time[end] - self.time[start]
+                indices_over_10 = np.where(conv_data_per_scale[n][start:end] > 10)[0]
+
+                if time_between_start_and_end < 0:
+                # if it starts with an end, so the mouse was already on the scale when the recording of this day started.
+                    event_indices = np.insert(event_indices, 0, 0)
+                    i +- 1
+
+                elif abs(time_between_start_and_end) < 1/60/60:
+                # if the presence event lasts less than a second, do not consider
+                    mouse_on_scale[start:end] = 0
+
+                else:
+                # verifies if the selected range between the start and the end has a mean weight measurement over 10g. If yes, the mouse is there. Otherwise, the mouse is nnot there. 
+                    if indices_over_10.shape[0] > 10:
+                        mouse_on_scale[start:end] = 1
+                        start_indices.append(start)
+                        end_indices.append(end)
+                        time_on_scale += time_between_start_and_end
+                    else:
+                        mouse_on_scale[start:end] = 0
+
+            self.total_time_per_scale.append(time_on_scale)
+            start_indices = np.array(start_indices)
+            end_indices = np.array(end_indices)
+
             if first_day:
                 # remove indices that are under the index when the mouse is in 
                 self.when_mouse_is_in()
                 index_when_mouse_is_in = np.where(self.time == self.time_when_mouse_is_in)[0][0]
                 start_indices = start_indices[start_indices > index_when_mouse_is_in]
                 end_indices = end_indices[end_indices > index_when_mouse_is_in]
-
-            time_on_scale = 0
-            mouse_on_scale = np.zeros(shape=self.time.shape)
-            for i in range(start_indices.shape[0]-1):
-                start = start_indices[i]
-
-                # verifies if there is an end. If not, the end is the last element of the time serie 
-                if i >= end_indices.shape[0]:
-                    end = self.time.shape[0]-1
-                else:
-                    end = end_indices[i]
-
-                # verifies if there is another event afterwards. If not, the next start is the last element of the time serie 
-                if i+1 >= start_indices.shape[0]:
-                    print("fini next start")
-                    next_start = self.time.shape[0]-1
-                else:
-                    next_start = start_indices[i+1]
-
-                time_between_start_and_end = self.time[end] - self.time[start]
-                time_between_end_and_next_start = self.time[next_start] - self.time[end]
-                indices_over_10_start_end = np.where(conv_data_per_scale[n][start:end] > 10)[0]
-                indices_over_10_end_nextstart = np.where(conv_data_per_scale[n][end:next_start] > 10)[0]
-
-                if time_between_start_and_end < 0:
-                # if it starts with an end, so the mouse was already on the scale when the recording of this day started.
-                    start_indices = np.insert(start_indices, 0, 0)
-                    i +- 1
-
-                elif abs(time_between_start_and_end) < 1/60/60:
-                # if the presence event lasts less than a second, do not consider
-                    mouse_on_scale[start:end] = 0
-                    if abs(time_between_end_and_next_start) < 1/60/60:
-                        mouse_on_scale[end:next_start] = 0
-                    else:
-                        if indices_over_10_end_nextstart > 10:
-                            mouse_on_scale[end:next_start] = 1
-                            time_on_scale += time_between_end_and_next_start
-                        else:
-                            mouse_on_scale[end:next_start] = 0
-
-                else:
-                # verifies if the selected range between the start and the end has a mean weight measurement over 10g. If yes, the mouse is there. Otherwise, the mouse is nnot there. 
-                    if indices_over_10_start_end.shape[0] > 10:
-                        mouse_on_scale[start:end] = 1
-                        time_on_scale += time_between_start_and_end
-                    else:
-                        mouse_on_scale[start:end] = 0
-
-                # verifies if the range between the end and the next_start has a mean weight measurement over 10g. 
-                    if indices_over_10_end_nextstart.shape[0] > 10:
-                        mouse_on_scale[end:next_start] = 1
-                        time_on_scale += time_between_end_and_next_start
-                    else:
-                        mouse_on_scale[end:next_start] = 0
-
-            self.total_time_per_scale.append(time_on_scale)
 
             # gets the times when the mouse starts and ends being on the scale
             start_presence = self.time[start_indices]
