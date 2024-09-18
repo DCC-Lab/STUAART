@@ -1,25 +1,86 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.fft as fft
+import pandas as pd
 from scipy.signal import find_peaks
+from DataClass import Data
 
 class Cage():
 
-    def __init__(self, data_list: list, time: np.ndarray):
-        self.raw_time = time # kepts in memory the raw data
-        self.time = self.raw_time # might change
-        
-        array = np.array(data_list)
-        self.raw_data = np.sum(array, axis=0) # kepts in memory the raw data
-        self.data = self.raw_data # will change 
+    def __init__(self, directory:str, filename:str, number_of_scales:int, real_data=None):
+        self.directory = directory
+        self.filename = filename
+        self.number_of_scales = number_of_scales
+        self.real_data = real_data
+
+        self.threshold = [-10, 40] # min and max weight thresholds [g]
+
+        self.get_data_and_timepoints()
+
+        self.format_data_per_scale()
+
+        self.colors = ["b", "r", "g", "c", "m"]
+
+
+    def get_data_and_timepoints(self):
+        """
+        Get .csv data of time and weight measurements per scale and overall from the directory and the filename. 
+        """
+        all_data = np.array(pd.read_csv(self.directory+self.filename))
+        data_list = []
+
+        for i in range(self.number_of_scales+1):
+            if i == 0:
+                time = all_data[:,i]/(1000 * 60 * 60) # time in hours
+            else:
+                data = Data(all_data[:,i], time)
+                data_list.append(Data(all_data[:,i], time))
+
+        self.raw_time = time # this variable kepts in memory the raw data
+        self.time = self.raw_time.copy() # this variable will change 
+        self.raw_data_per_scale = data_list # this variable kepts in memory the raw data
+        self.format_data_per_scale()
+        self.data_per_scale = self.raw_data_per_scale.copy() # this variable will change
+        self.sum_data_over_time()
+        self.data = self.raw_data.copy() # this variable will change
+
+
+    def sum_data_over_time(self):
+        """
+        Sum data per time point to obtain the weight measurement over time of the whole cage system (and not only per scale).
+        """
+        self.raw_data = np.sum(self.raw_data_per_scale, axis=0) # this variable kepts in memory the raw data
 
 
     def reset_data(self):
         """
         Resets the data to the raw data.
         """
-        self.data = self.raw_data
-        self.time = self.raw_time
+        self.data = self.raw_data.copy()
+        self.time = self.raw_time.copy()
+        self.data_per_scale = self.raw_data_per_scale.copy()
+
+
+    def format_data_per_scale(self):
+        """
+        Format weight data per scale by removing extreme outliers, finding the baseline shift and correcting for it. 
+        """
+        for i in range(self.number_of_scales):
+            self.raw_data_per_scale[i].set_outliers_threshold(self.threshold)
+            self.raw_data_per_scale[i].shift_data_to_zero()
+            self.raw_data_per_scale[i].remove_outliers()
+            self.raw_data_per_scale[i].find_baseline()
+            self.raw_data_per_scale[i].subtract_baseline()
+
+
+    def plot_data_per_scale(self, is_saved=False):
+        """
+        Plots the data per scale. 
+        """
+
+        # fig, axs = plt.subplots(self.number_of_scales, 1, figsize=(13,7))
+        for i in range(self.number_of_scales):
+            self.data_per_scale[i].plot_signal(threshold=False, peaks=False, baseline=True, color=self.colors[i], is_saved=is_saved, real_data=self.real_data)
 
 
     def when_mouse_is_in(self):
@@ -67,6 +128,8 @@ class Cage():
         # delete data points considered as outliers
         self.data = np.delete(self.data, outliers_index)
         self.time = np.delete(self.time, outliers_index)
+
+
 
     def find_dynamic_threshold(self, time_window_length: float):
         """ 
@@ -151,6 +214,49 @@ class Cage():
 
 
 
+    def convolution_filter_with_padding_edge_per_scale(self, length: int=10, iteration: int=1, kernel_type='average'):
+        """ Convolution filter on the individual signal of each scale. This filter is meant to smooth up the signal
+        and remove outliers without any threshold. The edges are padded to correct for boundary effects. 
+
+        Arguments:
+            - length: length of the kernel to convolve on signal. default is 10
+            - iteration: number of consecutive convolutions to do. default is 1
+            - kernel_type: distribution of weight function of the kernel array. default is a simple average. (every value is the same) 
+        """
+        # raise an error if number of iteration is not possible
+        if iteration <= 0:
+            raise ValueError("Number of iteration cannot be under 1")
+
+        # for now, this statement is useless but shows an approriate structure
+        # for more kernel types, an example for gaussian is below
+        input_data_length = self.data_per_scale[0].shape[0]
+
+        if kernel_type == 'average':
+            # create an array of approriate length of 1/length at every position
+            # this is the specific case of moving average
+            filtering_array = np.ones(length)/length
+            # doing the convolution the specified number of times
+            for i in range(iteration):
+                # 'same' arg is used to get an array of same size as self.data. Boundary effects are corrected with edge padding. The extra data on the edges are removed after the convolution with slicing. 
+                pad_width = len(filtering_array) // 2
+                for n in range(self.number_of_scales):
+                    padded_data = np.pad(self.data_per_scale[n], pad_width, mode='mean')
+                    self.data_per_scale[n] = np.convolve(padded_data, filtering_array, mode='same')
+                    self.data_per_scale[n] = self.data_per_scale[n][int(length/2):int(length/2+input_data_length)]
+
+        if kernel_type == "high-pass" :
+            filtering_array = np.array([-1, -1, 0, 0, 0, 0, 0, 1, 1])  # High-pass filter
+            # doing the convolution the specified number of times
+            for i in range(iteration):
+                # 'same' arg is used to get an array of same size as self.data. Boundary effects are corrected with edge padding. The extra data on the edges are removed after the convolution with slicing. 
+                pad_width = len(filtering_array) // 2
+                for n in range(self.number_of_scales):
+                    padded_data = np.pad(self.data_per_scale[n], pad_width, mode='mean')
+                    self.data_per_scale[n] = np.convolve(padded_data, filtering_array, mode='same')
+                    self.data_per_scale[n] = self.data_per_scale[n][int(length/2):int(length/2+input_data_length)]
+
+
+
     def fft_filter(self, cutoff_freq: float=60):
         """ Low pass fft filter on the signal. A simple filter is implemented for now. A sharp cut is done
         at the cutoff frequency in fft spectrum. The signal is regenerated from the modified frequency spectrum.
@@ -218,7 +324,7 @@ class Cage():
         conv_time = self.time 
         self.convolution_filter_with_padding_edge(kernel_type="high-pass")
 
-        hanging_indices = find_peaks(abs(cage.data), height=15, distance=10)[0]
+        hanging_indices = find_peaks(abs(self.data), height=15, distance=10)[0]
         start_indices = []
         end_indices = []
         i = 0
@@ -226,11 +332,11 @@ class Cage():
             start = hanging_indices[i]
             end = hanging_indices[i+1]
 
-            if cage.time[end] - cage.time[start] > 180/60/60:
+            if self.time[end] - self.time[start] > 180/60/60:
             # if the hanging event lasts for more than 3 minutes, do not consider
                 i += 1
 
-            elif cage.time[end] - cage.time[start] < 1/60/60:
+            elif self.time[end] - self.time[start] < 1/60/60:
             # if the hanging event lasts less than a second, do not consider
                 i += 1
 
@@ -245,7 +351,8 @@ class Cage():
                 else:
                     i += 1
 
-
+        start_indices = np.array(start_indices)
+        end_indices = np.array(end_indices)
         if first_day:
             # remove indices that are under the index when the mouse is in 
             self.when_mouse_is_in()
@@ -284,5 +391,114 @@ class Cage():
             plt.xlabel("Time [hour]", fontsize=20)
             plt.ylabel("Fake weight data [g]", fontsize=20)
             plt.show()
+
+
+
+    def compute_individual_scale_information(self, threshold: int=10, bins: float=0.5, first_day: bool=False, produce_graph: bool=False):
+        """
+        TODO
+        """
+        self.reset_data()
+        self.convolution_filter_with_padding_edge_per_scale(length=15)
+        conv_data_per_scale = self.data_per_scale.copy() 
+        conv_time = self.time.copy()
+        self.convolution_filter_with_padding_edge_per_scale(kernel_type="high-pass")
+
+        self.total_time_per_scale = []
+        self.presence_frequency_per_scale = []
+
+        fig, axs = plt.subplots(nrows=self.number_of_scales, ncols=1, figsize=(13,7))
+
+        for n in range(self.number_of_scales):
+            end_indices = find_peaks(self.data_per_scale[n], height=15, distance=10)[0]
+            start_indices = find_peaks(-self.data_per_scale[n], height=15, distance=10)[0]
+            if first_day:
+                # remove indices that are under the index when the mouse is in 
+                self.when_mouse_is_in()
+                index_when_mouse_is_in = np.where(self.time == self.time_when_mouse_is_in)[0][0]
+                start_indices = start_indices[start_indices > index_when_mouse_is_in]
+                end_indices = end_indices[end_indices > index_when_mouse_is_in]
+
+            time_on_scale = 0
+            mouse_on_scale = np.zeros(shape=self.time.shape)
+            for i in range(start_indices.shape[0]-1):
+                start = start_indices[i]
+
+                # verifies if there is an end. If not, the end is the last element of the time serie 
+                if i >= end_indices.shape[0]:
+                    end = self.time.shape[0]-1
+                else:
+                    end = end_indices[i]
+
+                # verifies if there is another event afterwards. If not, the next start is the last element of the time serie 
+                if i+1 >= start_indices.shape[0]:
+                    print("fini next start")
+                    next_start = self.time.shape[0]-1
+                else:
+                    next_start = start_indices[i+1]
+
+                time_between_start_and_end = self.time[end] - self.time[start]
+                time_between_end_and_next_start = self.time[next_start] - self.time[end]
+                indices_over_10_start_end = np.where(conv_data_per_scale[n][start:end] > 10)[0]
+                indices_over_10_end_nextstart = np.where(conv_data_per_scale[n][end:next_start] > 10)[0]
+
+                if time_between_start_and_end < 0:
+                # if it starts with an end, so the mouse was already on the scale when the recording of this day started.
+                    start_indices = np.insert(start_indices, 0, 0)
+                    i +- 1
+
+                elif abs(time_between_start_and_end) < 1/60/60:
+                # if the presence event lasts less than a second, do not consider
+                    mouse_on_scale[start:end] = 0
+                    if abs(time_between_end_and_next_start) < 1/60/60:
+                        mouse_on_scale[end:next_start] = 0
+                    else:
+                        if indices_over_10_end_nextstart > 10:
+                            mouse_on_scale[end:next_start] = 1
+                            time_on_scale += time_between_end_and_next_start
+                        else:
+                            mouse_on_scale[end:next_start] = 0
+
+                else:
+                # verifies if the selected range between the start and the end has a mean weight measurement over 10g. If yes, the mouse is there. Otherwise, the mouse is nnot there. 
+                    if indices_over_10_start_end.shape[0] > 10:
+                        mouse_on_scale[start:end] = 1
+                        time_on_scale += time_between_start_and_end
+                    else:
+                        mouse_on_scale[start:end] = 0
+
+                # verifies if the range between the end and the next_start has a mean weight measurement over 10g. 
+                    if indices_over_10_end_nextstart.shape[0] > 10:
+                        mouse_on_scale[end:next_start] = 1
+                        time_on_scale += time_between_end_and_next_start
+                    else:
+                        mouse_on_scale[end:next_start] = 0
+
+            self.total_time_per_scale.append(time_on_scale)
+
+            # gets the times when the mouse starts and ends being on the scale
+            start_presence = self.time[start_indices]
+            end_presence = self.time[end_indices]
+
+            # computes presence on scale frequency
+            presence_frequency_on_scale = []
+            for i in np.arange(bins, self.time[-1], bins):
+                if i == bins:
+                    presence_times = np.where(start_presence < i)[0].shape[0]
+                    presence_frequency_on_scale.append(presence_times)
+                else:
+                    presence_times = np.where((start_presence < i) & (start_presence > i - bins))[0].shape[0]
+                    presence_frequency_on_scale.append(presence_times)
+            self.presence_frequency_per_scale.append(np.array(presence_frequency_on_scale))
+
+            if produce_graph:
+                axs[n].fill_between(self.raw_time, np.amax(self.raw_data_per_scale[n]), where= mouse_on_scale == 1, color=self.colors[n], alpha=0.5, label="Presence on scale - Data analysis")
+                axs[n].plot(self.raw_time, self.raw_data_per_scale[n], color=self.colors[n], label="Not filtered")
+                axs[n].plot(self.raw_time, self.data_per_scale[n], color="k", linewidth=1, alpha=0.7, label="After convolution and high-pass filter")
+                # axs[n].legend()
+        
+                plt.xlabel("Time [hour]", fontsize=20)
+                plt.ylabel("Fake weight data [g]", fontsize=20)
+        plt.show()
 
 
