@@ -122,7 +122,7 @@ class Data(np.ndarray):
                     old_values = self[0:i]
                 
                 # verify if all old_values are under (threshold + current offset)
-                # since the drift causes the whole curve to shift up or down,
+                # since the drift causes the whole curve  to shift up or down,
                 # old_values need to be compared to threshold + offset
                 if np.all(np.abs(old_values) < (threshold + offset)):
                     # change offset value if the previous_values are under threshold
@@ -293,3 +293,16 @@ class Data(np.ndarray):
         plt.title("All peaks")
         plt.legend()
         plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
