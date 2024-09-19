@@ -39,8 +39,7 @@ class Cage():
         self.raw_time = time # this variable kepts in memory the raw data
         self.time = self.raw_time.copy() # this variable will change 
         self.raw_data_per_scale = data_list # this variable kepts in memory the raw data
-        self.format_data_per_scale()
-        self.data_per_scale = self.raw_data_per_scale.copy() # this variable will change
+        self.data_per_scale = np.array(self.raw_data_per_scale).copy() # this variable will change
         self.sum_data_over_time()
         self.data = self.raw_data.copy() # this variable will change
 
@@ -58,7 +57,7 @@ class Cage():
         """
         self.data = self.raw_data.copy()
         self.time = self.raw_time.copy()
-        self.data_per_scale = self.raw_data_per_scale.copy()
+        self.data_per_scale = np.array(self.raw_data_per_scale).copy()
 
 
     def format_data_per_scale(self):
@@ -241,8 +240,9 @@ class Cage():
                 pad_width = len(filtering_array) // 2
                 for n in range(self.number_of_scales):
                     padded_data = np.pad(self.data_per_scale[n], pad_width, mode='mean')
-                    self.data_per_scale[n] = np.convolve(padded_data, filtering_array, mode='same')
-                    self.data_per_scale[n] = self.data_per_scale[n][int(length/2):int(length/2+input_data_length)]
+                    data = np.convolve(padded_data, filtering_array, mode='same')
+                    data = data[int(length/2):int(length/2+input_data_length)]
+                    self.data_per_scale[n] = data
 
         if kernel_type == "high-pass" :
             filtering_array = np.array([-1, -1, 0, 0, 0, 0, 0, 1, 1])  # High-pass filter
@@ -252,8 +252,9 @@ class Cage():
                 pad_width = len(filtering_array) // 2
                 for n in range(self.number_of_scales):
                     padded_data = np.pad(self.data_per_scale[n], pad_width, mode='mean')
-                    self.data_per_scale[n] = np.convolve(padded_data, filtering_array, mode='same')
-                    self.data_per_scale[n] = self.data_per_scale[n][int(length/2):int(length/2+input_data_length)]
+                    data = np.convolve(padded_data, filtering_array, mode='same')
+                    data = data[int(length/2):int(length/2+input_data_length)]
+                    self.data_per_scale[n] = data[pad_width:]
 
 
 
@@ -327,6 +328,7 @@ class Cage():
         hanging_indices = find_peaks(abs(self.data), height=15, distance=10)[0]
         start_indices = []
         end_indices = []
+        self.hanging_moments = np.zeros(shape=self.time.shape)
         i = 0
         while i in range(hanging_indices.shape[0]-1):
             start = hanging_indices[i]
@@ -347,6 +349,7 @@ class Cage():
                 if under_10_indices.shape[0] > 1/60/60:
                     start_indices.append(start)
                     end_indices.append(end)
+                    self.hanging_moments[start:end] = 1 
                     i += 2
                 else:
                     i += 1
@@ -396,7 +399,10 @@ class Cage():
 
     def compute_individual_scale_information(self, threshold: int=10, bins: float=0.5, first_day: bool=False, produce_graph: bool=False):
         """
-        TODO
+        First try to identify location of mouse with a scale precision. 
+        Uses a convolution filter to smoothen the data. 
+        Uses a high-pass convolution filter to identify big changes in measurements, which should be the moments when the mouse gets on and out of the scale. 
+        Works well when the mouse is on one scale at a time. Does not work well when the mouse is on two scales at the same time. 
         """
         self.reset_data()
         self.convolution_filter_with_padding_edge_per_scale(length=15)
@@ -477,5 +483,59 @@ class Cage():
                 plt.xlabel("Time [hour]", fontsize=20)
                 plt.ylabel("Fake weight data [g]", fontsize=20)
         plt.show()
+
+
+
+
+    def compute_location_on_scale(self, threshold: int=10, first_day: bool=False, produce_graph: bool=False):
+        """
+        TODO
+        """
+        self.reset_data()
+        self.convolution_filter_with_padding_edge_per_scale(length=10)
+
+        fig, axs = plt.subplots(nrows=self.number_of_scales+1, ncols=1, figsize=(13,7))
+
+        indicator_on_scale = np.ones(shape=self.data_per_scale.shape)
+
+        if first_day:
+            # remove indices that are under the index when the mouse is in 
+            self.when_mouse_is_in()
+            index_when_mouse_is_in = np.where(self.time == self.time_when_mouse_is_in)[0][0]
+            indicator_on_scale[:,index_when_mouse_is_in] = 0
+
+        for n in range(self.number_of_scales):
+            index_data_around_zero = np.where((self.data_per_scale[n] > -2)&(self.data_per_scale[n] < 2))[0]
+            indicator_on_scale[n, index_data_around_zero] = 0
+            axs[n].plot(self.raw_time, self.raw_data_per_scale[n], color=self.colors[n])
+            axs[n].plot(self.raw_time, indicator_on_scale[n], color="k")
+            axs[n].fill_between(self.raw_time, np.amax(self.raw_data_per_scale[n]), where= indicator_on_scale[n] == 1, color=self.colors[n], alpha=0.5)
+
+        # TODO : faut juste que j'extrais les informations d'entries et de temps total passé par scale et autre trucs funckys
+        axs[3].plot(self.raw_time, self.raw_data, color="k")
+        plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
