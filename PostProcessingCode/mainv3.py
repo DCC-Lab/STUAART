@@ -23,4 +23,4 @@ filename = "20240407-3hours.csv"
 cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_data=np.array([0, 34.1]))
 # cage.plot_data_per_scale()
 # cage.compute_individual_scale_information(first_day=True, produce_graph=True)
-cage.compute_location_on_scale(first_day=True)
+cage.compute_location_on_scale(first_day=True, produce_graph=True)

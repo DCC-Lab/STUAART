@@ -4,6 +4,7 @@ import scipy.fft as fft
 import pandas as pd
 from scipy.signal import find_peaks
 from DataClass import Data
+from itertools import groupby
 
 class Cage():
 
@@ -344,7 +345,7 @@ class Cage():
 
             else:
             # verifies if the selected range has at least one second of weight measurement under 10g. If so, it is indeed hanging. Otherwise, it is not hanging. 
-                under_10_indices = np.where(conv_data[start:end] < 10)[0]
+                under_10_indices = np.where(conv_data[start:end] < threshold)[0]
 
                 if under_10_indices.shape[0] > 1/60/60:
                     start_indices.append(start)
@@ -397,97 +398,7 @@ class Cage():
 
 
 
-    def compute_individual_scale_information(self, threshold: int=10, bins: float=0.5, first_day: bool=False, produce_graph: bool=False):
-        """
-        First try to identify location of mouse with a scale precision. 
-        Uses a convolution filter to smoothen the data. 
-        Uses a high-pass convolution filter to identify big changes in measurements, which should be the moments when the mouse gets on and out of the scale. 
-        Works well when the mouse is on one scale at a time. Does not work well when the mouse is on two scales at the same time. 
-        """
-        self.reset_data()
-        self.convolution_filter_with_padding_edge_per_scale(length=15)
-        conv_data_per_scale = self.data_per_scale.copy() 
-        conv_time = self.time.copy()
-        self.convolution_filter_with_padding_edge_per_scale(kernel_type="high-pass")
-
-        self.total_time_per_scale = []
-        self.presence_frequency_per_scale = []
-
-        fig, axs = plt.subplots(nrows=self.number_of_scales, ncols=1, figsize=(13,7))
-
-        for n in range(self.number_of_scales):
-
-            event_indices = find_peaks(abs(self.data_per_scale[n]), height=15, distance=10)[0]
-            time_on_scale = 0
-            start_indices = []
-            end_indices = []
-            mouse_on_scale = np.zeros(shape=self.time.shape)
-            for i in range(event_indices.shape[0]-1):
-                start = event_indices[i]
-                end = event_indices[i+1]
-
-                time_between_start_and_end = self.time[end] - self.time[start]
-                indices_over_10 = np.where(conv_data_per_scale[n][start:end] > 10)[0]
-
-                if time_between_start_and_end < 0:
-                # if it starts with an end, so the mouse was already on the scale when the recording of this day started.
-                    event_indices = np.insert(event_indices, 0, 0)
-                    i +- 1
-
-                elif abs(time_between_start_and_end) < 1/60/60:
-                # if the presence event lasts less than a second, do not consider
-                    mouse_on_scale[start:end] = 0
-
-                else:
-                # verifies if the selected range between the start and the end has a mean weight measurement over 10g. If yes, the mouse is there. Otherwise, the mouse is nnot there. 
-                    if indices_over_10.shape[0] > 10:
-                        mouse_on_scale[start:end] = 1
-                        start_indices.append(start)
-                        end_indices.append(end)
-                        time_on_scale += time_between_start_and_end
-                    else:
-                        mouse_on_scale[start:end] = 0
-
-            self.total_time_per_scale.append(time_on_scale)
-            start_indices = np.array(start_indices)
-            end_indices = np.array(end_indices)
-
-            if first_day:
-                # remove indices that are under the index when the mouse is in 
-                self.when_mouse_is_in()
-                index_when_mouse_is_in = np.where(self.time == self.time_when_mouse_is_in)[0][0]
-                start_indices = start_indices[start_indices > index_when_mouse_is_in]
-                end_indices = end_indices[end_indices > index_when_mouse_is_in]
-
-            # gets the times when the mouse starts and ends being on the scale
-            start_presence = self.time[start_indices]
-            end_presence = self.time[end_indices]
-
-            # computes presence on scale frequency
-            presence_frequency_on_scale = []
-            for i in np.arange(bins, self.time[-1], bins):
-                if i == bins:
-                    presence_times = np.where(start_presence < i)[0].shape[0]
-                    presence_frequency_on_scale.append(presence_times)
-                else:
-                    presence_times = np.where((start_presence < i) & (start_presence > i - bins))[0].shape[0]
-                    presence_frequency_on_scale.append(presence_times)
-            self.presence_frequency_per_scale.append(np.array(presence_frequency_on_scale))
-
-            if produce_graph:
-                axs[n].fill_between(self.raw_time, np.amax(self.raw_data_per_scale[n]), where= mouse_on_scale == 1, color=self.colors[n], alpha=0.5, label="Presence on scale - Data analysis")
-                axs[n].plot(self.raw_time, self.raw_data_per_scale[n], color=self.colors[n], label="Not filtered")
-                axs[n].plot(self.raw_time, self.data_per_scale[n], color="k", linewidth=1, alpha=0.7, label="After convolution and high-pass filter")
-                # axs[n].legend()
-        
-                plt.xlabel("Time [hour]", fontsize=20)
-                plt.ylabel("Fake weight data [g]", fontsize=20)
-        plt.show()
-
-
-
-
-    def compute_location_on_scale(self, threshold: int=10, first_day: bool=False, produce_graph: bool=False):
+    def compute_location_on_scale(self, bins:float=0.5, first_day: bool=False, produce_graph: bool=False):
         """
         TODO
         """
@@ -504,16 +415,35 @@ class Cage():
             index_when_mouse_is_in = np.where(self.time == self.time_when_mouse_is_in)[0][0]
             indicator_on_scale[:,index_when_mouse_is_in] = 0
 
+        self.presence_indicator_per_scale = indicator_on_scale
         for n in range(self.number_of_scales):
             index_data_around_zero = np.where((self.data_per_scale[n] > -2)&(self.data_per_scale[n] < 2))[0]
-            indicator_on_scale[n, index_data_around_zero] = 0
-            axs[n].plot(self.raw_time, self.raw_data_per_scale[n], color=self.colors[n])
-            axs[n].plot(self.raw_time, indicator_on_scale[n], color="k")
-            axs[n].fill_between(self.raw_time, np.amax(self.raw_data_per_scale[n]), where= indicator_on_scale[n] == 1, color=self.colors[n], alpha=0.5)
+            self.presence_indicator_per_scale[n, index_data_around_zero] = 0
 
-        # TODO : faut juste que j'extrais les informations d'entries et de temps total passé par scale et autre trucs funckys
-        axs[3].plot(self.raw_time, self.raw_data, color="k")
-        plt.show()
+        # Total time on scale per bin
+        # Average time spent per moments on scale per bin
+
+        # Compute number of entries per bin
+        number_of_entries_per_scale = []
+
+        for n in range(self.number_of_scales):
+            number_of_entries = []
+            for j in np.arange(bins, self.time[-1], bins):
+                indices_in_period = np.where((self.time > j-bins) & (self.time < j))[0]
+                num_entries = sum(1 for key, group in groupby(self.presence_indicator_per_scale[n][indices_in_period[0]:indices_in_period[-1]]) if key == 1)
+                number_of_entries.append(num_entries)
+            number_of_entries_per_scale.append(np.array(number_of_entries))
+        self.number_of_entries_per_scale = np.array(number_of_entries_per_scale)
+
+        if produce_graph:
+            for n in range(self.number_of_scales):
+                axs[n].plot(self.raw_time, self.raw_data_per_scale[n], color=self.colors[n])
+                axs[n].plot(self.raw_time, self.presence_indicator_per_scale[n], color="k")
+                axs[n].fill_between(self.raw_time, np.amax(self.raw_data_per_scale[n]), where= self.presence_indicator_per_scale[n] == 1, color=self.colors[n], alpha=0.5)
+
+            # TODO : faut juste que j'extrais les informations d'entries et de temps total passé par scale et autre trucs funckys
+            axs[3].plot(self.raw_time, self.raw_data, color="k")
+            plt.show()
 
 
 
