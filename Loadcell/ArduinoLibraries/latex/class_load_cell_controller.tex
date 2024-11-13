@@ -1,0 +1,832 @@
+\doxysection{Load\+Cell\+Controller Class Reference}
+\hypertarget{class_load_cell_controller}{}\label{class_load_cell_controller}\index{LoadCellController@{LoadCellController}}
+
+
+This library allows to control and manage many load cells with a \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}.  
+
+
+
+
+{\ttfamily \#include $<$Load\+Cell\+Controller.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_load_cell_controller_a48feedb2cc775e870f53c9fc5f0ddcfd}\label{class_load_cell_controller_a48feedb2cc775e870f53c9fc5f0ddcfd} 
+{\bfseries Load\+Cell\+Controller} ()
+\begin{DoxyCompactList}\small\item\em Construct a \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} object. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}{add\+\_\+loadcell}} (\mbox{\hyperlink{class_load_cell}{Load\+Cell}} \&loadcell)
+\begin{DoxyCompactList}\small\item\em Add a new \doxylink{class_load_cell}{Load\+Cell} to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} without pin specification. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_a5f2a10f260c58fa89150481fc1bf3ef9}{add\+\_\+loadcell}} (\mbox{\hyperlink{class_load_cell}{Load\+Cell}} \&loadcell, byte dout, byte sck, byte gain=128)
+\begin{DoxyCompactList}\small\item\em Add a new \doxylink{class_load_cell}{Load\+Cell} to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} with pin specification. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_af4bef6a4b1eaf41529b2d7eb27cdc476}{easy\+\_\+start\+\_\+with\+\_\+params}} (byte loadcell\+\_\+num, byte dout, byte pd\+\_\+sck, bool calibrate\+\_\+offset=false, bool calibrate\+\_\+scale=false, bool read\+\_\+offset\+\_\+persistent\+\_\+memory=false, bool read\+\_\+scale\+\_\+persistent\+\_\+memory=false, bool save\+\_\+offset\+\_\+persistent\+\_\+memory=false, bool save\+\_\+scale\+\_\+persistent\+\_\+memory=false, float tare\+\_\+offset=0, float scale\+\_\+coeff=0, byte gain=128)
+\begin{DoxyCompactList}\small\item\em Easy function managing the start-\/up of a \doxylink{class_load_cell}{Load\+Cell} with parameters as input. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_abe98842554b5724fdcf1c1430d3eb4a9}{tare\+\_\+all\+\_\+loadcells}} (bool wait\+\_\+for\+\_\+user=true)
+\begin{DoxyCompactList}\small\item\em Tare all the Load\+Cells added to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_a6db9461167749f5747c98a0e86e0f301}{calibrate\+\_\+all\+\_\+loadcells}} ()
+\begin{DoxyCompactList}\small\item\em Calibrate the scale coeffcient of every Load\+Cells added to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_a14b4c93225112783a5b1f8b119ee2352}{read\+\_\+all\+\_\+scale\+\_\+coeff\+\_\+from\+\_\+persistent\+\_\+memory}} ()
+\begin{DoxyCompactList}\small\item\em Read the scale coeffcient of every Load\+Cells added to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_a88b7f069dbd60454cd8c40636e5c697a}{save\+\_\+offset\+\_\+to\+\_\+persistent\+\_\+memory}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Save the offset of a given \doxylink{class_load_cell}{Load\+Cell} to persistent memory. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_a4a9a463212eeb0d577562eac99b01aa7}{save\+\_\+scale\+\_\+coeff\+\_\+to\+\_\+persistent\+\_\+memory}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Save the scale coefficient of a given \doxylink{class_load_cell}{Load\+Cell} to persistent memory. \end{DoxyCompactList}\item 
+long \mbox{\hyperlink{class_load_cell_controller_a42c2e9f95696bfe168ccf92bdfdd26c2}{read\+\_\+offset\+\_\+from\+\_\+persistent\+\_\+memory}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Read the offset of a given \doxylink{class_load_cell}{Load\+Cell} from persistent memory. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{class_load_cell_controller_aa8d3f14c5324e0d4724325220f1464a0}{read\+\_\+scale\+\_\+coeff\+\_\+from\+\_\+persistent\+\_\+memory}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Read the scale coefficient of a given \doxylink{class_load_cell}{Load\+Cell} to persistent memory. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_a082df43905d7022983b539325e489440}{calibrate\+\_\+both\+\_\+params}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Proceed to the calibration of both parameters and set them for a \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_ac9cb338e189436bf174dd49fa039dc1f}{calibrate\+\_\+tare\+\_\+offset}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Proceed to the calibration of the offset and set it for a \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_a78b8e8c4d11b2c078042225cb5511d55}{calibrate\+\_\+scale\+\_\+coeff}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Proceed to the calibration of the scale coefficient and set it for a \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{class_load_cell_controller_a9c4a2a43aa6e032e0cdb03af07882820}{determine\+\_\+offset}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Proceed to the calibration of the offset and return the offset value. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{class_load_cell_controller_a6b8f522285770eb5160e961edcdd8de9}{determine\+\_\+scale\+\_\+coeff}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Proceed to the calibration of the scale coefficient and return the scale coefficient value. \end{DoxyCompactList}\item 
+\Hypertarget{class_load_cell_controller_a95b5f935accb13414cd16b05bfa7d551}\label{class_load_cell_controller_a95b5f935accb13414cd16b05bfa7d551} 
+float {\bfseries calculate\+\_\+scale\+\_\+coeff} (byte loadcell\+\_\+num, float output, float mass)
+\item 
+int \mbox{\hyperlink{class_load_cell_controller_a34d8454f337c43abd7284435ad420e4a}{get\+\_\+offset\+\_\+eeprom\+\_\+adress}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Get the EEPROM address for the offset of a \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_load_cell_controller_a5573a5b8f3338fa3a568f47a97e23751}{get\+\_\+scale\+\_\+coeff\+\_\+eeprom\+\_\+adress}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Get the EEPROM address for the scale coefficient of a \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+String \mbox{\hyperlink{class_load_cell_controller_ac420c3eb6dda0bb43407db712d7ae4d8}{get\+\_\+offset\+\_\+file\+\_\+name}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Get the SPIFFS file name for the offset of a \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+String \mbox{\hyperlink{class_load_cell_controller_a848a3f86a5437f3cdeffea0fb7522508}{get\+\_\+scale\+\_\+coeff\+\_\+file\+\_\+name}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Get the SPIFFS file name for the scale coefficient of a \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{group___load_cell_ga507c18a07c74ce8493e826566435a1c1}{get\+\_\+offset}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Get the offset value for a given \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_gac7fa01eae9c33384e1e70b9ba7ec5629}{set\+\_\+offset}} (byte loadcell\+\_\+num, float offset)
+\begin{DoxyCompactList}\small\item\em Set the offset value for a given \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{group___load_cell_ga9b128c21393d8106a6148aea265e48dd}{get\+\_\+scale}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Get the scale coefficient value for a given \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_gadc6c08cde6fb690ff4cb5aa1c42f40ef}{set\+\_\+scale}} (byte loadcell\+\_\+num, float scale)
+\begin{DoxyCompactList}\small\item\em Set the scale coefficient value for a given \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_gaee0ac671ee0cd1c461f92ae70bb0f723}{set\+\_\+tare\+\_\+n\+\_\+readings}} (byte loadcell\+\_\+num, int n\+\_\+readings)
+\begin{DoxyCompactList}\small\item\em Set the number of readings averaged for calibration of offset for a given \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{group___load_cell_ga6ceff1432e282f51f1df0b0104747101}{get\+\_\+tare\+\_\+n\+\_\+readings}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Get the number of readings averaged for calibration of offset for a given \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_ga17af209b2de5300346c1a9d921f86522}{set\+\_\+scale\+\_\+coeff\+\_\+n\+\_\+readings}} (byte loadcell\+\_\+num, int n\+\_\+readings)
+\begin{DoxyCompactList}\small\item\em Set the number of readings averaged for calibration of scale coefficient for a given \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{group___load_cell_ga17148ba2d5bad59f005e830e2da07695}{get\+\_\+scale\+\_\+coeff\+\_\+n\+\_\+readings}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Get the number of readings averaged for calibration of scale calibration for a given \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_ga92c159cf6b6bc3a958a54457a240d057}{set\+\_\+weight\+\_\+n\+\_\+readings}} (byte loadcell\+\_\+num, int n\+\_\+readings)
+\begin{DoxyCompactList}\small\item\em Set the number of readings averaged for weight measurements for a given \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{group___load_cell_ga69deb0135206ed73e2ae1ec875137aa9}{get\+\_\+weight\+\_\+n\+\_\+readings}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Get the number of readings averaged for measurements of a given \doxylink{class_load_cell}{Load\+Cell}\textquotesingle{}s weight. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_ga449f51749d5e27ee19b31a6c70c36c7d}{set\+\_\+all\+\_\+loadcells\+\_\+tare\+\_\+n\+\_\+readings}} (int n\+\_\+readings)
+\begin{DoxyCompactList}\small\item\em Set the number of readings averaged for calibration of offset for all Load\+Cells. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_gad94259d5b2dd994ac1103ab26683bda3}{set\+\_\+all\+\_\+loadcells\+\_\+scale\+\_\+coeff\+\_\+n\+\_\+readings}} (int n\+\_\+readings)
+\begin{DoxyCompactList}\small\item\em Set the number of readings averaged for calibration of scale coefficient for all Load\+Cells. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_ga5be448b9aab6eb72c95ae49bbb879f23}{set\+\_\+all\+\_\+loadcells\+\_\+weight\+\_\+n\+\_\+readings}} (int n\+\_\+readings)
+\begin{DoxyCompactList}\small\item\em Set the number of readings averaged for weight measurements for all Load\+Cells. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_gad72e2baab4158ae9527cde8e5dea12e2}{set\+\_\+mouse\+\_\+weight}} (float weight)
+\begin{DoxyCompactList}\small\item\em Set the value of member variable \doxylink{class_load_cell_controller_aa962230034f95c97fc661ff6f66709a2}{mouse\+\_\+weight}. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{group___load_cell_gae8e496d9fe7392b46339e98b661097e4}{get\+\_\+mouse\+\_\+weight}} ()
+\begin{DoxyCompactList}\small\item\em Get the value of member variable \doxylink{class_load_cell_controller_aa962230034f95c97fc661ff6f66709a2}{mouse\+\_\+weight}. \end{DoxyCompactList}\item 
+long \mbox{\hyperlink{group___load_cell_gad886961c39a7276ce169db187d52c4d1}{read\+\_\+raw\+\_\+average}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Read the output of the \doxylink{class_load_cell}{Load\+Cell} and average weight\+\_\+n\+\_\+readings readings. \end{DoxyCompactList}\item 
+long \mbox{\hyperlink{group___load_cell_ga8a9063b14499f23adf2fa8da92acd8d6}{read\+\_\+tare\+\_\+average}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Read the output of the \doxylink{class_load_cell}{Load\+Cell} and average tare\+\_\+n\+\_\+readings readings. \end{DoxyCompactList}\item 
+long \mbox{\hyperlink{group___load_cell_ga596e9234d568399c3f8a42b9256fc47d}{read\+\_\+scale\+\_\+coeff\+\_\+average}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Read the output of the \doxylink{class_load_cell}{Load\+Cell} and average scale\+\_\+coeff\+\_\+n\+\_\+readings readings. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{group___load_cell_ga0d0b0bfd07a1c17a46d1504d04dba226}{get\+\_\+raw\+\_\+value}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Read the raw output of the \doxylink{class_load_cell}{Load\+Cell} and substracts the offset. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{group___load_cell_ga3ef77bb2300f62c7dc65b8b83e642c9a}{get\+\_\+weight}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Read the weight of the object currently on the \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{group___load_cell_ga18cd91e000f537aef83965a7e52c5adb}{get\+\_\+weight\+\_\+with\+\_\+auto\+\_\+recalibration}} (byte loadcell\+\_\+num, float threshold=0.\+33)
+\begin{DoxyCompactList}\small\item\em Read the weight of the object currently on the \doxylink{class_load_cell}{Load\+Cell} and recalibrate the offset. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{group___load_cell_ga61ed978d84ad438a858f472eeab885b8}{mass\+\_\+from\+\_\+raw}} (byte loadcell\+\_\+num, long raw)
+\begin{DoxyCompactList}\small\item\em Calculate mass from a raw reading. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_ga561f18442e2d0a82c8dccaeea4f33eef}{tare}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Read the raw output of the \doxylink{class_load_cell}{Load\+Cell} and set this value to the offset. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_gaf42f59ae774cd02647450c8c81df6872}{begin}} (byte loadcell\+\_\+num, byte dout, byte pd\+\_\+sck, byte gain=128)
+\begin{DoxyCompactList}\small\item\em Begin the communication with the HX711 for a given \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{group___load_cell_ga0130a79b354cbe481dbee14ba3505e97}{is\+\_\+ready}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Verify if the HX711 is ready for a reading. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_ga3288f185af11b97cc1c5b4c4bff4d2fd}{wait\+\_\+ready}} (byte loadcell\+\_\+num, unsigned long delay\+\_\+ms=0)
+\begin{DoxyCompactList}\small\item\em Suspend the execution of the code until the HX711 becomes ready. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{group___load_cell_ga3277e1e7db4820436311e9ae5ee132fb}{wait\+\_\+ready\+\_\+retry}} (byte loadcell\+\_\+num, int retries=3, unsigned long delay\+\_\+ms=0)
+\begin{DoxyCompactList}\small\item\em Suspend the execution of the code until the HX711 becomes ready or for a given number of retries. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{group___load_cell_ga545d0f405efe94943605e52d609ac0ff}{wait\+\_\+ready\+\_\+timeout}} (byte loadcell\+\_\+num, unsigned long timeout=1000, unsigned long delay\+\_\+ms=0)
+\begin{DoxyCompactList}\small\item\em Suspend the execution of the code until the HX711 becomes ready or for a given timeout. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_ga8c73a3be8a0f6c522af4ced8f3721143}{power\+\_\+up}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Wake up the chip after power down mode. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group___load_cell_ga69aba79e70cadebdcb9ab8a67b8dfde1}{power\+\_\+down}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Wake up the chip after power down mode. \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{class_load_cell_controller_a59e5d76d920c4e370dd093b3f725300c}{number\+\_\+of\+\_\+loadcells}} ()
+\begin{DoxyCompactList}\small\item\em Get the number of \doxylink{class_load_cell}{Load\+Cell} of the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_load_cell_controller_a7fcdb8b27969825173926408b5731ff4}{is\+\_\+loadcell\+\_\+num\+\_\+in\+\_\+range}} (byte loadcell\+\_\+num)
+\begin{DoxyCompactList}\small\item\em Verify if a \doxylink{class_load_cell}{Load\+Cell} number is in the range of the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_a71dedebb692b8df739e0170081cca02a}{clear\+\_\+eeprom}} (int start=0, int end=1024)
+\begin{DoxyCompactList}\small\item\em Clear the EEPROM with 0 value. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_load_cell_controller_ab673a056d39d382982800896c9fa002c}{easy\+\_\+calibration\+\_\+with\+\_\+params}} (byte loadcell\+\_\+num, bool cal\+\_\+tare, bool cal\+\_\+scale)
+\begin{DoxyCompactList}\small\item\em Easy function managing the calibration of a \doxylink{class_load_cell}{Load\+Cell}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_a044e6a529e00f717f0cce5b1206becfd}{easy\+\_\+save\+\_\+to\+\_\+persistent\+\_\+memory\+\_\+with\+\_\+params}} (byte loadcell\+\_\+num, bool save\+\_\+offset, bool save\+\_\+scale)
+\begin{DoxyCompactList}\small\item\em Easy function managing the saving of calibration parameters to persistent memory. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_aab497ce7ecfdf7f7ee353e026fdcdfd7}{easy\+\_\+read\+\_\+from\+\_\+persistent\+\_\+memory\+\_\+with\+\_\+params}} (byte loadcell\+\_\+num, bool read\+\_\+offset, bool read\+\_\+scale)
+\begin{DoxyCompactList}\small\item\em Easy function managing the reading of calibration from persistent memory. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_a6085bd3ff4f5ac988817f2d48bd21697}{easy\+\_\+start\+\_\+with\+\_\+questions}} (byte loadcell\+\_\+num, byte dout, byte pd\+\_\+sck, byte gain=128)
+\begin{DoxyCompactList}\small\item\em Easy function for start with questions through the serial monitor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_load_cell_controller_a0fd9dae68d33a660a8d57529eeaa4d37}{easy\+\_\+handle\+\_\+exceptions}} (byte loadcell\+\_\+num, bool calibrate\+\_\+offset=false, bool calibrate\+\_\+scale=false, bool read\+\_\+offset\+\_\+persistent\+\_\+memory=false, bool read\+\_\+scale\+\_\+persistent\+\_\+memory=false, bool save\+\_\+offset\+\_\+persistent\+\_\+memory=false, bool save\+\_\+scale\+\_\+persistent\+\_\+memory=false, float tare\+\_\+offset=0, float scale\+\_\+coeff=0)
+\begin{DoxyCompactList}\small\item\em Easy function used to handle possible conflicts in \doxylink{class_load_cell_controller_af4bef6a4b1eaf41529b2d7eb27cdc476}{easy\+\_\+start\+\_\+with\+\_\+params()}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_load_cell}{Load\+Cell}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_load_cell_controller_abf5e00456c2c776b5048f500c5b0a495}{loadcells}} \mbox{[}10\mbox{]}
+\begin{DoxyCompactList}\small\item\em Array containing the pointer of the \doxylink{class_load_cell}{Load\+Cell} controlled by the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_load_cell_controller_a233d1a7d5a09e65b99e68bb7458d7715}{n\+\_\+loadcell}} = 0
+\begin{DoxyCompactList}\small\item\em Member variable used to keep track of the number of Load\+Cells added. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{class_load_cell_controller_aa962230034f95c97fc661ff6f66709a2}{mouse\+\_\+weight}} = 20
+\begin{DoxyCompactList}\small\item\em Member variable used to store the weight in gramms of the mouse in the cage controlled by The \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This library allows to control and manage many load cells with a \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. 
+
+The \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} library offers many features\+:
+
+
+\begin{DoxyItemize}
+\item Calibrate load cells, both parameters (offset and scale coefficient)
+\begin{DoxyItemize}
+\item Member functions encapsulate the scripts needed for the calibration for both parameters. The interaction with the user is done inside the member functions.
+\end{DoxyItemize}
+\item Save the calibration parameters to persistent memory
+
+The library can automatically detect if an Arduino Uno (ATmega328p chip) or a Fire\+Beetle (ESP8266 chip) is used. For Arduino Uno, EEPROM is used to store calibration parameters. For Fire\+Beetle, SPIFFS is used.
+
+The calibration parameters can be saved on the EEPROM after calibration for Atmega328p chip (Arduino Uno). These types of persistent memory are useful when it comes to saving because the saved values don\textquotesingle{}t erase themselves when the power supply of the microcontroller is cut. The saved parameters can be reused at another moment. (tested on Arduino Uno and Fire\+Beetle November 2023)
+
+When it is wanted to reuse the saved parameters, it is important to add the load cell in the same order with the \doxylink{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}{add\+\_\+loadcell()} function. The calibration parameters are saved are accessible with the number of the \doxylink{class_load_cell}{Load\+Cell}.
+\item Read the calibration parameters from persistent memory (tested on Arduino Uno August 2023)
+\begin{DoxyItemize}
+\item The calibration parameters can also be read from peristent memory after being saved.
+\end{DoxyItemize}
+\item \"{}\+Easy\"{} start-\/up function that will handle everything related to the calibration and manage the calibration parameters.
+\begin{DoxyItemize}
+\item The \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} class offers ready-\/to-\/use \"{}easy\"{} functions that simplify the start-\/up of a load cell. Many scenarios are possible for the start-\/up of a load cell when it comes to calibration and the management of the calibration parameters.
+\item A simple function \doxylink{class_load_cell_controller_af4bef6a4b1eaf41529b2d7eb27cdc476}{easy\+\_\+start\+\_\+with\+\_\+params()} takes in arguments many parameters to choose the appropriate option. Only a few parameters are needed.
+\item This is useful for those who don\textquotesingle{}t want to create their own sketch.
+\item All the member functions that begin with \"{}easy\"{} are for easy start-\/up and don\textquotesingle{}t implement any other functionalities than the other member functions. They only offer a \"{}all-\/in-\/one\"{} option for those who don\textquotesingle{}t want to code.
+\end{DoxyItemize}
+\item The \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} class allows to access the load cells through the controller.
+
+The load cells are added with the member function \doxylink{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}{add\+\_\+loadcell()}. After that, all load cells are under the control of the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} and the member functions of the \doxylink{class_load_cell}{Load\+Cell} class are accesed through the controller.
+
+This access to the Load\+Cells through the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} requires to specify to \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} a parameter corresponding to the number identifying the \doxylink{class_load_cell}{Load\+Cell} concerned (1, 2, ...). Every member functions that have as input the number of a \doxylink{class_load_cell}{Load\+Cell} (n\+\_\+loadcell) will verify if the \doxylink{class_load_cell}{Load\+Cell} number is in a coherent range according to the number of Load\+Cells added to the controller according to the member variable \doxylink{class_load_cell_controller_a233d1a7d5a09e65b99e68bb7458d7715}{n\+\_\+loadcell}. If the value is out of the range, the code will be suspended with a endless while() loop and display on the serial monitor an error message specifying where the problem occured (in which function). This small if bloc is placed at the beginning 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_load_cell_controller_a7fcdb8b27969825173926408b5731ff4}{is\_loadcell\_num\_in\_range}}(loadcell\_num)\ ==\ \textcolor{keyword}{false})\ \{}
+\DoxyCodeLine{Serial.println();}
+\DoxyCodeLine{Serial.println();}
+\DoxyCodeLine{Serial.println();}
+\DoxyCodeLine{Serial.print(F(\textcolor{stringliteral}{"{}ERROR\ 1\ name\_of\_the\_function():\ loadcell\ number\ "{}}));}
+\DoxyCodeLine{Serial.print(loadcell\_num);}
+\DoxyCodeLine{Serial.println(F(\textcolor{stringliteral}{"{}\ is\ out\ of\ range."{}}));}
+\DoxyCodeLine{\textcolor{keywordflow}{while}(1);}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+\end{DoxyItemize}
+
+HX711 library\+: \href{https://github.com/bogde/HX711}{\texttt{ https\+://github.\+com/bogde/\+HX711}}
+
+\doxylink{class_load_cell}{Load\+Cell} library\+: \href{https://github.com/DCC-Lab/IntelligentCage/tree/master/Loadcell/Arduino\%20libraries/LoadCellLibrary}{\texttt{ https\+://github.\+com/\+DCC-\/\+Lab/\+Intelligent\+Cage/tree/master/\+Loadcell/\+Arduino\%20libraries/\+Load\+Cell\+Library}} \begin{DoxyAuthor}{Author}
+Nathan Bérubé 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+November 10, 2023 
+\end{DoxyDate}
+\begin{DoxyVersion}{Version}
+2.\+0.\+2 
+\end{DoxyVersion}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}\label{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd} 
+\index{LoadCellController@{LoadCellController}!add\_loadcell@{add\_loadcell}}
+\index{add\_loadcell@{add\_loadcell}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{add\_loadcell()}{add\_loadcell()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::add\+\_\+loadcell (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_load_cell}{Load\+Cell}} \&}]{loadcell }\end{DoxyParamCaption})}
+
+
+
+Add a new \doxylink{class_load_cell}{Load\+Cell} to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} without pin specification. 
+
+This function adds a new \doxylink{class_load_cell}{Load\+Cell} to the controller. It will add the pointer of the \doxylink{class_load_cell}{Load\+Cell} object to the next index in the \doxylink{class_load_cell_controller_abf5e00456c2c776b5048f500c5b0a495}{loadcells} array and increase the value \doxylink{class_load_cell_controller_a233d1a7d5a09e65b99e68bb7458d7715}{n\+\_\+loadcell} by 1 to keep track of the number of \doxylink{class_load_cell}{Load\+Cell}.
+
+The first added \doxylink{class_load_cell}{Load\+Cell} will be load cell 1, the second one will be load cell 2 and so on.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell} & \doxylink{class_load_cell}{Load\+Cell} object added to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_controller_a5f2a10f260c58fa89150481fc1bf3ef9}\label{class_load_cell_controller_a5f2a10f260c58fa89150481fc1bf3ef9} 
+\index{LoadCellController@{LoadCellController}!add\_loadcell@{add\_loadcell}}
+\index{add\_loadcell@{add\_loadcell}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{add\_loadcell()}{add\_loadcell()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::add\+\_\+loadcell (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_load_cell}{Load\+Cell}} \&}]{loadcell,  }\item[{byte}]{dout,  }\item[{byte}]{sck,  }\item[{byte}]{gain = {\ttfamily 128} }\end{DoxyParamCaption})}
+
+
+
+Add a new \doxylink{class_load_cell}{Load\+Cell} to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} with pin specification. 
+
+This function adds a new \doxylink{class_load_cell}{Load\+Cell} to the controller. It will add the pointer of the \doxylink{class_load_cell}{Load\+Cell} object to the next index in the \doxylink{class_load_cell_controller_abf5e00456c2c776b5048f500c5b0a495}{loadcells} array and increase the value \doxylink{class_load_cell_controller_a233d1a7d5a09e65b99e68bb7458d7715}{n\+\_\+loadcell} by 1 to keep track of the number of \doxylink{class_load_cell}{Load\+Cell}.
+
+The first added \doxylink{class_load_cell}{Load\+Cell} will be load cell 1, the second one will be load cell 2 and so on.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell} & \doxylink{class_load_cell}{Load\+Cell} object added to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. \\
+\hline
+{\em dout} & Digital pin (or analog) connected to the DOUT output pin of the HX711. \\
+\hline
+{\em pd\+\_\+sck} & Digital pin (or analog) connected to the SCK output of the HX711. \\
+\hline
+{\em gain} & Gain of the HX711. Default is 128. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_controller_a6db9461167749f5747c98a0e86e0f301}\label{class_load_cell_controller_a6db9461167749f5747c98a0e86e0f301} 
+\index{LoadCellController@{LoadCellController}!calibrate\_all\_loadcells@{calibrate\_all\_loadcells}}
+\index{calibrate\_all\_loadcells@{calibrate\_all\_loadcells}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{calibrate\_all\_loadcells()}{calibrate\_all\_loadcells()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::calibrate\+\_\+all\+\_\+loadcells (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Calibrate the scale coeffcient of every Load\+Cells added to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. 
+
+This function interacts with the user to calibrate every \doxylink{class_load_cell}{Load\+Cell} with known weights. The user is guided by the messages on the monitor to place the known weights on the load cell. The user is asked to send the weight value from the monitor. The scale coefficient are then saved to persistent memory. \Hypertarget{class_load_cell_controller_a082df43905d7022983b539325e489440}\label{class_load_cell_controller_a082df43905d7022983b539325e489440} 
+\index{LoadCellController@{LoadCellController}!calibrate\_both\_params@{calibrate\_both\_params}}
+\index{calibrate\_both\_params@{calibrate\_both\_params}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{calibrate\_both\_params()}{calibrate\_both\_params()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::calibrate\+\_\+both\+\_\+params (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Proceed to the calibration of both parameters and set them for a \doxylink{class_load_cell}{Load\+Cell}. 
+
+This function begins the calibration of both offset and scale coefficient by calling the member functions calibrate\+\_\+offset() and \doxylink{class_load_cell_controller_a78b8e8c4d11b2c078042225cb5511d55}{calibrate\+\_\+scale\+\_\+coeff()} that interact with the user to determine and set both calibration parameters.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_controller_a78b8e8c4d11b2c078042225cb5511d55}\label{class_load_cell_controller_a78b8e8c4d11b2c078042225cb5511d55} 
+\index{LoadCellController@{LoadCellController}!calibrate\_scale\_coeff@{calibrate\_scale\_coeff}}
+\index{calibrate\_scale\_coeff@{calibrate\_scale\_coeff}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{calibrate\_scale\_coeff()}{calibrate\_scale\_coeff()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::calibrate\+\_\+scale\+\_\+coeff (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Proceed to the calibration of the scale coefficient and set it for a \doxylink{class_load_cell}{Load\+Cell}. 
+
+This function use the member function \doxylink{class_load_cell_controller_a6b8f522285770eb5160e961edcdd8de9}{determine\+\_\+scale\+\_\+coeff()} to get the scale coefficient from the calibration done by the user. This member function then sets this scale coefficient value to the member variable of the \doxylink{class_load_cell}{Load\+Cell}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_controller_ac9cb338e189436bf174dd49fa039dc1f}\label{class_load_cell_controller_ac9cb338e189436bf174dd49fa039dc1f} 
+\index{LoadCellController@{LoadCellController}!calibrate\_tare\_offset@{calibrate\_tare\_offset}}
+\index{calibrate\_tare\_offset@{calibrate\_tare\_offset}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{calibrate\_tare\_offset()}{calibrate\_tare\_offset()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::calibrate\+\_\+tare\+\_\+offset (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Proceed to the calibration of the offset and set it for a \doxylink{class_load_cell}{Load\+Cell}. 
+
+This function use the member function \doxylink{class_load_cell_controller_a9c4a2a43aa6e032e0cdb03af07882820}{determine\+\_\+offset()} to get the offset from the calibration done by the user. This member function then sets this offset value to the member variable of the \doxylink{class_load_cell}{Load\+Cell}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_controller_a71dedebb692b8df739e0170081cca02a}\label{class_load_cell_controller_a71dedebb692b8df739e0170081cca02a} 
+\index{LoadCellController@{LoadCellController}!clear\_eeprom@{clear\_eeprom}}
+\index{clear\_eeprom@{clear\_eeprom}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{clear\_eeprom()}{clear\_eeprom()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::clear\+\_\+eeprom (\begin{DoxyParamCaption}\item[{int}]{start = {\ttfamily 0},  }\item[{int}]{end = {\ttfamily 1024} }\end{DoxyParamCaption})}
+
+
+
+Clear the EEPROM with 0 value. 
+
+This function writes a 0 at all index on the EEPROM for a given range.
+
+\begin{DoxyNote}{Note}
+The {\ttfamily end} parameters has a defaukt value of 1024 since it is the size of the Arduino Uno EEPROM. It might not be the case with other microcontroller.
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em start} & First index to clear. Default is 0 \\
+\hline
+{\em end} & Last index to clear. Default is 1024 \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_controller_a9c4a2a43aa6e032e0cdb03af07882820}\label{class_load_cell_controller_a9c4a2a43aa6e032e0cdb03af07882820} 
+\index{LoadCellController@{LoadCellController}!determine\_offset@{determine\_offset}}
+\index{determine\_offset@{determine\_offset}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{determine\_offset()}{determine\_offset()}}
+{\footnotesize\ttfamily float Load\+Cell\+Controller\+::determine\+\_\+offset (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Proceed to the calibration of the offset and return the offset value. 
+
+This function interacts with the user through the serial monitor to get an offset value for a given \doxylink{class_load_cell}{Load\+Cell}.
+
+This member function asks to the user to remove any object from the load cell and send \"{}t\"{} with the serial monitor when it is done. After that, a output measurement is done with \doxylink{group___load_cell_ga8a9063b14499f23adf2fa8da92acd8d6}{read\+\_\+tare\+\_\+average()} to get a raw output value. This value is returned.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The offset value. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_controller_a6b8f522285770eb5160e961edcdd8de9}\label{class_load_cell_controller_a6b8f522285770eb5160e961edcdd8de9} 
+\index{LoadCellController@{LoadCellController}!determine\_scale\_coeff@{determine\_scale\_coeff}}
+\index{determine\_scale\_coeff@{determine\_scale\_coeff}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{determine\_scale\_coeff()}{determine\_scale\_coeff()}}
+{\footnotesize\ttfamily float Load\+Cell\+Controller\+::determine\+\_\+scale\+\_\+coeff (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Proceed to the calibration of the scale coefficient and return the scale coefficient value. 
+
+This function interacts with the user through the serial monitor to get a scale coefficient value for a given \doxylink{class_load_cell}{Load\+Cell}.
+
+This member function asks the user to specify the number of reference weights that will be used to calibrate the load cell.
+
+After that, the user is asked to put the first reference weight on the loadcell and send the weight value through the serial monitor. A weight measurement is done using the member function \doxylink{group___load_cell_ga596e9234d568399c3f8a42b9256fc47d}{read\+\_\+scale\+\_\+coeff\+\_\+average()}. A couple for our calibration linear function -\/\texorpdfstring{$>$}{>} output = scale\+\_\+coeff \texorpdfstring{$\ast$}{*} mass + offset is obtained (known mass, measured output). The scale coefficient can now be calculated.
+
+The process described above can be repeated for each reference weight to get a scale coefficient value.
+
+The average of all scale coefficients is taken to get the finale value returned by the function.
+
+\begin{DoxyNote}{Note}
+With this simple method, the scale coefficient depends of the offset. Finding both calibration parameters (offset and scale coefficient) at the same time with a curve fit algorithm could be more effective.
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The scale coefficient value. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_controller_ab673a056d39d382982800896c9fa002c}\label{class_load_cell_controller_ab673a056d39d382982800896c9fa002c} 
+\index{LoadCellController@{LoadCellController}!easy\_calibration\_with\_params@{easy\_calibration\_with\_params}}
+\index{easy\_calibration\_with\_params@{easy\_calibration\_with\_params}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{easy\_calibration\_with\_params()}{easy\_calibration\_with\_params()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::easy\+\_\+calibration\+\_\+with\+\_\+params (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num,  }\item[{bool}]{cal\+\_\+tare,  }\item[{bool}]{cal\+\_\+scale }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Easy function managing the calibration of a \doxylink{class_load_cell}{Load\+Cell}. 
+
+This function is managing the possibilities that come with the calibration of the tare offset and the scale coefficient. It is meant to be used inside the member function \doxylink{class_load_cell_controller_af4bef6a4b1eaf41529b2d7eb27cdc476}{easy\+\_\+start\+\_\+with\+\_\+params()}.
+
+The calibration process of both parameters (offset and scale coefficient) requires a computer to display information on the serial monitor and also to send value through it for the calibration.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+{\em cal\+\_\+tare} & Boolean telling if the offset should be calibrated. \\
+\hline
+{\em save\+\_\+scale} & Boolean telling if the scale coefficient should be calibrated. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_controller_a0fd9dae68d33a660a8d57529eeaa4d37}\label{class_load_cell_controller_a0fd9dae68d33a660a8d57529eeaa4d37} 
+\index{LoadCellController@{LoadCellController}!easy\_handle\_exceptions@{easy\_handle\_exceptions}}
+\index{easy\_handle\_exceptions@{easy\_handle\_exceptions}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{easy\_handle\_exceptions()}{easy\_handle\_exceptions()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::easy\+\_\+handle\+\_\+exceptions (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num,  }\item[{bool}]{calibrate\+\_\+offset = {\ttfamily false},  }\item[{bool}]{calibrate\+\_\+scale = {\ttfamily false},  }\item[{bool}]{read\+\_\+offset\+\_\+persistent\+\_\+memory = {\ttfamily false},  }\item[{bool}]{read\+\_\+scale\+\_\+persistent\+\_\+memory = {\ttfamily false},  }\item[{bool}]{save\+\_\+offset\+\_\+persistent\+\_\+memory = {\ttfamily false},  }\item[{bool}]{save\+\_\+scale\+\_\+persistent\+\_\+memory = {\ttfamily false},  }\item[{float}]{tare\+\_\+offset = {\ttfamily 0},  }\item[{float}]{scale\+\_\+coeff = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Easy function used to handle possible conflicts in \doxylink{class_load_cell_controller_af4bef6a4b1eaf41529b2d7eb27cdc476}{easy\+\_\+start\+\_\+with\+\_\+params()}. 
+
+This function manages the possible conflicts that can happen between the parameters passed to the \doxylink{class_load_cell_controller_af4bef6a4b1eaf41529b2d7eb27cdc476}{easy\+\_\+start\+\_\+with\+\_\+params()} member function. Since the user is specifying the starting parameters, it is probable that some are not possible simultaneously. This member function verifies all possible conflicts. If one is detetced, the execution will be stopped with infinite while() loop, since it is not possible to do raise exceptions on Arduino (as I know). It is meant to be used inside the member function \doxylink{class_load_cell_controller_af4bef6a4b1eaf41529b2d7eb27cdc476}{easy\+\_\+start\+\_\+with\+\_\+params()}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+{\em calibrate\+\_\+offset} & Boolean telling if the offset should be calibrated. Default is false. \\
+\hline
+{\em calibrate\+\_\+scale} & Boolean telling if the scale coefficient should be calibrated. Default is false. \\
+\hline
+{\em read\+\_\+offset\+\_\+persistent\+\_\+memory} & Boolean telling if the offset should be read from persistent\+\_\+memory. Default is false. \\
+\hline
+{\em read\+\_\+scale\+\_\+persistent\+\_\+memory} & Boolean telling if the scale coefficient should be read from persistent\+\_\+memory. Default is false. \\
+\hline
+{\em save\+\_\+offset\+\_\+persistent\+\_\+memory} & Boolean telling if the offset should be saved to persistent\+\_\+memory. Default is false. \\
+\hline
+{\em save\+\_\+scale\+\_\+persistent\+\_\+memory} & Boolean telling if the scale coefficient should be saved to persistent\+\_\+memory. Default is false. \\
+\hline
+{\em tare\+\_\+offset} & Value of the tare offset. Default is 0.\\
+\hline
+\end{DoxyParams}
+The {\ttfamily tare\+\_\+offset} default is 0 and is considered as the absence of a value. If no value wants to be specified, 0 should be given to the member function. 
+\begin{DoxyParams}{Parameters}
+{\em scale\+\_\+coeff} & Value of the scale coefficient. Default is 0.\\
+\hline
+\end{DoxyParams}
+The {\ttfamily scale\+\_\+coeff} default is 0 and is considered as the absence of a value. If no value wants to be specified, 0 should be given to the member function. \Hypertarget{class_load_cell_controller_aab497ce7ecfdf7f7ee353e026fdcdfd7}\label{class_load_cell_controller_aab497ce7ecfdf7f7ee353e026fdcdfd7} 
+\index{LoadCellController@{LoadCellController}!easy\_read\_from\_persistent\_memory\_with\_params@{easy\_read\_from\_persistent\_memory\_with\_params}}
+\index{easy\_read\_from\_persistent\_memory\_with\_params@{easy\_read\_from\_persistent\_memory\_with\_params}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{easy\_read\_from\_persistent\_memory\_with\_params()}{easy\_read\_from\_persistent\_memory\_with\_params()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::easy\+\_\+read\+\_\+from\+\_\+persistent\+\_\+memory\+\_\+with\+\_\+params (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num,  }\item[{bool}]{read\+\_\+offset,  }\item[{bool}]{read\+\_\+scale }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Easy function managing the reading of calibration from persistent memory. 
+
+This function is managing the possibilities that come with the reading from persistent memory of the tare offset and the scale coefficient of a \doxylink{class_load_cell}{Load\+Cell}. It is meant to be used inside the member function \doxylink{class_load_cell_controller_af4bef6a4b1eaf41529b2d7eb27cdc476}{easy\+\_\+start\+\_\+with\+\_\+params()}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+{\em read\+\_\+offset} & Boolean telling if the offset should be read from persistent memory. \\
+\hline
+{\em read\+\_\+scale} & Boolean telling if the scale coefficient should be read from persistent memory. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_controller_a044e6a529e00f717f0cce5b1206becfd}\label{class_load_cell_controller_a044e6a529e00f717f0cce5b1206becfd} 
+\index{LoadCellController@{LoadCellController}!easy\_save\_to\_persistent\_memory\_with\_params@{easy\_save\_to\_persistent\_memory\_with\_params}}
+\index{easy\_save\_to\_persistent\_memory\_with\_params@{easy\_save\_to\_persistent\_memory\_with\_params}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{easy\_save\_to\_persistent\_memory\_with\_params()}{easy\_save\_to\_persistent\_memory\_with\_params()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::easy\+\_\+save\+\_\+to\+\_\+persistent\+\_\+memory\+\_\+with\+\_\+params (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num,  }\item[{bool}]{save\+\_\+offset,  }\item[{bool}]{save\+\_\+scale }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Easy function managing the saving of calibration parameters to persistent memory. 
+
+This function is managing the possibilities that come with the saving of the tare offset and the scale coefficient of a \doxylink{class_load_cell}{Load\+Cell}. It is meant to be used inside the member function \doxylink{class_load_cell_controller_af4bef6a4b1eaf41529b2d7eb27cdc476}{easy\+\_\+start\+\_\+with\+\_\+params()}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+{\em save\+\_\+offset} & Boolean telling if the offset should be saved to persistent memory. \\
+\hline
+{\em save\+\_\+scale} & Boolean telling if the scale coefficient should be saved to persistent memory. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_controller_af4bef6a4b1eaf41529b2d7eb27cdc476}\label{class_load_cell_controller_af4bef6a4b1eaf41529b2d7eb27cdc476} 
+\index{LoadCellController@{LoadCellController}!easy\_start\_with\_params@{easy\_start\_with\_params}}
+\index{easy\_start\_with\_params@{easy\_start\_with\_params}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{easy\_start\_with\_params()}{easy\_start\_with\_params()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::easy\+\_\+start\+\_\+with\+\_\+params (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num,  }\item[{byte}]{dout,  }\item[{byte}]{pd\+\_\+sck,  }\item[{bool}]{calibrate\+\_\+offset = {\ttfamily false},  }\item[{bool}]{calibrate\+\_\+scale = {\ttfamily false},  }\item[{bool}]{read\+\_\+offset\+\_\+persistent\+\_\+memory = {\ttfamily false},  }\item[{bool}]{read\+\_\+scale\+\_\+persistent\+\_\+memory = {\ttfamily false},  }\item[{bool}]{save\+\_\+offset\+\_\+persistent\+\_\+memory = {\ttfamily false},  }\item[{bool}]{save\+\_\+scale\+\_\+persistent\+\_\+memory = {\ttfamily false},  }\item[{float}]{tare\+\_\+offset = {\ttfamily 0},  }\item[{float}]{scale\+\_\+coeff = {\ttfamily 0},  }\item[{byte}]{gain = {\ttfamily 128} }\end{DoxyParamCaption})}
+
+
+
+Easy function managing the start-\/up of a \doxylink{class_load_cell}{Load\+Cell} with parameters as input. 
+
+This function, with only a few parameters as input, controls everything related to the start-\/up of a \doxylink{class_load_cell}{Load\+Cell}. The calibration of the offset and the scale coefficient and theire saving/reading to/from the peristent memory. All possible conflicts between parameters are handle by the member function \doxylink{class_load_cell_controller_a0fd9dae68d33a660a8d57529eeaa4d37}{easy\+\_\+handle\+\_\+exceptions()}.
+
+This member function was created to simplify the start-\/up of a \doxylink{class_load_cell}{Load\+Cell}, especially for non-\/programmers. No additonal functionnalities that are not accessible from the other member functions are implemented(not labeled easy\+\_\+...).
+
+All the following \"{}easy\"{} member functions are used inside \doxylink{class_load_cell_controller_af4bef6a4b1eaf41529b2d7eb27cdc476}{easy\+\_\+start\+\_\+with\+\_\+params()} to dispatch to handling of all start-\/up scenarios\+:
+\begin{DoxyItemize}
+\item \doxylink{class_load_cell_controller_ab673a056d39d382982800896c9fa002c}{easy\+\_\+calibration\+\_\+with\+\_\+params()}
+\item \doxylink{class_load_cell_controller_a044e6a529e00f717f0cce5b1206becfd}{easy\+\_\+save\+\_\+to\+\_\+persistent\+\_\+memory\+\_\+with\+\_\+params()}
+\item \doxylink{class_load_cell_controller_aab497ce7ecfdf7f7ee353e026fdcdfd7}{easy\+\_\+read\+\_\+from\+\_\+persistent\+\_\+memory\+\_\+with\+\_\+params()}
+\item \doxylink{class_load_cell_controller_a0fd9dae68d33a660a8d57529eeaa4d37}{easy\+\_\+handle\+\_\+exceptions()}
+\end{DoxyItemize}
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+{\em dout} & Digital pin (or analog) connected to the DOUT output pin of the HX711. \\
+\hline
+{\em pd\+\_\+sck} & Digital pin (or analog) connected to the SCK output of the HX711. \\
+\hline
+{\em calibrate\+\_\+offset} & Boolean telling if the offset should be calibrated. Default is false. \\
+\hline
+{\em calibrate\+\_\+scale} & Boolean telling if the scale coefficient should be calibrated. Default is false. \\
+\hline
+{\em read\+\_\+offset\+\_\+persistent\+\_\+memory} & Boolean telling if the offset should be read from persistent memory. Default is false. \\
+\hline
+{\em read\+\_\+scale\+\_\+persistent\+\_\+memory} & Boolean telling if the scale coefficient should be read from persistent\+\_\+memory. Default is false. \\
+\hline
+{\em save\+\_\+offset\+\_\+persistent\+\_\+memory} & Boolean telling if the offset should be saved to persistent memory. Default is false. \\
+\hline
+{\em save\+\_\+scale\+\_\+persistent\+\_\+memory} & Boolean telling if the scale coefficient should be saved to persistent memory. Default is false. \\
+\hline
+{\em tare\+\_\+offset} & Value of the tare offset. Default is 0. \\
+\hline
+{\em scale\+\_\+coeff} & Value of the scale coefficient. Default is 0. \\
+\hline
+{\em gain} & Gain of the HX711. Default is 128.\\
+\hline
+\end{DoxyParams}
+The tare\+\_\+offset default is 0 and is considered as the absence of a value. If no value wants to be specified, 0 should be given to the member function.
+
+The scale\+\_\+coeff default is 0 and is considered as the absence of a value. If no value wants to be specified, 0 should be given to the member function. \Hypertarget{class_load_cell_controller_a6085bd3ff4f5ac988817f2d48bd21697}\label{class_load_cell_controller_a6085bd3ff4f5ac988817f2d48bd21697} 
+\index{LoadCellController@{LoadCellController}!easy\_start\_with\_questions@{easy\_start\_with\_questions}}
+\index{easy\_start\_with\_questions@{easy\_start\_with\_questions}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{easy\_start\_with\_questions()}{easy\_start\_with\_questions()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::easy\+\_\+start\+\_\+with\+\_\+questions (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num,  }\item[{byte}]{dout,  }\item[{byte}]{pd\+\_\+sck,  }\item[{byte}]{gain = {\ttfamily 128} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Easy function for start with questions through the serial monitor. 
+
+This function is managing the possibilities that come with the start-\/up of a \doxylink{class_load_cell}{Load\+Cell} with questions that are asked through the serial monitor of the Arduino.
+
+\begin{DoxyRefDesc}{Todo}
+\item[\mbox{\hyperlink{todo__todo000001}{Todo}}]This could be done in the future to simplify the start-\/up of a \doxylink{class_load_cell}{Load\+Cell} especially for non-\/programmers.\end{DoxyRefDesc}
+
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+{\em dout} & Pin connected to the DOUT output of the HX711. \\
+\hline
+{\em pd\+\_\+sck} & Pin connected to the SCK output of the HX711. \\
+\hline
+{\em gain} & Gain of the HX711. Default is 128\\
+\hline
+\end{DoxyParams}
+The {\ttfamily gain} argument can take the following values\+: 128, 64 and 32. For a gain of 128 and 64, channel A of the HX711 should be used. For a gain of 32, channel B should be used. \Hypertarget{class_load_cell_controller_a34d8454f337c43abd7284435ad420e4a}\label{class_load_cell_controller_a34d8454f337c43abd7284435ad420e4a} 
+\index{LoadCellController@{LoadCellController}!get\_offset\_eeprom\_adress@{get\_offset\_eeprom\_adress}}
+\index{get\_offset\_eeprom\_adress@{get\_offset\_eeprom\_adress}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{get\_offset\_eeprom\_adress()}{get\_offset\_eeprom\_adress()}}
+{\footnotesize\ttfamily int Load\+Cell\+Controller\+::get\+\_\+offset\+\_\+eeprom\+\_\+adress (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Get the EEPROM address for the offset of a \doxylink{class_load_cell}{Load\+Cell}. 
+
+This function returns the EEPROM address for the offset value for a given \doxylink{class_load_cell}{Load\+Cell}. The EEPROM addresses are based on the loadcell number.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+EEPROM address for the offset value.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The EEPROM addresses are spaced along the EEPROM to prevent overlap between neighboring values. 
+\end{DoxyNote}
+\Hypertarget{class_load_cell_controller_ac420c3eb6dda0bb43407db712d7ae4d8}\label{class_load_cell_controller_ac420c3eb6dda0bb43407db712d7ae4d8} 
+\index{LoadCellController@{LoadCellController}!get\_offset\_file\_name@{get\_offset\_file\_name}}
+\index{get\_offset\_file\_name@{get\_offset\_file\_name}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{get\_offset\_file\_name()}{get\_offset\_file\_name()}}
+{\footnotesize\ttfamily String Load\+Cell\+Controller\+::get\+\_\+offset\+\_\+file\+\_\+name (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Get the SPIFFS file name for the offset of a \doxylink{class_load_cell}{Load\+Cell}. 
+
+This function returns the offset file name for a given \doxylink{class_load_cell}{Load\+Cell}. The offset file name is based on the loadcell number.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+File name for the scale coefficient.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Offset file name are formatted this way\+: \"{}/offset\{loadcell number\}.\+txt\"{}. For example, the offset file name for \doxylink{class_load_cell}{Load\+Cell} \#1 is \"{}/offset1.\+txt\"{} 
+\end{DoxyNote}
+\Hypertarget{class_load_cell_controller_a5573a5b8f3338fa3a568f47a97e23751}\label{class_load_cell_controller_a5573a5b8f3338fa3a568f47a97e23751} 
+\index{LoadCellController@{LoadCellController}!get\_scale\_coeff\_eeprom\_adress@{get\_scale\_coeff\_eeprom\_adress}}
+\index{get\_scale\_coeff\_eeprom\_adress@{get\_scale\_coeff\_eeprom\_adress}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{get\_scale\_coeff\_eeprom\_adress()}{get\_scale\_coeff\_eeprom\_adress()}}
+{\footnotesize\ttfamily int Load\+Cell\+Controller\+::get\+\_\+scale\+\_\+coeff\+\_\+eeprom\+\_\+adress (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Get the EEPROM address for the scale coefficient of a \doxylink{class_load_cell}{Load\+Cell}. 
+
+This function returns the EEPROM address for the scale coefficient value for a given \doxylink{class_load_cell}{Load\+Cell}. The EEPROM addresses are based on the loadcell number.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+EEPROM address for the scale coefficient.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The EEPROM addresses are spaced along the EEPROM to prevent overlap between neighboring values. 
+\end{DoxyNote}
+\Hypertarget{class_load_cell_controller_a848a3f86a5437f3cdeffea0fb7522508}\label{class_load_cell_controller_a848a3f86a5437f3cdeffea0fb7522508} 
+\index{LoadCellController@{LoadCellController}!get\_scale\_coeff\_file\_name@{get\_scale\_coeff\_file\_name}}
+\index{get\_scale\_coeff\_file\_name@{get\_scale\_coeff\_file\_name}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{get\_scale\_coeff\_file\_name()}{get\_scale\_coeff\_file\_name()}}
+{\footnotesize\ttfamily String Load\+Cell\+Controller\+::get\+\_\+scale\+\_\+coeff\+\_\+file\+\_\+name (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Get the SPIFFS file name for the scale coefficient of a \doxylink{class_load_cell}{Load\+Cell}. 
+
+This function returns the scale coefficient file name for a given \doxylink{class_load_cell}{Load\+Cell}. The file name is based on the loadcell number.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+File name for the scale coefficient.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Offset file name are formatted this way\+: \"{}/offset\{loadcell number\}.\+txt\"{}. For example, the offset file name for \doxylink{class_load_cell}{Load\+Cell} \#1 is \"{}/offset1.\+txt\"{} 
+\end{DoxyNote}
+\Hypertarget{class_load_cell_controller_a7fcdb8b27969825173926408b5731ff4}\label{class_load_cell_controller_a7fcdb8b27969825173926408b5731ff4} 
+\index{LoadCellController@{LoadCellController}!is\_loadcell\_num\_in\_range@{is\_loadcell\_num\_in\_range}}
+\index{is\_loadcell\_num\_in\_range@{is\_loadcell\_num\_in\_range}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{is\_loadcell\_num\_in\_range()}{is\_loadcell\_num\_in\_range()}}
+{\footnotesize\ttfamily bool Load\+Cell\+Controller\+::is\+\_\+loadcell\+\_\+num\+\_\+in\+\_\+range (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Verify if a \doxylink{class_load_cell}{Load\+Cell} number is in the range of the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. 
+
+This function returns boolean teeling whether a number of a \doxylink{class_load_cell}{Load\+Cell} is in the range of the possible number of \doxylink{class_load_cell}{Load\+Cell} for a \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} according to his member variable \doxylink{class_load_cell_controller_a233d1a7d5a09e65b99e68bb7458d7715}{n\+\_\+loadcell}. This function is useful inside all member functions that loadcell\+\_\+num as parameters to suspend the code execution if necessary.
+
+\begin{DoxyReturn}{Returns}
+Boolean telling if a \doxylink{class_load_cell}{Load\+Cell} number is coherent for the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_controller_a59e5d76d920c4e370dd093b3f725300c}\label{class_load_cell_controller_a59e5d76d920c4e370dd093b3f725300c} 
+\index{LoadCellController@{LoadCellController}!number\_of\_loadcells@{number\_of\_loadcells}}
+\index{number\_of\_loadcells@{number\_of\_loadcells}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{number\_of\_loadcells()}{number\_of\_loadcells()}}
+{\footnotesize\ttfamily byte Load\+Cell\+Controller\+::number\+\_\+of\+\_\+loadcells (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Get the number of \doxylink{class_load_cell}{Load\+Cell} of the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. 
+
+This function returns the number of \doxylink{class_load_cell}{Load\+Cell} that were added to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} with the \doxylink{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}{add\+\_\+loadcell()} member function since the \doxylink{class_load_cell_controller_a233d1a7d5a09e65b99e68bb7458d7715}{n\+\_\+loadcell} member variabke is kept protected.
+
+\begin{DoxyReturn}{Returns}
+Number of \doxylink{class_load_cell}{Load\+Cell}. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_controller_a14b4c93225112783a5b1f8b119ee2352}\label{class_load_cell_controller_a14b4c93225112783a5b1f8b119ee2352} 
+\index{LoadCellController@{LoadCellController}!read\_all\_scale\_coeff\_from\_persistent\_memory@{read\_all\_scale\_coeff\_from\_persistent\_memory}}
+\index{read\_all\_scale\_coeff\_from\_persistent\_memory@{read\_all\_scale\_coeff\_from\_persistent\_memory}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{read\_all\_scale\_coeff\_from\_persistent\_memory()}{read\_all\_scale\_coeff\_from\_persistent\_memory()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::read\+\_\+all\+\_\+scale\+\_\+coeff\+\_\+from\+\_\+persistent\+\_\+memory (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Read the scale coeffcient of every Load\+Cells added to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. 
+
+This function read the scale coefficient of every \doxylink{class_load_cell}{Load\+Cell} from peristent memory. The scale coefficient is then set to the \doxylink{class_load_cell}{Load\+Cell} class variable OFFSET through the controller with a setter. This function can be used in the start-\/up of Load\+Cells when the scale coefficients are saved to peristent memory. \Hypertarget{class_load_cell_controller_a42c2e9f95696bfe168ccf92bdfdd26c2}\label{class_load_cell_controller_a42c2e9f95696bfe168ccf92bdfdd26c2} 
+\index{LoadCellController@{LoadCellController}!read\_offset\_from\_persistent\_memory@{read\_offset\_from\_persistent\_memory}}
+\index{read\_offset\_from\_persistent\_memory@{read\_offset\_from\_persistent\_memory}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{read\_offset\_from\_persistent\_memory()}{read\_offset\_from\_persistent\_memory()}}
+{\footnotesize\ttfamily long Load\+Cell\+Controller\+::read\+\_\+offset\+\_\+from\+\_\+persistent\+\_\+memory (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Read the offset of a given \doxylink{class_load_cell}{Load\+Cell} from persistent memory. 
+
+This function reads the offset of a \doxylink{class_load_cell}{Load\+Cell} from persistent memory, which was added to the controller with the member function \doxylink{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}{.\+For} a ATmega328p board, the EEPROM adress is obtained with the member function \doxylink{class_load_cell_controller_a34d8454f337c43abd7284435ad420e4a}{get\+\_\+offset\+\_\+eeprom\+\_\+adress()}. The process of assigning EEPROM adresses to \doxylink{class_load_cell}{Load\+Cell} is completely hidden from the user to avoid problems. For a ESP32 board, the SPIFFS file name is obtained with the member function \doxylink{class_load_cell_controller_ac420c3eb6dda0bb43407db712d7ae4d8}{get\+\_\+offset\+\_\+file\+\_\+name()}. The same way, everything is hidden from the user.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The offset of the given \doxylink{class_load_cell}{Load\+Cell} obtained from persistent memory. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_controller_aa8d3f14c5324e0d4724325220f1464a0}\label{class_load_cell_controller_aa8d3f14c5324e0d4724325220f1464a0} 
+\index{LoadCellController@{LoadCellController}!read\_scale\_coeff\_from\_persistent\_memory@{read\_scale\_coeff\_from\_persistent\_memory}}
+\index{read\_scale\_coeff\_from\_persistent\_memory@{read\_scale\_coeff\_from\_persistent\_memory}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{read\_scale\_coeff\_from\_persistent\_memory()}{read\_scale\_coeff\_from\_persistent\_memory()}}
+{\footnotesize\ttfamily float Load\+Cell\+Controller\+::read\+\_\+scale\+\_\+coeff\+\_\+from\+\_\+persistent\+\_\+memory (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Read the scale coefficient of a given \doxylink{class_load_cell}{Load\+Cell} to persistent memory. 
+
+This function reads the offset of a \doxylink{class_load_cell}{Load\+Cell} from persistent memory, which was added to the controller with the member function \doxylink{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}{add\+\_\+loadcell()}. For a ATmega328p board, the EEPROM adress is obtained with the member function \doxylink{class_load_cell_controller_a34d8454f337c43abd7284435ad420e4a}{get\+\_\+offset\+\_\+eeprom\+\_\+adress()}. The process of assigning EEPROM adresses to \doxylink{class_load_cell}{Load\+Cell} is completely hidden from the user to avoid problems. For a ESP32 board, the SPIFFS file name is obtained with the member function \doxylink{class_load_cell_controller_ac420c3eb6dda0bb43407db712d7ae4d8}{get\+\_\+offset\+\_\+file\+\_\+name()}. The same way, everything is hidden from the user.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The scale coefficient of the given \doxylink{class_load_cell}{Load\+Cell} obtained from persistent memory. 
+\end{DoxyReturn}
+\Hypertarget{class_load_cell_controller_a88b7f069dbd60454cd8c40636e5c697a}\label{class_load_cell_controller_a88b7f069dbd60454cd8c40636e5c697a} 
+\index{LoadCellController@{LoadCellController}!save\_offset\_to\_persistent\_memory@{save\_offset\_to\_persistent\_memory}}
+\index{save\_offset\_to\_persistent\_memory@{save\_offset\_to\_persistent\_memory}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{save\_offset\_to\_persistent\_memory()}{save\_offset\_to\_persistent\_memory()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::save\+\_\+offset\+\_\+to\+\_\+persistent\+\_\+memory (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Save the offset of a given \doxylink{class_load_cell}{Load\+Cell} to persistent memory. 
+
+This function saves the offset member variable of a \doxylink{class_load_cell}{Load\+Cell}, which was added to the controller with the member function \doxylink{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}{add\+\_\+loadcell()}. For a ATmega328p board, the EEPROM adress is obtained with the member function \doxylink{class_load_cell_controller_a34d8454f337c43abd7284435ad420e4a}{get\+\_\+offset\+\_\+eeprom\+\_\+adress()}. The process of assigning EEPROM adresses to \doxylink{class_load_cell}{Load\+Cell} is completely hidden from the user to avoid problems. For a ESP32 board, the SPIFFS file name is obtained with the member function \doxylink{class_load_cell_controller_ac420c3eb6dda0bb43407db712d7ae4d8}{get\+\_\+offset\+\_\+file\+\_\+name()}. The same way, everything is hidden from the user.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_controller_a4a9a463212eeb0d577562eac99b01aa7}\label{class_load_cell_controller_a4a9a463212eeb0d577562eac99b01aa7} 
+\index{LoadCellController@{LoadCellController}!save\_scale\_coeff\_to\_persistent\_memory@{save\_scale\_coeff\_to\_persistent\_memory}}
+\index{save\_scale\_coeff\_to\_persistent\_memory@{save\_scale\_coeff\_to\_persistent\_memory}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{save\_scale\_coeff\_to\_persistent\_memory()}{save\_scale\_coeff\_to\_persistent\_memory()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::save\+\_\+scale\+\_\+coeff\+\_\+to\+\_\+persistent\+\_\+memory (\begin{DoxyParamCaption}\item[{byte}]{loadcell\+\_\+num }\end{DoxyParamCaption})}
+
+
+
+Save the scale coefficient of a given \doxylink{class_load_cell}{Load\+Cell} to persistent memory. 
+
+This function saves the scale coefficient member variable of a \doxylink{class_load_cell}{Load\+Cell}, which was added to the controller with the member function \doxylink{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}{add\+\_\+loadcell()}. For a ATmega328p board, the EEPROM adress is obtained with the member function \doxylink{class_load_cell_controller_a34d8454f337c43abd7284435ad420e4a}{get\+\_\+offset\+\_\+eeprom\+\_\+adress()}. The process of assigning EEPROM adresses to \doxylink{class_load_cell}{Load\+Cell} is completely hidden from the user to avoid problems. For a ESP32 board, the SPIFFS file name is obtained with the member function \doxylink{class_load_cell_controller_ac420c3eb6dda0bb43407db712d7ae4d8}{get\+\_\+offset\+\_\+file\+\_\+name()}. The same way, everything is hidden from the user.
+
+
+\begin{DoxyParams}{Parameters}
+{\em loadcell\+\_\+num} & Number of the \doxylink{class_load_cell}{Load\+Cell}. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_load_cell_controller_abe98842554b5724fdcf1c1430d3eb4a9}\label{class_load_cell_controller_abe98842554b5724fdcf1c1430d3eb4a9} 
+\index{LoadCellController@{LoadCellController}!tare\_all\_loadcells@{tare\_all\_loadcells}}
+\index{tare\_all\_loadcells@{tare\_all\_loadcells}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{tare\_all\_loadcells()}{tare\_all\_loadcells()}}
+{\footnotesize\ttfamily void Load\+Cell\+Controller\+::tare\+\_\+all\+\_\+loadcells (\begin{DoxyParamCaption}\item[{bool}]{wait\+\_\+for\+\_\+user = {\ttfamily true} }\end{DoxyParamCaption})}
+
+
+
+Tare all the Load\+Cells added to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. 
+
+This function interacts with the user to tare every Load\+Cells added to the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller} when he is ready. The user is asked to send \textquotesingle{}t\textquotesingle{} from the serial monitor when all load cells are empty. The taring of each will be done. A message will be printed on the monitor when done.
+
+
+\begin{DoxyParams}{Parameters}
+{\em wait\+\_\+for\+\_\+user} & Boolean telling if the manual confirmation of the user is needed to tare the Load\+Cells \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{class_load_cell_controller_abf5e00456c2c776b5048f500c5b0a495}\label{class_load_cell_controller_abf5e00456c2c776b5048f500c5b0a495} 
+\index{LoadCellController@{LoadCellController}!loadcells@{loadcells}}
+\index{loadcells@{loadcells}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{loadcells}{loadcells}}
+{\footnotesize\ttfamily Loadcell \texorpdfstring{$\ast$}{*} Load\+Cell\+Controller\+::loadcells\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Array containing the pointer of the \doxylink{class_load_cell}{Load\+Cell} controlled by the \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. 
+
+The only moment this variable is modified is when a \doxylink{class_load_cell}{Load\+Cell} is added with the \doxylink{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}{add\+\_\+loadcell()} member function. It goes up by one every time \doxylink{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}{add\+\_\+loadcell()} is called. \Hypertarget{class_load_cell_controller_aa962230034f95c97fc661ff6f66709a2}\label{class_load_cell_controller_aa962230034f95c97fc661ff6f66709a2} 
+\index{LoadCellController@{LoadCellController}!mouse\_weight@{mouse\_weight}}
+\index{mouse\_weight@{mouse\_weight}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{mouse\_weight}{mouse\_weight}}
+{\footnotesize\ttfamily float Load\+Cell\+Controller\+::mouse\+\_\+weight = 20\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Member variable used to store the weight in gramms of the mouse in the cage controlled by The \doxylink{class_load_cell_controller}{Load\+Cell\+Controller}. 
+
+Default is 20 gramms. This parameter can be used as a threshold for recalibration in easy\+\_\+get\+\_\+weight\+\_\+with\+\_\+auto\+\_\+recalibration() \Hypertarget{class_load_cell_controller_a233d1a7d5a09e65b99e68bb7458d7715}\label{class_load_cell_controller_a233d1a7d5a09e65b99e68bb7458d7715} 
+\index{LoadCellController@{LoadCellController}!n\_loadcell@{n\_loadcell}}
+\index{n\_loadcell@{n\_loadcell}!LoadCellController@{LoadCellController}}
+\doxysubsubsection{\texorpdfstring{n\_loadcell}{n\_loadcell}}
+{\footnotesize\ttfamily int Load\+Cell\+Controller\+::n\+\_\+loadcell = 0\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Member variable used to keep track of the number of Load\+Cells added. 
+
+The only moment this variable is modified is when a \doxylink{class_load_cell}{Load\+Cell} is added with the \doxylink{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}{add\+\_\+loadcell()} member function. It goes up by one every time \doxylink{class_load_cell_controller_a81fb15d14c2c3d6dab3769f44d2fb9bd}{add\+\_\+loadcell()} is called. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Load\+Cell\+Controllerlibrary/\mbox{\hyperlink{_load_cell_controller_8h}{Load\+Cell\+Controller.\+h}}\item 
+Load\+Cell\+Controllerlibrary/Load\+Cell\+Controller.\+cpp\end{DoxyCompactItemize}

@@ -34,19 +34,19 @@ real_data = None
 # threshold2 = [-10, 40]
 # threshold3 = [-10, 40]
 
-# Define Data objects, one per scale. 
+# Define Data objects, one per scale.
 data1 = Data(data1, time)
 data2 = Data(data2, time)
 data3 = Data(data3, time)
 
-# Plot data, one graph per scale. Copy and paste the following lines anywhere in the code to see the data after any post-processing step. 
+# Plot data, one graph per scale. Copy and paste the following lines anywhere in the code to see the data after any post-processing step.
 data1.plot_signal(threshold=False, peaks=False, baseline=False, color=color_data1, is_saved=save_figure, real_data=real_data)
 data2.plot_signal(threshold=False, peaks=False, baseline=False, color=color_data2, is_saved=save_figure, real_data=real_data)
 data3.plot_signal(threshold=False, peaks=False, baseline=False, color=color_data3, is_saved=save_figure, real_data=real_data)
 
 
-# You might not need the rest. 
-# The following lines are to set baseline, correct for shifts of weight over time, remove outliers with a simple threshold. 
+# You might not need the rest.
+# The following lines are to set baseline, correct for shifts of weight over time, remove outliers with a simple threshold.
 
 # data1.set_outliers_threshold(threshold1)
 # data2.set_outliers_threshold(threshold2)
