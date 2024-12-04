@@ -8,7 +8,7 @@
 LoadCell loadcell_1;
 LoadCellController controller;
 
-const int sck_pin = 17; //clock des loadcell/HX711
+const int sck_pin = 13; //clock des loadcell/HX711
 
 // Misc variables
 // float offset = 0;
@@ -29,8 +29,8 @@ void setup(){
 
   // Manual calibration
   Serial.println("Starting in manual calibration mode");
-  controller.tare_all_loadcells();
-  controller.calibrate_all_loadcells();
+  // controller.tare_all_loadcells();
+  // controller.calibrate_all_loadcells();
 
   // Wait for user to be ready
   Serial.println(F("---------***---------"));
@@ -61,5 +61,5 @@ void loop(){
   Serial.print(F("Weight LoadCell 1: \t"));
   Serial.print(weight_1);
   Serial.println();
-  delay(100);
+  delay(1000);
 }

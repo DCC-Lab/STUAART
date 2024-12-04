@@ -18,7 +18,7 @@ HX711::HX711()
   _lastRead = 0;
   _price    = 0;
   _mode     = HX711_AVERAGE_MODE;
-  _fastProcessor = false;
+  _fastProcessor = true;
 }
 
 
@@ -31,7 +31,7 @@ void HX711::begin(uint8_t dataPin, uint8_t clockPin, bool fastProcessor )
 {
   _dataPin  = dataPin;
   _clockPin = clockPin;
-  _fastProcessor = fastProcessor;
+  _fastProcessor = true;
 
   pinMode(_dataPin, INPUT);
   pinMode(_clockPin, OUTPUT);
@@ -145,10 +145,10 @@ float HX711::read()
     //  delayMicroSeconds(1) needed for fast processors?
     digitalWrite(_clockPin, HIGH);
     if (_fastProcessor)
-        delayMicroseconds(20);
+        delayMicroseconds(1);
     digitalWrite(_clockPin, LOW);
     if (_fastProcessor)
-        delayMicroseconds(20);
+        delayMicroseconds(1);
     m--;
   }
 
@@ -460,14 +460,14 @@ uint8_t HX711::_shiftIn()
   {
     digitalWrite(clk, HIGH);
     if(_fastProcessor)       //  T2  >= 0.2 us
-      delayMicroseconds(20);
+      delayMicroseconds(1);
     if (digitalRead(data) == HIGH)
     {
       value |= mask;
     }
     digitalWrite(clk, LOW);
     if(_fastProcessor)
-      delayMicroseconds(20);   //  keep duty cycle ~50%
+      delayMicroseconds(1);   //  keep duty cycle ~50%
     mask >>= 1;
   }
   return value;

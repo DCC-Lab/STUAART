@@ -396,10 +396,10 @@ if __name__ == "__main__":
     # Generating file names based on current date (e.g 20240923)
     today = time.localtime()
     today = time.strftime("%Y%m%d", today)
-    file_name = THISDIR.joinpath(f"sessions/{today}/data/{today}_FireBeetleClock.txt").as_posix()
-
+    # file_name = THISDIR.joinpath(f"sessions/{today}/data/{today}_FireBeetleClock.txt").as_posix()
+    file_name = THISDIR.joinpath(f"sessions/{today}_FireBeetleClock.txt").as_posix()
     # Replace "COM10" with your system's correct port
     # Set plot_enabled=True to enable plotting
-    # with SerialAnalyser(port="COM16", save=False) as sa:
-    with SerialAnalyser(port="COM16", file_name=file_name) as sa:
+    with SerialAnalyser(port="COM8", save=False) as sa:
+    # with SerialAnalyser(port="COM8", file_name=file_name) as sa:
         sa.run()
