@@ -62,7 +62,7 @@ void LoadCellController::tare_all_loadcells(bool wait_for_user)
         Serial.print(F("Saving offset of LoadCell #"));
         Serial.print(i);
         Serial.print(F("..."));
-        save_offset_to_persistent_memory(i);
+        // save_offset_to_persistent_memory(i); TEST TODO : Add option to not try and save to the SD Card every tare
         Serial.println(F("done"));
     }
     Serial.println();
