@@ -25,33 +25,29 @@
 #include <util/atomic.h>
 #endif
 
-#if FAST_CPU
-// // Make shiftIn() be aware of clockspeed for
-// // faster CPUs like ESP32, Teensy 3.x and friends.
-// // See also:
-// // - https://github.com/bogde/HX711/issues/75
-// // - https://github.com/arduino/Arduino/issues/6561
-// // - https://community.hiveeyes.org/t/using-bogdans-canonical-hx711-library-on-the-esp32/539
-// uint8_t shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
-//     uint8_t value = 0;
-//     uint8_t i;
+// Make shiftIn() be aware of clockspeed for
+// faster CPUs like ESP32, Teensy 3.x and friends.
+// See also:
+// - https://github.com/bogde/HX711/issues/75
+// - https://github.com/arduino/Arduino/issues/6561
+// - https://community.hiveeyes.org/t/using-bogdans-canonical-hx711-library-on-the-esp32/539
+uint8_t shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
+    uint8_t value = 0;
+    uint8_t i;
 
-//     for(i = 0; i < 8; ++i) {
-//         digitalWrite(clockPin, HIGH);
-//         delayMicroseconds(1);
-//         if(bitOrder == LSBFIRST)
-//             value |= digitalRead(dataPin) << i;
-//         else
-//             value |= digitalRead(dataPin) << (7 - i);
-//         digitalWrite(clockPin, LOW);
-//         delayMicroseconds(1);
-//     }
-//     return value;
-// }
+    for(i = 0; i < 8; ++i) {
+        digitalWrite(clockPin, HIGH);
+        delayMicroseconds(1);
+        if(bitOrder == LSBFIRST)
+            value |= digitalRead(dataPin) << i;
+        else
+            value |= digitalRead(dataPin) << (7 - i);
+        digitalWrite(clockPin, LOW);
+        delayMicroseconds(1);
+    }
+    return value;
+}
 #define SHIFTIN_WITH_SPEED_SUPPORT(data,clock,order) shiftInSlow(data,clock,order)
-#else
-#define SHIFTIN_WITH_SPEED_SUPPORT(data,clock,order) shiftIn(data,clock,order)
-#endif
 
 #if ARCH_ESPRESSIF
 // ESP8266 doesn't read values between 0x20000 and 0x30000 when DOUT is pulled up.
