@@ -198,7 +198,7 @@ class SerialAnalyser(serial.Serial):
             )
         elif self.save:
             with open(self.file_name, "a") as f:
-                f.write(f"elapsed_time [s],weight [g]\n")
+                f.write(f"elapsed_time [min],weight [g]\n")
 
     @staticmethod
     def extract_value(input_str: str) -> float | None:
@@ -239,13 +239,14 @@ class SerialAnalyser(serial.Serial):
             if line:
                 print(f"Serial Output: {line}")
                 if "Weight LoadCell" in line:
-                    value = self.extract_value(line)
+                    line = line.split(',')
+                    values = [self.extract_value(line[1]), self.extract_value(line[2]), self.extract_value(line[3])]
                     if self.save:
                         current_time = time.time() / 60
                         elapsed_time = current_time - self.start_time
                         with open(self.file_name, "a") as f:
-                            f.write(f"{elapsed_time},{value}\n")
-                    return value
+                            f.write(f"{elapsed_time},{values[0]},{values[1]},{values[2]}\n")
+                    return values[0]
                 return
             return
 
