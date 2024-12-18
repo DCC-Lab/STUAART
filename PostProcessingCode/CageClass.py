@@ -641,6 +641,83 @@ class Cage():
         plt.show()
 
 
+    def produce_grooming_and_nongrooming_dataset(self, directory:str, filename:str, delay_in_seconds:int):
+        """
+        Uses groung truth annotations of grooming moments to produce a dataset of grooming and non-grooming moments of 10 datapoints each. 
+        Returns:
+            - the weight measurements of each 10 datapoints (shape = (-1,10))
+            - the scale indicator on which this moments is measured (shape = -1)
+            - the labels of if this moment is a grooming or a non-grooming event (shape= -1)
+        """
+        data_grooming_scale = pd.read_csv(directory + filename) # get the raw data
+        start_times_scale = data_grooming_scale["Start"].to_numpy() # get the start times
+        delay_scale = data_grooming_scale["Delta"].to_numpy() # get the delays 
+        scale_indicator = data_grooming_scale["On scale"].to_numpy()
+
+        start_times_scale_hours = self.format_time_in_hours(start_times_scale) # format the start times in hours, floats 
+        delay_scale_hours = self.format_seconds_in_hours(delay_scale) # format the delays in hours, float
+
+        start_times_scale_hours = start_times_scale_hours - (delay_in_seconds/3600) # add delay between video and weight data measurements
+
+        # here, we make an array of the size of self.raw_time, where 0 is when there is no grooming and 1 is when there is grooming
+        on_scales_truth_indicator = np.zeros(shape=(self.number_of_scales, self.raw_time.shape[0]))
+        for i in range(start_times_scale_hours.shape[0]):
+            indices_during_event = np.where((self.raw_time > start_times_scale_hours[i]) & (self.raw_time < start_times_scale_hours[i]+delay_scale_hours[i]))[0]
+            on_scales_truth_indicator[int(scale_indicator[i])-1][indices_during_event] = 1
+
+        # Je vais aller chercher les moments de grooming ground truth
+        grooming_2_sec = np.array([])
+        on_scale_grooming = np.array([])
+        labels = np.array([])
+        for n in range(self.number_of_scales):
+            indices_of_grooming = np.where(on_scales_truth_indicator[n] == 1)[0]
+            weight_grooming_truth = self.raw_data_per_scale[n][indices_of_grooming]
+            new_size = (weight_grooming_truth.size // 10) * 10 # 10 data points is about 2 seconds
+            trim_weight_grooming_truth = weight_grooming_truth[:new_size]
+            trim_weight_grooming_truth = np.reshape(trim_weight_grooming_truth, (-1, 10))
+            grooming_2_sec = np.array(list(grooming_2_sec) + list(trim_weight_grooming_truth))
+            on_scale_grooming = np.array(list(on_scale_grooming) + list(np.repeat(n, trim_weight_grooming_truth.shape[0])))
+            labels = np.array(list(labels) + list(np.repeat("G", trim_weight_grooming_truth.shape[0])))
+
+        # produire des 10 secondes d'autres behavior
+        on_scales_truth_indicator_non_grooming = 1 - on_scales_truth_indicator
+        non_grooming_2_sec = np.array([])
+        on_scale_non_grooming = np.array([])
+        for n in range(self.number_of_scales):
+            indices_of_non_grooming = np.where(on_scales_truth_indicator_non_grooming[n] == 1)[0]
+            weight_non_grooming_truth = self.raw_data_per_scale[n][indices_of_non_grooming]
+            new_size = (weight_non_grooming_truth.size // 10) * 10 # 10 data points is about 2 seconds
+            trim_weight_non_grooming_truth = weight_non_grooming_truth[:new_size]
+            trim_weight_non_grooming_truth = np.reshape(trim_weight_non_grooming_truth, (-1, 10))
+            non_grooming_2_sec = np.array(list(non_grooming_2_sec) + list(trim_weight_non_grooming_truth))
+            on_scale_non_grooming = np.array(list(on_scale_non_grooming) + list(np.repeat(n, trim_weight_non_grooming_truth.shape[0])))
+            labels = np.array(list(labels) + list(np.repeat("NG", trim_weight_non_grooming_truth.shape[0])))
+
+        scale_indicator_all = np.concatenate((on_scale_grooming, on_scale_non_grooming), axis=0)
+        all_behaviour_2_sec = np.concatenate((grooming_2_sec, non_grooming_2_sec), axis=0)
+
+
+        return all_behaviour_2_sec, scale_indicator_all, np.array(labels)
+
+
+    def pca(self, dataset, number_of_PCs, labels):
+        """
+        TODO 
+        """
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
 
 
 

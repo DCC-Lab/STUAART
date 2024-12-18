@@ -17,19 +17,25 @@ from scipy.signal import find_peaks
 
 # save_figure = False
 
+delay_video_weight = 76
+
 data = np.array(pd.read_csv(your_path))
-directory = "/Users/valeriepineaunoel/Documents/PhD/Results/20240407-AcquireWeightForALongTimeNoAutotareMouse588/"
+directory = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20240407-AcquireWeightForALongTimeNoAutotareMouse588/"
 filename = "20240407-3hours.csv"
 cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_data=np.array([0, 34.1]))
 # cage.plot_data_per_scale()
 # cage.compute_individual_scale_information(first_day=True, produce_graph=True)
 
 # cage.compute_location_on_scale(first_day=True, produce_graph=True, is_saved=True)
-cage.compute_location_on_scale_error_and_precision(is_saved=True, directory_ground_truth="/Users/valeriepineaunoel/Documents/PhD/Results/20240407-AcquireWeightForALongTimeNoAutotareMouse588/video3h/20240407-AcquireWeightFor3hoursMouse5883-BehaviourDataAdterWatching/", filenames=["On scale 1-Table 1.csv", "On scale 2-Table 1.csv", "On scale 3-Table 1.csv", "On scales 1 and 2-Table 1.csv", "On scales 2 and 3-Table 1.csv"], delay_in_seconds=76, evaluate_only_between_these_hours=[0,1])
+# cage.compute_location_on_scale_error_and_precision(is_saved=True, directory_ground_truth="/Users/valeriepineaunoel/Documents/PhD/Results/20240407-AcquireWeightForALongTimeNoAutotareMouse588/video3h/20240407-AcquireWeightFor3hoursMouse5883-BehaviourDataAdterWatching/", filenames=["On scale 1-Table 1.csv", "On scale 2-Table 1.csv", "On scale 3-Table 1.csv", "On scales 1 and 2-Table 1.csv", "On scales 2 and 3-Table 1.csv"], delay_in_seconds=delay_video_weight, evaluate_only_between_these_hours=[0,1])
 
-
-
-
+# grooming
+directory_grooming = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20240407-AcquireWeightForALongTimeNoAutotareMouse588/video3h/20240407-AcquireWeightFor3hoursMouse5883-BehaviourDataAdterWatching/"
+filename_grooming = "Grooming-Table 1.csv"
+all_behaviour_weight, scale_indicator, labels = cage.produce_grooming_and_nongrooming_dataset(directory=directory_grooming, filename=filename_grooming, delay_in_seconds=delay_video_weight)
+print("ALL BEHAVIOUR : ", all_behaviour_weight, all_behaviour.shape)
+print("INDICATOR : ", scale_indicator, scale_indicator.shape)
+print("LABELS : ", labels, labels.shape)
 
 
 
