@@ -1,11 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+from matplotlib.cm import get_cmap
 import scipy.fft as fft
 import pandas as pd
 from scipy.signal import find_peaks
 from DataClass import Data
 from itertools import groupby
 from datetime import datetime
+from sklearn.decomposition import PCA
+import os 
 
 class Cage():
 
@@ -639,6 +643,146 @@ class Cage():
             today = datetime.today().strftime('%Y-%m-%d')
             plt.savefig(self.directory+today+"-TotalError_and_EventPrecision"+str(bins)+"-range"+str(evaluate_only_between_these_hours[0])+"to"+str(evaluate_only_between_these_hours[1])+"hours.png", format="png", dpi=600, transparent=True)
         plt.show()
+
+    def retreive_indicator_behaviour_data_per_scale(self, directory:str, delay_in_seconds:int):
+        """
+        Format ground truth data to have indicators of when the behavioural event is happening. 
+        0 : when the event is not happening
+        1 : when the event is happening
+        Produces a dictionnary of indicators per scale of when the behavioural event is happening. 
+        """
+        filenames = os.listdir(directory)
+        behaviour_indicator_per_scale = {}
+        for name in filenames:
+            data = pd.read_csv(directory + name) # get the raw data
+            start_times_scale = data["Start"].to_numpy() # get the start times
+            delay_scale = data["Delta"].to_numpy() # get the delays 
+            scale_indicator = data["On scale"].to_numpy()
+            start_times_scale_hours = self.format_time_in_hours(start_times_scale) # format the start times in hours, floats 
+            delay_scale_hours = self.format_seconds_in_hours(delay_scale) # format the delays in hours, float
+            start_times_scale_hours = start_times_scale_hours - (delay_in_seconds/3600) # add delay between video and weight data measurements
+
+            # here, we make an array of the size of self.raw_time, where 0 is when there is no grooming and 1 is when there is grooming
+            event_indicator = np.zeros(shape=(self.number_of_scales, self.raw_time.shape[0]))
+            for i in range(start_times_scale_hours.shape[0]):
+                indices_during_event = np.where((self.raw_time > start_times_scale_hours[i]) & (self.raw_time < start_times_scale_hours[i]+delay_scale_hours[i]))[0]
+                event_indicator[int(scale_indicator[i])-1][indices_during_event] = 1
+
+            position = name.find("-")
+            behaviour_name = name[:position]
+            behaviour_indicator_per_scale[behaviour_name] = event_indicator
+
+        indicator_when_not_doing_behaviour = np.zeros(shape=(self.number_of_scales, self.raw_time.shape[0])) 
+        for key in behaviour_indicator_per_scale.keys():
+            indicators = behaviour_indicator_per_scale[key]
+            for n in range(self.number_of_scales):
+                indicator_when_not_doing_behaviour = np.where((indicator_when_not_doing_behaviour == 0) & (indicators != 0), 1, indicator_when_not_doing_behaviour)
+
+        # behaviour_indicator_per_scale["Not labelled"] = indicator_when_not_doing_behaviour
+        self.behaviour_indicator_per_scale = behaviour_indicator_per_scale
+
+
+    def produce_behaviour_dataset_per_scale(self, directory:str, delay_in_seconds:int):
+        """
+        Uses groung truth annotations of all different behaviours and format in 2 second events, which is approximately 10 datapoints. 
+        Returns:
+            - the weight measurements of each 10 datapoints (shape = (-1,10))
+            - the scale indicator on which this moments is measured (shape = -1)
+            - the targets, same as the labels, but int instead of str
+            - the labels of different behaviours (shape= -1)
+        """
+        self.retreive_indicator_behaviour_data_per_scale(directory=directory, delay_in_seconds=delay_in_seconds)
+        i = 0
+        two_second_data = np.array([])
+        on_scale = np.array([])
+        targets = np.array([])
+        labels = np.array([])
+        for key in self.behaviour_indicator_per_scale.keys():
+            indicator = self.behaviour_indicator_per_scale[key]
+            for n in range(self.number_of_scales):
+                indices = np.where(indicator[n] == 1)[0]
+                weight_truth = self.raw_data_per_scale[n][indices]
+                new_size = (weight_truth.size // 10) * 10 # 10 data points is about 2 seconds
+                trim_weight_truth = weight_truth[:new_size]
+                trim_weight_truth = np.reshape(trim_weight_truth, (-1, 10))
+                two_second_data = np.array(list(two_second_data) + list(trim_weight_truth))
+                on_scale = np.array(list(on_scale) + list(np.repeat(n, trim_weight_truth.shape[0])))
+                targets = np.array(list(targets) + list(np.repeat(i, trim_weight_truth.shape[0])))
+                labels = np.array(list(labels) + list(np.repeat(key, trim_weight_truth.shape[0])))
+            i += 1
+
+        return two_second_data, on_scale, targets, labels
+
+
+    def pca(self, dataset, number_of_PCs, targets, labels, on_scale, PCs_to_plot=[0,1,2], plot_per_scale=False):
+        """
+        TODO 
+        """
+        # 1 : Plot data in PCA space 
+        pca = PCA(n_components=number_of_PCs)
+        fit = pca.fit(dataset)
+        projected_data = pca.transform(dataset)
+        eigenvalues = fit.explained_variance_ratio_
+        eigenvectors = fit.components_
+
+        fig = plt.figure(figsize=(8,8))
+        ax = fig.add_subplot(111, projection="3d")
+
+        if plot_per_scale:
+            colors = np.where(on_scale == 0, "b", "k")
+            colors = np.where(on_scale == 1, "r", colors)
+            colors = np.where(on_scale == 2, "g", colors)
+            x = PCs_to_plot[0]
+            y = PCs_to_plot[1]
+            z = PCs_to_plot[2]
+            ax.scatter(projected_data[:,x], projected_data[:,y], projected_data[:,z], c=colors, alpha=0.4)
+            legend_handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='b', markersize=10, label='Scale 0'), plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='r', markersize=10, label='Scale 1'), plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='g', markersize=10, label='Scale 2')]
+            ax.legend(handles=legend_handles, loc='upper right')
+
+        else:
+            # setting the colors for each label
+            unique_labels = list(set(labels))
+            cmap = cm.get_cmap("jet", len(unique_labels))  # Use any colormap you like
+            color_map = {label: cmap(i) for i, label in enumerate(unique_labels)}
+            colors = [color_map[label] for label in labels]
+
+            x = PCs_to_plot[0]
+            y = PCs_to_plot[1]
+            z = PCs_to_plot[2]
+            ax.scatter(projected_data[:,x], projected_data[:,y], projected_data[:,z], c=colors, alpha=0.5)
+        
+            for label in unique_labels:
+                ax.scatter([], [], color=color_map[label], label=label)
+            ax.legend(title="Labels behaviour")
+
+        ax.set_xlabel("PC"+str(x) + " ({:.2f} %)".format(eigenvalues[x]*100), fontsize=14)
+        ax.set_ylabel("PC"+str(y) + " ({:.2f} %)".format(eigenvalues[y]*100), fontsize=14)
+        ax.set_zlabel("PC"+str(z) + " ({:.2f} %)".format(eigenvalues[z]*100), fontsize=14)
+        plt.show()
+
+        # 2 : Plot 5 first PCs
+        fig = plt.figure(figsize=(8,10))
+        colormap = get_cmap('plasma')
+        colors = [colormap(i / (10 - 1)) for i in range(10)]
+        j = 0
+        for i in range(10):
+            plt.plot(np.arange(0, dataset.shape[1]), eigenvectors[i] + j, label="PC" + str(i), alpha=0.7, color=colors[i], linewidth=4)
+            j -= 1
+        plt.legend(ncol=5, loc="upper center", bbox_to_anchor=(0.5, 1.1))
+        plt.xlabel("Timestamp", fontsize=15)
+        plt.tick_params(left=False, labelleft=False)
+        plt.show()
+
+
+
+
+        
+
+
+
+
+
+
 
 
 
