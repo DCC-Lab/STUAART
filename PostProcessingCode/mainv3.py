@@ -30,12 +30,9 @@ cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_dat
 # cage.compute_location_on_scale_error_and_precision(is_saved=True, directory_ground_truth="/Users/valeriepineaunoel/Documents/PhD/Results/20240407-AcquireWeightForALongTimeNoAutotareMouse588/video3h/20240407-AcquireWeightFor3hoursMouse5883-BehaviourDataAdterWatching/", filenames=["On scale 1-Table 1.csv", "On scale 2-Table 1.csv", "On scale 3-Table 1.csv", "On scales 1 and 2-Table 1.csv", "On scales 2 and 3-Table 1.csv"], delay_in_seconds=delay_video_weight, evaluate_only_between_these_hours=[0,1])
 
 # grooming
-directory_grooming = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20240407-AcquireWeightForALongTimeNoAutotareMouse588/video3h/20240407-AcquireWeightFor3hoursMouse5883-BehaviourDataAdterWatching/"
-filename_grooming = "Grooming-Table 1.csv"
-all_behaviour_weight, scale_indicator, labels = cage.produce_grooming_and_nongrooming_dataset(directory=directory_grooming, filename=filename_grooming, delay_in_seconds=delay_video_weight)
-print("ALL BEHAVIOUR : ", all_behaviour_weight, all_behaviour.shape)
-print("INDICATOR : ", scale_indicator, scale_indicator.shape)
-print("LABELS : ", labels, labels.shape)
+directory = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20240407-AcquireWeightForALongTimeNoAutotareMouse588/video3h/20240407-AcquireWeightFor3hoursMouse5883-BehaviourDataAdterWatching/Behaviour/"
+two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory, delay_in_seconds=delay_video_weight)
+cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, plot_per_scale=True)
 
 
 
