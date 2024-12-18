@@ -349,7 +349,7 @@ public:
         * 
         * @param wait_for_user Boolean telling if the manual confirmation of the user is needed to tare the LoadCells
         */
-        void tare_all_loadcells(bool wait_for_user=true);
+        void tare_all_loadcells(bool wait_for_user=true, bool save_to_sd_card=true);
 
 
         /**

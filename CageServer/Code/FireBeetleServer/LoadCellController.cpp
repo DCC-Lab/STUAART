@@ -22,7 +22,7 @@ void LoadCellController::add_loadcell(
     loadcell.begin(dout, sck, gain);
 }
 
-void LoadCellController::tare_all_loadcells(bool wait_for_user)
+void LoadCellController::tare_all_loadcells(bool wait_for_user, bool save_to_sd_card)
 {
     bool _resume;
     Serial.println(F("Taring of all loadcells"));
@@ -59,11 +59,13 @@ void LoadCellController::tare_all_loadcells(bool wait_for_user)
         tare(i);
         Serial.println(F("done"));
         Serial.println(get_offset(i));
-        Serial.print(F("Saving offset of LoadCell #"));
-        Serial.print(i);
-        Serial.print(F("..."));
-        save_offset_to_persistent_memory(i);
-        Serial.println(F("done"));
+        if (save_to_sd_card) {
+            Serial.print(F("Saving offset of LoadCell #"));
+            Serial.print(i);
+            Serial.print(F("..."));
+            save_offset_to_persistent_memory(i);
+            Serial.println(F("done"));
+        }
     }
     Serial.println();
 }
