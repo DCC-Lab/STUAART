@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt 
   
   
-fileName = '202412181318_FireBeetleClock.txt'
+fileName = 'running.txt'
 x = []
 y1 = []
 y2 = []
@@ -21,17 +21,17 @@ for line in open('SpikesData/' + fileName, 'r'):
     else:
         x.append(float(lines[0]))
         y1.append(float(lines[1]))
-        y2.append(float(lines[2]))
-        y3.append(float(lines[3].strip('\n')))
+        # y2.append(float(lines[2]))
+        # y3.append(float(lines[3].strip('\n')))
       
 plt.title("Outliers") 
 plt.xlabel(xTitle) 
 plt.ylabel(yTitle)
-plt.subplot(3, 1, 1)
+# plt.subplot(3, 1, 1)
 plt.plot(x, y1)
-plt.subplot(3, 1, 2)
-plt.plot(x, y2)
-plt.subplot(3, 1, 3)
-plt.plot(x, y3) 
+# plt.subplot(3, 1, 2)
+# plt.plot(x, y2)
+# plt.subplot(3, 1, 3)
+# plt.plot(x, y3) 
   
 plt.show()

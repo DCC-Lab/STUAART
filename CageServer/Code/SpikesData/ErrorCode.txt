@@ -1,0 +1,19 @@
+Serial Output: Shift In SLOW
+Serial Output: Shift Guru Meditation Error: Core  1 panic'ed (Interrupt wdt timeout on CPU1).
+Serial Output: Core  1 register dump:
+Serial Output: PC      : 0x4008ad63  PS      : 0x00060635  A0      : 0x800897d0  A1      : 0x3ffb2000
+Serial Output: A2      : 0x3ffb88ec  A3      : 0x3ffb81a0  A4      : 0x00000004  A5      : 0x00060623
+Serial Output: A6      : 0xb33fffff  A7      : 0xb33fffff  A8      : 0x3ffb81a0  A9      : 0x3ffb81a0
+Serial Output: A10     : 0x00000018  A11     : 0x00000018  A12     : 0xb33fffff  A13     : 0x3f406e7c
+Serial Output: A14     : 0xb33fffff  A15     : 0xb33fffff  SAR     : 0x0000000f  EXCCAUSE: 0x00000006
+Serial Output: EXCVADDR: 0x00000000  LBEG    : 0x40086455  LEND    : 0x40086465  LCOUNT  : 0xfffffffc
+Serial Output: Backtrace: 0x4008ad60:0x3ffb2000 0x400897cd:0x3ffb2020 0x40088b7d:0x3ffb2040 0x400d8d74:0x3ffb2080 0x400d9575:0x3ffb20d0 0x400d5ded:0x3ffb2100 0x400d39cd:0x3ffb2120 0x400d3d9f:0x3ffb2140 0x400d3dd9:0x3ffb2160 0x400d2702:0x3ffb2180 0x400d27f9:0x3ffb21a0 0x400d1be7:0x3ffb21d0 0x400d1c59:0x3ffb21f0 0x400d1c7a:0x3ffb2210 0x400d203d:0x3ffb2230 0x400d1b0b:0x3ffb2250 0x400d6434:0x3ffb2270 0x4008a4da:0x3ffb2290
+Serial Output: Core  0 register dump:
+Serial Output: PC      : 0x40086857  PS      : 0x00060035  A0      : 0x8008a6a0  A1      : 0x3ffbf05c
+Serial Output: A2      : 0x003fffff  A3      : 0xb33fffff  A4      : 0x0000cdcd  A5      : 0x3f406e00
+Serial Output: A6      : 0xb33fffff  A7      : 0xb33fffff  A8      : 0x00000000  A9      : 0x00000001
+Serial Output: A10     : 0x007bdd54  A11     : 0x3ffbdd54  A12     : 0x3ffc1aa0  A13     : 0x00000000
+Serial Output: A14     : 0x00000000  A15     : 0x3ffc1aa4  SAR     : 0x0000001d  EXCCAUSE: 0x00000006
+Serial Output: EXCVADDR: 0x00000000  LBEG    : 0x00000000  LEND    : 0x00000000  LCOUNT  : 0x00000000
+Serial Output: Backtrace: 0x40086854:0x3ffbf05c |<-CORRUPTED
+Serial Output: ELF file SHA256: c70003bc64e28a89

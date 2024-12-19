@@ -95,6 +95,8 @@
 #include <EEPROM.h>
 #endif
 
+#define FAST_CPU 1
+
 
 class LoadCellController {
 protected:
