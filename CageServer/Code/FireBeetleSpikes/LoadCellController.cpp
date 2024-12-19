@@ -62,7 +62,7 @@ void LoadCellController::tare_all_loadcells(bool wait_for_user)
         Serial.print(F("Saving offset of LoadCell #"));
         Serial.print(i);
         Serial.print(F("..."));
-        save_offset_to_persistent_memory(i);// TEST TODO : Add option to not try and save to the SD Card every tare
+        // save_offset_to_persistent_memory(i);// TEST TODO : Add option to not try and save to the SD Card every tare
         Serial.println(F("done"));
     }
     Serial.println();
@@ -79,7 +79,7 @@ void LoadCellController::calibrate_all_loadcells()
         Serial.print(F("Saving scale coeff of LoadCell #"));
         Serial.print(i);
         Serial.print(F("..."));
-        save_scale_coeff_to_persistent_memory(i);
+        // save_scale_coeff_to_persistent_memory(i);
         Serial.println("done");
         Serial.println(get_scale(i));
     }
@@ -1136,6 +1136,18 @@ float LoadCellController::get_weight(byte loadcell_num)
     }
 
     LoadCell *loadcell_ptr = loadcells[loadcell_num - 1];
+
+    // for (int i = 1; i <= n_loadcell; i++) {
+    //     while (!is_ready(i)) {
+    //         // Probably will do no harm on AVR but will feed the Watchdog Timer (WDT) on ESP.
+    //         // https://github.com/bogde/HX711/issues/73
+	// 	    delay(0);
+	//     }    
+    // }
+
+    // if (!is_ready(1) || !is_ready(2) || !is_ready(3)) {
+    //     Serial.println("Outlier");
+    // }
 
     return loadcell_ptr->get_weight();
 }
