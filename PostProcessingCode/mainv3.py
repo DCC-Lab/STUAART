@@ -3,7 +3,7 @@
 # create a variable named your_path = "your path to the data" (string type)
 # this variable is imported in this file
 # this way, everyone can run this code even if all paths to the data are different
-from path import your_path
+from path import my_path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -19,7 +19,7 @@ from scipy.signal import find_peaks
 
 delay_video_weight = 76
 
-data = np.array(pd.read_csv(your_path))
+data = np.array(pd.read_csv(my_path))
 directory = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20240407-AcquireWeightForALongTimeNoAutotareMouse588/"
 filename = "20240407-3hours.csv"
 directory_ground_truth_location = "/Users/valeriepineaunoel/Documents/PhD/Results/20240407-AcquireWeightForALongTimeNoAutotareMouse588/video3h/20240407-AcquireWeightFor3hoursMouse5883-BehaviourDataAdterWatching/"
@@ -34,8 +34,13 @@ cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_dat
 
 # grooming
 directory = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20240407-AcquireWeightForALongTimeNoAutotareMouse588/video3h/20240407-AcquireWeightFor3hoursMouse5883-BehaviourDataAdterWatching/Behaviour/"
-two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory, delay_in_seconds=delay_video_weight)
-cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, plot_per_scale=True)
+# Look at 2-second samples of weight data per behaviour type PER SCALE and produce PCA. 
+# two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory, delay_in_seconds=delay_video_weight)
+# cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, PCs_to_plot=[1,2,3], label_per_scale=False)
+
+# Look at 2-second samples of weight data per behaviour type, overall weight of the system, and produce PCA. 
+# two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=directory, delay_in_seconds=delay_video_weight)
+# cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, label_per_scale=False)
 
 
 

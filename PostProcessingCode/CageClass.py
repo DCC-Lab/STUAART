@@ -644,7 +644,7 @@ class Cage():
             plt.savefig(self.directory+today+"-TotalError_and_EventPrecision"+str(bins)+"-range"+str(evaluate_only_between_these_hours[0])+"to"+str(evaluate_only_between_these_hours[1])+"hours.png", format="png", dpi=600, transparent=True)
         plt.show()
 
-    def retreive_indicator_behaviour_data_per_scale(self, directory:str, delay_in_seconds:int):
+    def retreive_indicator_behaviour_data_per_scale(self, directory:str, delay_in_seconds:int, include_not_annotated_data:bool=False):
         """
         Format ground truth data to have indicators of when the behavioural event is happening. 
         0 : when the event is not happening
@@ -672,14 +672,31 @@ class Cage():
             behaviour_name = name[:position]
             behaviour_indicator_per_scale[behaviour_name] = event_indicator
 
-        indicator_when_not_doing_behaviour = np.zeros(shape=(self.number_of_scales, self.raw_time.shape[0])) 
-        for key in behaviour_indicator_per_scale.keys():
-            indicators = behaviour_indicator_per_scale[key]
-            for n in range(self.number_of_scales):
-                indicator_when_not_doing_behaviour = np.where((indicator_when_not_doing_behaviour == 0) & (indicators != 0), 1, indicator_when_not_doing_behaviour)
-
-        # behaviour_indicator_per_scale["Not labelled"] = indicator_when_not_doing_behaviour
+        if include_not_annotated_data:
+            indicator_when_not_doing_behaviour = np.zeros(shape=(self.number_of_scales, self.raw_time.shape[0])) 
+            for key in behaviour_indicator_per_scale.keys():
+                indicators = behaviour_indicator_per_scale[key]
+                for n in range(self.number_of_scales):
+                    indicator_when_not_doing_behaviour = np.where((indicator_when_not_doing_behaviour == 0) & (indicators != 0), 1, indicator_when_not_doing_behaviour)
+            behaviour_indicator_per_scale["Not labelled"] = indicator_when_not_doing_behaviour
+        
         self.behaviour_indicator_per_scale = behaviour_indicator_per_scale
+
+
+    def retreive_indicator_behaviour_data(self, directory:str, delay_in_seconds:int):
+        """
+        Format ground truth data to have indicators of when the behavioural event is happening. 
+        0 : when the event is not happening
+        1 : when the event is happening
+        Produces a dictionnary of indicators per scale of when the behavioural event is happening. 
+        """
+        self.retreive_indicator_behaviour_data_per_scale(directory=directory, delay_in_seconds=delay_in_seconds)
+        behaviour_indicator = {}
+        for key in self.behaviour_indicator_per_scale.keys():
+            behaviour_indicator[key] = np.sum(self.behaviour_indicator_per_scale[key], axis=0)
+        
+        self.behaviour_indicator = behaviour_indicator
+
 
 
     def produce_behaviour_dataset_per_scale(self, directory:str, delay_in_seconds:int):
@@ -714,9 +731,46 @@ class Cage():
         return two_second_data, on_scale, targets, labels
 
 
-    def pca(self, dataset, number_of_PCs, targets, labels, on_scale, PCs_to_plot=[0,1,2], plot_per_scale=False):
+    def produce_behaviour_dataset(self, directory:str, delay_in_seconds:int):
         """
-        TODO 
+        Uses groung truth annotations of all different behaviours and format in 2 second events, which is approximately 10 datapoints. 
+        Returns:
+            - the weight measurements of each 10 datapoints (shape = (-1,10))
+            - the scale indicator on which this moments is measured (shape = -1)
+            - the targets, same as the labels, but int instead of str
+            - the labels of different behaviours (shape= -1)
+        """
+        self.retreive_indicator_behaviour_data(directory=directory, delay_in_seconds=delay_in_seconds)
+        
+        i = 0
+        two_second_data = np.array([])
+        targets = np.array([])
+        labels = np.array([])
+        for key in self.behaviour_indicator.keys():
+            indicator = self.behaviour_indicator[key]
+            indices = np.where(indicator == 1)[0]
+            weight_truth = self.raw_data[indices]
+            new_size = (weight_truth.size // 10) * 10 # 10 data points is about 2 seconds
+            trim_weight_truth = weight_truth[:new_size]
+            trim_weight_truth = np.reshape(trim_weight_truth, (-1, 10))
+            two_second_data = np.array(list(two_second_data) + list(trim_weight_truth))
+            targets = np.array(list(targets) + list(np.repeat(i, trim_weight_truth.shape[0])))
+            labels = np.array(list(labels) + list(np.repeat(key, trim_weight_truth.shape[0])))
+            i += 1
+
+        return two_second_data, targets, labels
+
+
+
+    def pca(self, dataset, number_of_PCs:int, targets, labels, on_scale, PCs_to_plot=[0,1,2], label_per_scale:bool=False):
+        """
+        Performs PCA on dataset. 
+        number_of_PCs: number of PCs for the PCA.
+        targets: list of the length of the number of samples in the dataset. Identifies the group of each sample with ints
+        labels: list of the length of the number of samples in the dataset. Identifies the group of each sample with an actual label, str. 
+        on_scale: list of the length of the number of samples in the dataset. Identifies on which scale this behaviour was done. 
+        PCs_to_plot: Defines the axes of the plot in PCA space. 
+        plot_per_scale: Defines if the scatter plot of the dataset in PCA space is labeled per scale or per labels. 
         """
         # 1 : Plot data in PCA space 
         pca = PCA(n_components=number_of_PCs)
@@ -728,7 +782,7 @@ class Cage():
         fig = plt.figure(figsize=(8,8))
         ax = fig.add_subplot(111, projection="3d")
 
-        if plot_per_scale:
+        if label_per_scale:
             colors = np.where(on_scale == 0, "b", "k")
             colors = np.where(on_scale == 1, "r", colors)
             colors = np.where(on_scale == 2, "g", colors)
@@ -741,7 +795,7 @@ class Cage():
 
         else:
             # setting the colors for each label
-            unique_labels = list(set(labels))
+            unique_labels = sorted(list(set(labels)))
             cmap = cm.get_cmap("jet", len(unique_labels))  # Use any colormap you like
             color_map = {label: cmap(i) for i, label in enumerate(unique_labels)}
             colors = [color_map[label] for label in labels]
@@ -771,6 +825,7 @@ class Cage():
         plt.legend(ncol=5, loc="upper center", bbox_to_anchor=(0.5, 1.1))
         plt.xlabel("Timestamp", fontsize=15)
         plt.tick_params(left=False, labelleft=False)
+        plt.tight_layout()
         plt.show()
 
 
