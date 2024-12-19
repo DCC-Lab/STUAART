@@ -43,6 +43,9 @@ directory = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20240407-Acq
 # cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, label_per_scale=False)
 
 
+two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory, delay_in_seconds=delay_video_weight)
+cage.fft_behaviour(dataset=two_second_data, labels=labels, plot=True)
+
 
 
 

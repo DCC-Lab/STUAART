@@ -829,6 +829,36 @@ class Cage():
         plt.show()
 
 
+    def fft_behaviour(self, dataset, labels, plot:bool=False):
+        """
+        Plot fft of each sample for each behaviour type in the dataset. 
+        """
+        fft_of_behaviours = {}
+        for label in np.unique(labels):
+            indices_of_label = np.where(labels == label)[0]
+            data_of_label = dataset[indices_of_label, :]
+            fft_of_behaviours[label] = np.fft.fft(data_of_label)
+        self.fft_of_behaviours = fft_of_behaviours
+
+        if plot:
+            fig, axs = plt.subplots(len(self.fft_of_behaviours.keys()), 1, figsize=(16,10))
+            j = 0
+            for label in np.unique(labels):
+                x = np.arange(0, self.fft_of_behaviours[label].shape[1])
+                for i in range(self.fft_of_behaviours[label].shape[0]):
+                    axs[j].plot(x, self.fft_of_behaviours[label][i], linewidth=1)
+                    axs[j].set_title(label)
+                j += 1
+            plt.tight_layout()
+            plt.show()
+
+
+
+
+
+
+
+
 
 
         
