@@ -1,4 +1,35 @@
+# This branch shouldn't be merged with master, it doesn't bring anything useful, it was simply created to debug the origin of the outliers.
+
+Turns out it came from having one clock for multiple loadcells. The firebeetle would send through the clock the signal to start transmitting data to all the loadcells simultaneously even though some of them weren't ready. The firebeetle didn't know because it was only listening to one loadcell at a time, and so would only wait for the current loadcell to be ready. This caused a problem where the loadcell would receive the signal to send the second bit, but since it missed the first one because it wasn't ready, it would send it's first. So when it would be it's time, it would be missaligned by one bit and give out an outlier.
+
+# Tutorial
+To run the test code, you need to :
+
+1) Push the file : https://github.com/DCC-Lab/STUAART/blob/firebeetle-clock-spikes-tests/CageServer/Code/FireBeetleSpikes/FireBeetleSpikes.ino
+    on the Firebeetle. You should use the breadboard system with the same pins plugged in.
+
+<p float="left">
+  <img width="500" src="https://github.com/user-attachments/assets/22d1be5d-7ec2-4c8e-8164-a5f6b8df750b">
+  <img width="500" src="https://github.com/user-attachments/assets/f652b5b3-1727-4039-969f-007792a51449">
+  <img width="500" src="https://github.com/user-attachments/assets/99b592bc-c1f8-4089-a574-b8ddce60f919">
+</p>
+
+
+2) Run https://github.com/DCC-Lab/STUAART/blob/firebeetle-clock-spikes-tests/CageServer/Code/PlotAndSaveSerialData.py
+This Python file will paste to the terminal everything sent through Serial by the firebeetle.
+You will need to calibrate the loadcells and everything as usual before it starts measuring the weight.
+It will also save a file with the current date and time as the title with all the data in it (ex: 202412041005_FireBeetleClock.txt) in the SpikesData folder (https://github.com/DCC-Lab/STUAART/tree/firebeetle-clock-spikes-tests/CageServer/Code/SpikesData).
+
+![image](https://github.com/user-attachments/assets/2261dfe3-48c4-44b9-9aa4-5676a705b68b)
+
+3) You can use my QuickPlot.py file to visualize the data. (https://github.com/DCC-Lab/STUAART/blob/firebeetle-clock-spikes-tests/CageServer/Code/QuickPlot.py)
+You just need to modify the variable fileName to what your file is called or you can copy paste your data in the running.txt file.
+   
+   ![image](https://github.com/user-attachments/assets/c30ce49e-7d4b-4785-b5af-c240fea6fc0d)
+
+
 # IntelligentCage
+
 
 Repo of the intelligent cage project, created July 12 2023, Nathan Bérubé
 
