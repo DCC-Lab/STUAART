@@ -9,7 +9,10 @@ LoadCell loadCell1;
 LoadCell loadCell2;
 LoadCell loadCell3;
 LoadCellController controller;
-const int SCK_PIN = 17; //clock des loadcell/HX711
+//clock des loadcell/HX711
+const int SCK1_PIN = 4;
+const int SCK2_PIN = 16;
+const int SCK3_PIN = 17;
 
 const int MODE_PIN = 13; //Switch pin allowing to put in setup mode.
 
@@ -184,9 +187,9 @@ void setup()
   configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
 
   pinMode(MODE_PIN, INPUT_PULLDOWN);
-  controller.add_loadcell(loadCell1, 27, SCK_PIN); // loadcell number, dout, sck
-  controller.add_loadcell(loadCell2, 9, SCK_PIN); // loadcell number, dout, sck
-  controller.add_loadcell(loadCell3, 5, SCK_PIN); // loadcell number, dout, sck
+  controller.add_loadcell(loadCell1, 27, SCK1_PIN); // loadcell number, dout, sck
+  controller.add_loadcell(loadCell2, 9, SCK2_PIN); // loadcell number, dout, sck
+  controller.add_loadcell(loadCell3, 5, SCK3_PIN); // loadcell number, dout, sck
   controller.set_all_loadcells_scale_coeff_n_readings(50);
   controller.set_all_loadcells_tare_n_readings(2);
   controller.set_all_loadcells_weight_n_readings(1);
