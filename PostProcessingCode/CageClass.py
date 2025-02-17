@@ -848,7 +848,9 @@ class Cage():
                 for i in range(self.fft_of_behaviours[label].shape[0]):
                     axs[j].plot(x, self.fft_of_behaviours[label][i], linewidth=1)
                     axs[j].set_title(label)
+                    axs[j].set_ylim(-60, 60)
                 j += 1
+
             plt.tight_layout()
             plt.show()
 
