@@ -1,6 +1,6 @@
-# IntelligentCage
+# STUAART
 
-Repo of the intelligent cage project, created July 12 2023, Nathan Bérubé
+Repo of the STUAART project, created July 12 2023, Nathan Bérubé. Valérie Pineau Noël conitnued the editting. 
 
 
 
@@ -43,6 +43,15 @@ Many useful sketches are saved in this folder. Find it in Loadcell > ArduinoLibr
 ## Load cell drift test
 Many tests were done to characterize the drift of a load cell. All the Arduino [sketches](Loadcell/LoadcellDriftTest/ArduinoSketch) used for different tests are listed by date in the repo. The small data files are also [here](Loadcell/LoadcellDriftTest/Data).
 
+### What to do when I have these errors? 
+
+#### ```A fatal error occurred: Unable to verify flash chip connection (Serial data stream stopped: Possible serial noise or corruption.).```
+
+The upload speed is too fast. Go in _Tools_ > _Upload Speed_ and change it to a slower speed. 
+
+#### ```SPIFFS Mount Failed```
+
+This happens often when you are using a new Firebeetle ESP-32. Run the script SPIFFS.ino once on the new board. 
 
 ## Lab notes:
 Lot of tests were done to characterize the drift behavior of a loadcell. Every test is detailled in the following document along with
