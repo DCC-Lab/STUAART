@@ -1,20 +1,74 @@
 # STUAART
 
-Repo of the STUAART project, created July 12 2023, Nathan Bérubé. Valérie Pineau Noël conitnued the editting. 
+Repo of the STUAART project, created July 12 2023, Nathan Bérubé. Valérie Pineau Noël conitnued the editing. 
+
+[TOC]
+
+The STUAART project is an automated weighing system for mice to track mice weights over extended periods of time (weeks).
 
 
 
-## CAD files on fusion 360:
+## Mechanical components
 
-Mireille has access to all the CAD files of the different components. Ask her to be added to the Fusion360 team.
+Mireille has access to all the CAD files of the different mechanical components necessary to create a "scale". Ask her to be added to the Fusion360 team.
 
 There are also two .stl [files](CAD) of the load cell platforms as example for 3D printing. It is important to print with a high infill density to maximize the stifness of the platforms to reduce creep.
 
 
 
-## Arduino LoadCell library and LoadCellController library:
+## Software components
+
+
+
+## Configuring Arduino to program Firebeetle ESP32
+
+The Firebeetle we use is the Firebeetle-ESP32.  There are multiple versions of the FireBeetle board from DFRobot:
+-	FireBeetle ESP32 (the one used in this project)
+-	FireBeetle ESP8266
+-	FireBeetle M0
+-	FireBeetle 328P
+
+The Arduino needs to install a "Board Package".
+
+1. Open **Arduino IDE**.
+
+2. Go to **File > Preferences**.
+
+3. In the “Additional Boards Manager URLs”, add:
+   https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+   
+4. Go to **Tools > Board > Board Manager**.
+
+5. Search for and install **esp32 by Espressif Systems**.
+
+   
+
+## Installing libraries
+
+### How to install the libraries
+
+You can find out where your Libraries are in your preferences:
+
+<img src="./README.assets/image-20250528142659169.png" alt="image-20250528142659169" style="zoom: 25%;" />
+
+You need to install 3 components in your Libraries folder:
+
+1. `LoadCellLibrary` and `LoadCellControllerLibrary` (from this source code)
+
+   Copy the repo on your computer and identify the [LoadCellLibrary](Loadcell/ArduinoLibraries/LoadCellLibrary) and the [LoadCellControllerLibrary](Loadcell/ArduinoLibraries/LoadCellControllerLibrary) folders. Copy these folders (i.e. the entire folders) to your Arduino/libraries folder on your computer. 
+
+2. `HX7111` from Bodge at https://github.com/bogde/HX711
+   Again., copy the whole repository (src, doc, etc..) into the libraries folder.
+
+
+You can now use the libraries in your skectch by including them this way.
+```c++
+#include "LoadCell.h"
+#include "LoadCellController.h"	// Will import #include "HX711.h"
+```
 
 ### Documentation
+
 They are based on the following library that can be found [here](https://github.com/bogde/HX711)
 
 There is a pdf of the documentation in the repo: [Documentation.pdf](Loadcell/ArduinoLibraries/Documentation.pdf)
@@ -25,18 +79,8 @@ This pdf was generated from the latex folder with Doxygen: [latex](Loadcell/Ardu
 There is also an html file that can be opened on your web browser to have a web page of the documentation
 Copy the repo and then open the [index.html](Loadcell/ArduinoLibraries/html/index.html) file.
 
-### How to install the libraries
-
-Copy the repo on your computer and indentify the [LoadCellLibrary](Loadcell/ArduinoLibraries/LoadCellLibrary) and the [LoadCellControllerLibrary](Loadcell/ArduinoLibraries/LoadCellControllerLibrary). Move these folders to your Arduino/libraries folder on your computer.
-
-
-You can now use the libraries in your skectch by including them this way.
-```c++
-#include "LoadCell.h"
-#include "LoadCellController.h"
-```
-
 ### Sketch examples
+
 Many useful sketches are saved in this folder. Find it in Loadcell > ArduinoLibraries > SketchExamples. 
 
 
