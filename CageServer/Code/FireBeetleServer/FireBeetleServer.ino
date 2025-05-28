@@ -316,3 +316,16 @@ void loop()
     client.stop();
   }
 }
+
+void logf(const char* format, ...) {
+  char message[128];
+  va_list args;
+  va_start(args, format);
+  vsnprintf(message, sizeof(message), format, args);
+  va_end(args);
+
+  unsigned long timestamp = millis();  // Time since startup in ms
+  char final[160];
+  snprintf(final, sizeof(final), "[%10lu ms] %s", timestamp, message);
+  Serial.println(final);
+}
