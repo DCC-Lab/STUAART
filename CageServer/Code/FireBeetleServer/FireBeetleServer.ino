@@ -42,28 +42,38 @@ const int SAVE_DATA_INTERVAL = 0;
 unsigned long reconnectTimestamp = 0;
 const int RECONNECT_WIFI_INTERVAL = 3600000;
 
+/* Declaration */
+void logf(const char* format, ...);
+
 /*
 This function tries to connect to the wifi using the SSID and the PASSWORD.
 Retries every 500 milliseconds until it succeeds and then prints the local IP.
 */
-void connectToWifi()
+bool connectToWifi(int timeout_in_secs)
 {
   // We start by connecting to a WiFi network
-  Serial.println();
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(SSID);
+  logf("Attempting to connect to Wifi network : %s, password %s", SSID, PASSWORD);
+
   WiFi.begin(SSID, PASSWORD);
+
+  int end_time = millis() + timeout_in_secs * 1000;
+
+  int i = 1;
   while (WiFi.status() != WL_CONNECTED)
   {
+    logf("Attempt #%d", i);
+    i++;
+
+    if ( millis() > end_time ) {
+      logf("Unable to connect to Wifi");
+      return false;
+    }
     delay(500);
-    Serial.print(".");
   }
-  Serial.println("");
-  Serial.println("WiFi connected.");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-  server.begin();
+
+  logf("Connected to Wifi. IP address: %s", WiFi.localIP());
+
+  return true;
 }
 
 
@@ -181,8 +191,13 @@ Initializes console, connects to the wifi, the local time and creates the initia
 void setup()
 {
   Serial.begin(115200);
+  while (!Serial) {
+    ; // Wait for port to be ready.
+  }
 
-  connectToWifi();
+  if ( connectToWifi(5) ) {
+      server.begin();
+  }
 
   configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
 
@@ -196,13 +211,13 @@ void setup()
 
   if (digitalRead(MODE_PIN) == LOW)
   {
-    Serial.println("Starting in auto mode");
+    logf("Starting in auto mode");
     controller.tare_all_loadcells(false);
     controller.read_all_scale_coeff_from_persistent_memory();
   }
   else
   {
-    Serial.println("Starting in manual calibration mode");
+    logf("Starting in manual calibration mode");
     controller.tare_all_loadcells();
     controller.calibrate_all_loadcells();
   }
@@ -230,7 +245,7 @@ void loop()
   if (abs(reconnectTimeDelta) >= RECONNECT_WIFI_INTERVAL)
   {
     reconnectTimestamp = currentMillis;
-    connectToWifi();
+    connectToWifi(5);
   }
 
   WiFiClient client = server.available(); // listen for incoming client
@@ -249,7 +264,7 @@ void loop()
       {
         if (!SD.begin(SS_PIN))
         {
-          Serial.println("Card Mount Failed");
+          logf("Card Mount Failed");
           return;
         }
 
@@ -257,7 +272,7 @@ void loop()
 
         if (cardType == CARD_NONE)
         {
-          Serial.println("No SD card attached");
+          logf("No SD card attached");
           return;
         }
 
@@ -286,7 +301,7 @@ void loop()
           }
           else
           {
-            Serial.println("yesterdays file doesn't exist!");
+            logf("yesterdays file doesn't exist!");
             myFile = SD.open(today);
             httpReason = "YESTERDAY MISSING FILE"; // This case is specifically for if we start the cage close after midnight but before the python code tried to fetch yesterday's data.
           }
@@ -294,7 +309,7 @@ void loop()
 
         if (!myFile)
         {
-          Serial.println("Failed to open file for reading");
+          logf("Failed to open file for reading");
           return;
         }
 
