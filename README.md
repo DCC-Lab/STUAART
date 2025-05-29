@@ -4,7 +4,13 @@ Repo of the STUAART project, created July 12 2023, Nathan Bérubé. Valérie Pin
 
 [TOC]
 
-The STUAART project is an automated weighing system for mice to track mice weights over extended periods of time (weeks).
+## Overview
+
+The STUAART project is an automated weighing system for mice to track mice weights over extended periods of time (weeks). It consists in a few scales (typically 3) in a cage that continuously monitor their load via a "load cell".  This value is proportionnal to the weight when the mouse is immobile.  
+
+Each scale consists in a load cell (Wheatstone bridge) with a HX711 amplifier connected via simple 2-pin protocol (described in datasheet)  to an Arduino compatible microcontroller (Firebeetle in the present design).
+
+
 
 
 
@@ -74,7 +80,6 @@ They are based on the following library that can be found [here](https://github.
 There is a pdf of the documentation in the repo: [Documentation.pdf](Loadcell/ArduinoLibraries/Documentation.pdf)
 
 This pdf was generated from the latex folder with Doxygen: [latex](Loadcell/ArduinoLibraries/latex)
-
 
 There is also an html file that can be opened on your web browser to have a web page of the documentation
 Copy the repo and then open the [index.html](Loadcell/ArduinoLibraries/html/index.html) file.
