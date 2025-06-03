@@ -3,6 +3,8 @@
 #include <WiFi.h>
 #include <time.h>
 
+#include "Logger.h"
+
 #include "LoadCell.h"
 #include "LoadCellController.h"
 
@@ -24,7 +26,7 @@ const int SCK3_PIN = 17;
 */
 const int MODE_PIN = 13;
 
-const int READ_CALIBRATIION_FROM_MEMORY = LOW;
+const int READ_CALIBRATION_FROM_MEMORY = LOW;
 const int RECALIBRATE = HIGH;
 /*
   Pin where the SD card reader is connected
@@ -38,12 +40,11 @@ const int SS_PIN = 21;
   SSID: the name of the wifi network
   PASSWORD: the password
 */
-const char *SSID = "TP-Link_37E9";  // of the router
-const char *PASSWORD = "15351210";  // password of the router
+const char *SSID = "TP-Link_37E9";
+const char *PASSWORD = "15351210";
 
-const char *REFRESH_CODE =
-    "refresh";  // must be the same as in the python code, otherwise they won't
-                // be able to recognize one another
+// must be the same as in the python code, otherwise they won't be able to recognize one another
+const char *REFRESH_CODE = "refresh";
 
 const char *CSV_FILE_EXTENSION = ".csv";
 
@@ -83,8 +84,8 @@ char yesterday[16];
 unsigned long saveTimestamp = 0;
 unsigned long reconnectTimestamp = 0;
 
-/* Declaration */
-void logf(const char *format, ...);
+// /* Declaration */
+// void logf(const char *format, ...);
 
 /*
 This function tries to connect to the wifi using the SSID and the PASSWORD.
@@ -96,8 +97,8 @@ not prevent the program to run, it should retry every hour.
 */
 
 bool connectToWifi(int timeout_in_secs = 0) {
-  logf("Attempting to connect to Wifi network : %s, password %s", SSID,
-       PASSWORD);
+  Log.noticeln("Attempting to connect to Wifi network : %s, password %s", SSID,
+               PASSWORD);
 
   WiFi.begin(SSID, PASSWORD);
 
@@ -105,17 +106,17 @@ bool connectToWifi(int timeout_in_secs = 0) {
 
   int i = 1;
   while (WiFi.status() != WL_CONNECTED) {
-    logf("Attempt #%d", i);
+    Log.noticeln("Attempt #%d", i);
     i++;
 
     if (millis() > end_time) {
-      logf("Unable to connect to Wifi");
+      Log.noticeln("Unable to connect to Wifi");
       return false;
     }
     delay(500);
   }
 
-  logf("Connected to Wifi. IP address: %s", WiFi.localIP());
+  Log.noticeln("Connected to Wifi. IP address: %s", WiFi.localIP());
 
   return true;
 }
@@ -126,7 +127,7 @@ bool connectToWifi(int timeout_in_secs = 0) {
 void getTodaysDate() {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) {
-    logf("Failed to obtain time");
+    Log.noticeln("Failed to obtain time");
     return;
   }
   int year = timeinfo.tm_year + 1900;
@@ -157,7 +158,7 @@ void getYesterdaysDate() {
 */
 void writeFile(const char *path, const char *message, const char *mode) {
   if (!SD.begin(SS_PIN)) {
-    logf("SD card initialization failed!");
+    Log.noticeln("SD card initialization failed!");
     return;
   }
 
@@ -168,7 +169,7 @@ void writeFile(const char *path, const char *message, const char *mode) {
     myFile.println(message);
     myFile.close();
   } else {
-    logf("Error saving file %s to SD card", path);
+    Log.errorln("Error saving file %s to SD card", path);
   }
 }
 
@@ -207,7 +208,7 @@ void saveData() {
   String fileLine = "";
 
   fileLine +=
-      String(millis(), DEC) + "," + weight1 + "," + weight2 + "," + weight3;
+    String(millis(), DEC) + "," + weight1 + "," + weight2 + "," + weight3;
 
   writeFile(today, fileLine.c_str(), FILE_APPEND);
 }
@@ -218,9 +219,11 @@ void saveData() {
 */
 void setup() {
   Serial.begin(115200);
-  while (!Serial) {
-    ;  // Wait for port to be ready before starting to write
-  }
+  while (!Serial && !Serial.available()) {}
+  Log.setPrefix(printPrefix);  // set prefix similar to NLog
+  Log.setSuffix(printSuffix);  // set suffix
+  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
+  Log.setShowLevel(false);  // Do not show loglevel, we will do this in the prefix
 
   if (connectToWifi(5)) {
     webServer.begin();
@@ -245,12 +248,12 @@ void setup() {
   */
   pinMode(MODE_PIN, INPUT_PULLDOWN);
 
-  if (digitalRead(MODE_PIN) == READ_CALIBRATIION_FROM_MEMORY) {
-    logf("Starting in auto mode");
+  if (digitalRead(MODE_PIN) == READ_CALIBRATION_FROM_MEMORY) {
+    Log.noticeln("Starting in auto mode");
     controller.tare_all_loadcells(false);
     controller.read_all_scale_coeff_from_persistent_memory();
   } else {
-    logf("Starting in manual calibration mode");
+    Log.noticeln("Starting in manual calibration mode");
     controller.tare_all_loadcells();
     controller.calibrate_all_loadcells();
   }
@@ -260,14 +263,12 @@ void setup() {
 
 The Arduino main loop: the program does two things:
 
-1. read the scale data continuously
+1. read the scale data continuously from all load cells (typically 3)
 2. check to see if someone is requesting the data via the WebServer, then send it.
 
-
-Loops, waiting for a client connection.
-When there is a client, reads the connection data, then sends either yesterday's
-data or today's. Sends today's if the REFRESH_CODE is present in the connection
-data.
+  When there is a web client, reads the connection data, then sends either yesterday's
+  data or today's. Sends today's if the REFRESH_CODE is present in the connection
+  data.
 */
 void loop() {
   unsigned long currentMillis = millis();
@@ -289,20 +290,20 @@ void loop() {
 
   if (client) {
     String clientData = "";
-    while (client.connected()) { 
-      if (client.available()) {   // if there's bytes to read from the client,
-        char c = client.read();   // read a byte, then
+    while (client.connected()) {
+      if (client.available()) {  // if there's bytes to read from the client,
+        char c = client.read();  // read a byte, then
         clientData += c;
       } else {
         if (!SD.begin(SS_PIN)) {
-          logf("Card Mount Failed");
+          Log.errorln("Card Mount Failed");
           return;
         }
 
         uint8_t cardType = SD.cardType();
 
         if (cardType == CARD_NONE) {
-          logf("No SD card attached");
+          Log.errorln("No SD card attached");
           return;
         }
 
@@ -314,7 +315,7 @@ void loop() {
           getTodaysDate();  // If the refresh code is passed, give the client
                             // the newest data
           myFile = SD.open(
-              today);  // This would be the 'today' file not yet completed.
+            today);  // This would be the 'today' file not yet completed.
           httpReason = "REFRESHED TODAY";
         } else if (csvIndex >= 0) {
           myFile = SD.open(clientData.substring(csvIndex - 11, csvIndex + 4));
@@ -325,19 +326,19 @@ void loop() {
             myFile = SD.open(yesterday);
             httpReason = "DEFAULT YESTERDAY";
           } else {
-            logf("yesterdays file doesn't exist!");
+            Log.errorln("yesterdays file doesn't exist!");
             myFile = SD.open(today);
             httpReason =
-                "YESTERDAY MISSING FILE";  // This case is specifically for if
-                                           // we start the cage close after
-                                           // midnight but before the python
-                                           // code tried to fetch yesterday's
-                                           // data.
+              "YESTERDAY MISSING FILE";  // This case is specifically for if
+                                         // we start the cage close after
+                                         // midnight but before the python
+                                         // code tried to fetch yesterday's
+                                         // data.
           }
         }
 
         if (!myFile) {
-          logf("Failed to open file for reading");
+          Log.errorln("Failed to open file for reading");
           return;
         }
 
@@ -358,17 +359,4 @@ void loop() {
     // close the connection:
     client.stop();
   }
-}
-
-void logf(const char *format, ...) {
-  char message[128];
-  va_list args;
-  va_start(args, format);
-  vsnprintf(message, sizeof(message), format, args);
-  va_end(args);
-
-  unsigned long timestamp = millis();  // Time since startup in ms
-  char final[160];
-  snprintf(final, sizeof(final), "[%10lu ms] %s", timestamp, message);
-  Serial.println(final);
 }

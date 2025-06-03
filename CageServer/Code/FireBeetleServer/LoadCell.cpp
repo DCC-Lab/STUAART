@@ -1,0 +1,131 @@
+#include "Logger.h"
+#include "LoadCell.h"
+#include <SPI.h>
+
+// TEENSYDUINO has a port of Dean Camera's ATOMIC_BLOCK macros for AVR to ARM Cortex M3.
+#define HAS_ATOMIC_BLOCK (defined(ARDUINO_ARCH_AVR) || defined(TEENSYDUINO))
+
+// Whether we are running on either the ESP8266 or the ESP32.
+#define ARCH_ESPRESSIF (defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32))
+
+// Whether we are actually running on FreeRTOS.
+#define IS_FREE_RTOS defined(ARDUINO_ARCH_ESP32)
+
+// Define macro designating whether we're running on a reasonable
+// fast CPU and so should slow down sampling from GPIO.
+#define FAST_CPU \
+  ( \
+    ARCH_ESPRESSIF || defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_STM32) || defined(TEENSYDUINO))
+
+#if HAS_ATOMIC_BLOCK
+// Acquire AVR-specific ATOMIC_BLOCK(ATOMIC_RESTORESTATE) macro.
+#include <util/atomic.h>
+#endif
+
+#if FAST_CPU
+#define SHIFTIN_WITH_SPEED_SUPPORT(data, clock, order) shiftInSlow(data, clock, order)
+#else
+#define SHIFTIN_WITH_SPEED_SUPPORT(data, clock, order) shiftIn(data, clock, order)
+#endif
+
+#if ARCH_ESPRESSIF
+// ESP8266 doesn't read values between 0x20000 and 0x30000 when DOUT is pulled up.
+#define DOUT_MODE INPUT
+#else
+#define DOUT_MODE INPUT_PULLUP
+#endif
+
+
+
+LoadCell::LoadCell() {
+}
+
+long LoadCell::read_raw_average() {
+  byte times = get_weight_n_readings();
+  long sum = 0;
+
+  for (byte i = 0; i < times; i++) {
+    sum += read();
+    delay(0);
+    // Serial.println(i);
+  }
+  return sum / times;
+}
+
+long LoadCell::read_tare_average() {
+  byte times = get_tare_n_readings();
+  long sum = 0;
+
+  for (byte i = 0; i < times; i++) {
+    sum += read();
+    delay(0);
+  }
+  return sum / times;
+}
+
+long LoadCell::read_scale_coeff_average() {
+  byte times = get_scale_coeff_n_readings();
+  long sum = 0;
+
+  for (byte i = 0; i < times; i++) {
+    sum += read();
+    delay(0);
+  }
+  return sum / times;
+}
+
+double LoadCell::get_raw_value() {
+  return read_raw_average() - get_offset();
+}
+
+float LoadCell::get_weight() {
+  return get_raw_value() / get_scale();
+}
+
+void LoadCell::tare() {
+  double offset = read_tare_average();
+  set_offset(offset);
+}
+
+void LoadCell::set_tare_n_readings(int n_readings) {
+  if (n_readings <= 0) {
+    tare_n_readings = 1;
+  } else if (n_readings >= 255) {
+    tare_n_readings = 255;
+  } else {
+    tare_n_readings = n_readings;
+  }
+}
+
+int LoadCell::get_tare_n_readings() {
+  return tare_n_readings;
+}
+
+void LoadCell::set_scale_coeff_n_readings(int n_readings) {
+  if (n_readings <= 0) {
+    scale_coeff_n_readings = 1;
+  } else if (n_readings >= 255) {
+    scale_coeff_n_readings = 255;
+  } else {
+    scale_coeff_n_readings = n_readings;
+  }
+}
+
+int LoadCell::get_scale_coeff_n_readings() {
+  return scale_coeff_n_readings;
+}
+
+
+void LoadCell::set_weight_n_readings(int n_readings) {
+  if (n_readings <= 0) {
+    weight_n_readings = 1;
+  } else if (n_readings >= 255) {
+    weight_n_readings = 255;
+  } else {
+    weight_n_readings = n_readings;
+  }
+}
+
+int LoadCell::get_weight_n_readings() {
+  return weight_n_readings;
+}
