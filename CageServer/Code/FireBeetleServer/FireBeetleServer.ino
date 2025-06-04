@@ -27,8 +27,8 @@ File myFile;
 WiFiServer webServer(80);
 
 // Buffers chars
-char today[16];
-char yesterday[16];
+// char today[16];
+// char yesterday[16];
 
 unsigned long saveTimestamp = 0;
 unsigned long reconnectTimestamp = 0;
@@ -71,9 +71,11 @@ bool connectToWifi(int timeout_in_secs = 0) {
 }
 
 bool connectSDCardReader() {
-  if (!SD.begin(SS_PIN)) {
+  if (!SD.begin(SD_CS)) {
     Log.errorln("SD card reader failed: device not responding");
     return true;
+  // } else {
+  //   Log.infoln(F("SD card reader initialized on pin %d"), SD_CS);
   }
 
   uint8_t cardType = SD.cardType();
@@ -82,65 +84,89 @@ bool connectSDCardReader() {
     Log.errorln("No SD card in card reader");
     return true;
   }
+  // Log.infoln("cardType : %d", cardType);
   return false;
+}
+
+uint64_t secondsSinceBoot() {
+  return millis() / 1000ULL;  // `ULL` ensures 64-bit math
 }
 
 /*
   Get the time server today's date.
 */
-void getTodaysDate() {
+String getTodaysDate() {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) {
-    Log.noticeln("Failed to obtain time");
-    return;
+    uint64_t seconds = secondsSinceBoot();
+    Log.noticeln("Failed to obtain time, falling back to time since boot %u", seconds);
+    timeinfo.tm_year = 0;
+    timeinfo.tm_mon = seconds / (60*60*24*30);
+    timeinfo.tm_mday = seconds / (60*60*24);
   }
-  int year = timeinfo.tm_year + 1900;
-  int month = timeinfo.tm_mon + 1;
-  int day = timeinfo.tm_mday;
-  snprintf(today, sizeof(today), "/%04d.%02d.%02d.csv", year, month, day);
+  return format_timeinfo(timeinfo);
 }
 
 /*
   Get the time server yesterday's date.
 */
-void getYesterdaysDate() {
+String getYesterdaysDate() {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
-    return;
+    
+    uint64_t seconds = secondsSinceBoot();
+    timeinfo.tm_year = 0;
+    timeinfo.tm_mon = seconds % (60*60*24*30);
+    timeinfo.tm_mday = seconds % (60*60*24);
   }
+  timeinfo.tm_mday = timeinfo.tm_mday - 1;
+  return format_timeinfo(timeinfo);
+}
+
+String format_timeinfo(struct tm timeinfo) {
   int year = timeinfo.tm_year + 1900;
   int month = timeinfo.tm_mon + 1;
-  int day = timeinfo.tm_mday - 1;
-  snprintf(yesterday, sizeof(yesterday), "/%04d.%02d.%02d.csv", year, month,
-           day);
+  int day = timeinfo.tm_mday;
+
+  // Create and return the formatted date_string as a String
+  String date_string = String(year);
+  date_string += ".";
+  if (month < 10) date_string += "0";
+  date_string += String(month);
+  date_string += ".";
+  if (day < 10) date_string += "0";
+  date_string += String(day);
+  return date_string;
+
 }
 
 /*
   Writes a file in the SD card at the specified path. Puts in the specified
   message. Writes in the serial consol error if it doesn't succeed.
 */
-void writeFile(const char *path, const char *message, const char *mode) {
+void writeFile(String path, const char *message, const char *mode) {
   if (connectSDCardReader()) {
     Log.errorln("Card reader unavailable to write data to %s", path);
     return;
   }
 
   // open the file. note that only one file can be open at a time,
-  myFile = SD.open(path, mode);
+  myFile = SD.open(path.c_str(), mode);
 
   if (myFile) {
     myFile.println(message);
+    Log.infoln("Saved '%s' to %s", message, path.c_str());
     myFile.close();
   } else {
-    Log.errorln("Unable to file %s to SD card", path);
+    Log.errorln("Unable to file %s to SD card", path.c_str());
   }
 }
 
 /*
   Writes a clean file header for csv file.
 */
-void writeFileHeader(char *file_name) {
+void writeFileHeader(String file_name) {
   Serial.print(F("Writing heading..."));
   Serial.println(FILE_WRITE);
   writeFile(file_name, "time (ms), reading 1, reading 2, reading 3",
@@ -151,17 +177,19 @@ void writeFileHeader(char *file_name) {
   Acquire the data and save it immediately to the SD card
 */
 void saveData() {
-  getTodaysDate();
+  String filename = getTodaysDate();
+  filename = "/" + filename + ".csv";
 
-  if (!SD.exists(today)) {
+  if (!SD.exists(filename.c_str())) {
     configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
 
-    getTodaysDate();  // This is to make sure we update the time correctly and
+    filename = getTodaysDate();  // This is to make sure we update the time correctly and
                       // we don't write into tomorrows file accidentally because
                       // Arduino's time might drift.
+    filename = "/" + filename + ".csv";
 
-    if (!SD.exists(today)) {
-      writeFileHeader(today);
+    if (!SD.exists(filename.c_str())) {
+      writeFileHeader(filename);
     }
   }
 
@@ -174,7 +202,7 @@ void saveData() {
   fileLine +=
     String(millis(), DEC) + "," + weight1 + "," + weight2 + "," + weight3;
 
-  writeFile(today, fileLine.c_str(), FILE_APPEND);
+  writeFile(filename, fileLine.c_str(), FILE_APPEND);
 }
 
 /*
@@ -184,6 +212,18 @@ void saveData() {
 void setup() {
   Serial.begin(115200);
   while (!Serial && !Serial.available()) {}
+
+  /*
+    The mode is either: read calibration from memory or re-calibrate
+
+    Default is LOW, which is READ_FROM_MEMORY
+  */
+  pinMode(MODE_PIN, INPUT_PULLDOWN);
+  /*
+  The pin for SD card must be output
+  */
+  pinMode(SD_CS, OUTPUT);
+
 
   set_default_format(Log);
   esp_log_level_set("*", ESP_LOG_NONE);  
@@ -207,13 +247,6 @@ void setup() {
   controller.set_all_loadcells_scale_coeff_n_readings(50);
   controller.set_all_loadcells_tare_n_readings(2);
   controller.set_all_loadcells_weight_n_readings(1);
-
-  /*
-    The mode is either: read calibration from memory or re-calibrate
-
-    Default is LOW, which is READ_FROM_MEMORY
-  */
-  pinMode(MODE_PIN, INPUT_PULLDOWN);
 
   if (digitalRead(MODE_PIN) == READ_CALIBRATION_FROM_MEMORY) {
     Log.noticeln("Starting in auto mode");
@@ -267,23 +300,21 @@ void loop() {
 
         int csvIndex = clientData.indexOf(CSV_FILE_EXTENSION);
 
+        String the_date = getTodaysDate(); 
         if (clientData.indexOf(REFRESH_CODE) >= 0) {
-          getTodaysDate();  // If the refresh code is passed, give the client
-                            // the newest data
-          myFile = SD.open(
-            today);  // This would be the 'today' file not yet completed.
+          myFile = SD.open(the_date.c_str());  // This would be the 'today' file not yet completed.
           httpReason = "REFRESHED TODAY";
         } else if (csvIndex >= 0) {
           myFile = SD.open(clientData.substring(csvIndex - 11, csvIndex + 4));
           httpReason = "CUSTOM DATE";
         } else {
-          getYesterdaysDate();
-          if (SD.exists(yesterday)) {
-            myFile = SD.open(yesterday);
+          the_date = getYesterdaysDate();
+          if (SD.exists(the_date.c_str())) {
+            myFile = SD.open(the_date.c_str());
             httpReason = "DEFAULT YESTERDAY";
           } else {
             Log.errorln("yesterdays file doesn't exist!");
-            myFile = SD.open(today);
+            myFile = SD.open(the_date.c_str());
             httpReason =
               "YESTERDAY MISSING FILE";  // This case is specifically for if
                                          // we start the cage close after

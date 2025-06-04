@@ -1,4 +1,6 @@
+#include "pins_arduino.h"
 #pragma once
+#include <Arduino.h>
 
 /*
   All constants related to the circuit, the network or the file management are
@@ -27,7 +29,7 @@ const int RECALIBRATE = HIGH;
 /*
   Pin where the SD card reader is connected
 */
-const int SS_PIN = D8;
+const int SD_CS = 21;
 
 /*
   The Firebeetle connects to WiFi and offers a web server to allow the user
