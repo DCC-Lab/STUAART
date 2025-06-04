@@ -1,5 +1,12 @@
 #include "logger.h"
 
+void set_default_format(Logging& Log) {
+  Log.setPrefix(printPrefix);  // set prefix similar to NLog
+  Log.setSuffix(printSuffix);  // set suffix
+  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
+  Log.setShowLevel(false);  // Do not show loglevel, we will do this in the prefix
+}
+
 void printPrefix(Print* _logOutput, int logLevel) {
   printTimestamp(_logOutput);
   printLogLevel(_logOutput, logLevel);

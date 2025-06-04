@@ -2,73 +2,22 @@
 #include <SPI.h>
 #include <WiFi.h>
 #include <time.h>
-
+#include <esp_log.h>
 #include "Logger.h"
 
 #include "LoadCell.h"
 #include "LoadCellController.h"
 
-/************* BEGIN CONSTANTS *************/
+#include "constants.h"
 
+// #define TEST 1
+
+
+#ifndef TEST
 /*
-  All constants related to the circuit, the network or the file management are
-  defined here:
-
-  We have three load cells, with their clock pin
-*/
-
-const int SCK1_PIN = 4;
-const int SCK2_PIN = 16;
-const int SCK3_PIN = 17;
-
-/*
-  Pin to put in setup mode.
-*/
-const int MODE_PIN = 13;
-
-const int READ_CALIBRATION_FROM_MEMORY = LOW;
-const int RECALIBRATE = HIGH;
-/*
-  Pin where the SD card reader is connected
-*/
-const int SS_PIN = 21;
-
-/*
-  The Firebeetle connects to WiFi and offers a web server to allow the user
-  to retrieve the data.
-
-  SSID: the name of the wifi network
-  PASSWORD: the password
-*/
-const char *SSID = "TP-Link_37E9";
-const char *PASSWORD = "15351210";
-
-// must be the same as in the python code, otherwise they won't be able to recognize one another
-const char *REFRESH_CODE = "refresh";
-
-const char *CSV_FILE_EXTENSION = ".csv";
-
-/*
-  Infos of the time provider server
-*/
-const char *NTP_SERVER = "pool.ntp.org";
-const long GMT_OFFSET_SEC = -18000;
-const int DAYLIGHT_OFFSET_SEC = 3600;
-
-const int SAVE_DATA_INTERVAL = 0;
-const int RECONNECT_WIFI_INTERVAL = 3600000;
-
-/************* END CONSTANTS *************/
-
-/*
-
 Instantiate global variables necessary throughout the code
-
 */
 
-LoadCell loadCell1;
-LoadCell loadCell2;
-LoadCell loadCell3;
 LoadCellController controller;
 
 /* File instance to simplify saving */
@@ -111,14 +60,29 @@ bool connectToWifi(int timeout_in_secs = 0) {
 
     if (millis() > end_time) {
       Log.noticeln("Unable to connect to Wifi");
-      return false;
+      return true;
     }
     delay(500);
   }
 
   Log.noticeln("Connected to Wifi. IP address: %s", WiFi.localIP());
 
-  return true;
+  return false;
+}
+
+bool connectSDCardReader() {
+  if (!SD.begin(SS_PIN)) {
+    Log.errorln("SD card reader failed: device not responding");
+    return true;
+  }
+
+  uint8_t cardType = SD.cardType();
+
+  if (cardType == CARD_NONE) {
+    Log.errorln("No SD card in card reader");
+    return true;
+  }
+  return false;
 }
 
 /*
@@ -157,8 +121,8 @@ void getYesterdaysDate() {
   message. Writes in the serial consol error if it doesn't succeed.
 */
 void writeFile(const char *path, const char *message, const char *mode) {
-  if (!SD.begin(SS_PIN)) {
-    Log.noticeln("SD card initialization failed!");
+  if (connectSDCardReader()) {
+    Log.errorln("Card reader unavailable to write data to %s", path);
     return;
   }
 
@@ -169,7 +133,7 @@ void writeFile(const char *path, const char *message, const char *mode) {
     myFile.println(message);
     myFile.close();
   } else {
-    Log.errorln("Error saving file %s to SD card", path);
+    Log.errorln("Unable to file %s to SD card", path);
   }
 }
 
@@ -220,23 +184,26 @@ void saveData() {
 void setup() {
   Serial.begin(115200);
   while (!Serial && !Serial.available()) {}
-  Log.setPrefix(printPrefix);  // set prefix similar to NLog
-  Log.setSuffix(printSuffix);  // set suffix
-  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
-  Log.setShowLevel(false);  // Do not show loglevel, we will do this in the prefix
+
+  set_default_format(Log);
+  esp_log_level_set("*", ESP_LOG_NONE);  
 
   if (connectToWifi(5)) {
+    Log.errorln("Web server will not be started");
+  } else {
     webServer.begin();
+  }
+
+  if (connectSDCardReader()) {
+    Log.errorln("There will not be any access to SD Card");
   }
 
   configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
 
-  controller.add_loadcell(loadCell1, 27,
-                          SCK1_PIN);  // loadcell number, dout, sck
-  controller.add_loadcell(loadCell2, 9,
-                          SCK2_PIN);  // loadcell number, dout, sck
-  controller.add_loadcell(loadCell3, 5,
-                          SCK3_PIN);  // loadcell number, dout, sck
+  controller.add_loadcell(DOUT1_PIN, SCK1_PIN, GAIN);
+  controller.add_loadcell(DOUT2_PIN, SCK2_PIN, GAIN);
+  controller.add_loadcell(DOUT3_PIN, SCK3_PIN, GAIN);
+
   controller.set_all_loadcells_scale_coeff_n_readings(50);
   controller.set_all_loadcells_tare_n_readings(2);
   controller.set_all_loadcells_weight_n_readings(1);
@@ -295,17 +262,6 @@ void loop() {
         char c = client.read();  // read a byte, then
         clientData += c;
       } else {
-        if (!SD.begin(SS_PIN)) {
-          Log.errorln("Card Mount Failed");
-          return;
-        }
-
-        uint8_t cardType = SD.cardType();
-
-        if (cardType == CARD_NONE) {
-          Log.errorln("No SD card attached");
-          return;
-        }
 
         String httpReason = "OK";
 
@@ -360,3 +316,19 @@ void loop() {
     client.stop();
   }
 }
+
+#else
+#include <AUnit.h>
+
+void setup() {
+  delay(1000); // wait for stability on some boards to prevent garbage Serial
+  Serial.begin(115200); // ESP8266 default of 74880 not supported on Linux
+  while (!Serial); // for the Arduino Leonardo/Micro only
+
+}
+
+void loop() {
+  aunit::TestRunner::run();
+}
+
+#endif

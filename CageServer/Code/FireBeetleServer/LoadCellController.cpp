@@ -1,13 +1,19 @@
+#include <cassert>
 #include "Logger.h"
 #include "LoadCellController.h"
+
+#if defined(ARDUINO_ARCH_ESP32)
+#include "FS.h"
+#include "SPIFFS.h"
+// Verify if the board is based on a Atmega328P chip, like Arduino Uno
+#elif defined(__AVR_ATmega328P__)
+#include <EEPROM.h>
+#endif
 
 #define assert_valid_load_cell_num(x) assert(loadcell_num > 0 && loadcell_num <= number_of_loadcells())
 
 LoadCellController::LoadCellController() {
-  Log.setPrefix(printPrefix);  // set prefix similar to NLog
-  Log.setSuffix(printSuffix);  // set suffix
-  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
-  Log.setShowLevel(false);  // Do not show loglevel, we will do this in the prefix
+  set_default_format(Log);
 }
 
 void LoadCellController::add_loadcell(LoadCell &loadcell) {
@@ -15,25 +21,22 @@ void LoadCellController::add_loadcell(LoadCell &loadcell) {
   n_loadcell++;
 }
 
-void LoadCellController::add_loadcell(
-  LoadCell &loadcell,
-  byte dout,
-  byte sck,
+void LoadCellController::add_loadcell(byte dout, byte sck, byte gain) {
 
-  byte gain) {
-  loadcells[n_loadcell] = &loadcell;
-  n_loadcell++;
-
-  loadcell.begin(dout, sck, gain);
+    LoadCell* loadcell = new LoadCell(dout, sck, gain);
+    if (!loadcell->initialize()) {
+        Log.fatalln("The circuit and the HX711 chip(s) should be verified");
+    }
+    add_loadcell(*loadcell);
 }
 
 void LoadCellController::tare_all_loadcells(bool wait_for_user) {
   bool _resume;
-  Log.noticeln(F("Taring of all loadcells"));
+  Log.traceln(F("Taring of all loadcells"));
 
   if (wait_for_user == true) {
-    Log.noticeln(F("Remove any load applied to the loadcell."));
-    Log.noticeln(F("Send 't' from serial monitor when ready."));
+    Log.traceln(F("Remove any load applied to the loadcell."));
+    Log.infoln(F("Send 't' from serial monitor when ready."));
     _resume = false;
   } else if (wait_for_user == false) {
     _resume = true;
@@ -43,45 +46,43 @@ void LoadCellController::tare_all_loadcells(bool wait_for_user) {
     if (Serial.available() > 0) {
       char serial_reading = Serial.read();
       if (serial_reading == 't') {
-        Log.noticeln(F("Start of taring..."));
+        Log.traceln(F("Start of taring..."));
         _resume = true;
       }
     }
   }
 
   for (byte i = 1; i <= number_of_loadcells(); i++) {
-    Log.notice(F("Taring of LoadCell #%d ..."), i);
+    Log.traceln(F("Taring of LoadCell #%d ..."), i);
     tare(i);
-    Log.noticeln(F("done"));
-    Log.notice(F("Saving offset [%f] of LoadCell #%d ..."), get_offset(i), i);
+    Log.traceln(F("Saving offset [%d] of LoadCell #%d ..."), get_offset(i), i);
     save_offset_to_persistent_memory(i);
-    Log.noticeln(F("done"));
   }
 }
 
 void LoadCellController::calibrate_all_loadcells() {
-  Log.noticeln(F("Start of all LoadCells calibration"));
+  Log.traceln(F("Start of all LoadCells calibration"));
 
   for (byte i = 1; i <= number_of_loadcells(); i++) {
     calibrate_scale_coeff(i);
 
-    Log.notice(F("Saving scale coeff of LoadCell #%d ..."), i);
+    Log.traceln(F("Saving scale coeff of LoadCell #%d ..."), i);
     save_scale_coeff_to_persistent_memory(i);
-    Log.noticeln("Scale factor [%f]", get_scale(i));
-    Log.noticeln("done");
+    Log.traceln("Scale factor [%f]", get_scale(i));
+    Log.traceln("done");
   }
-  Log.noticeln(F("All LoadCells are calibrated"));
+  Log.traceln(F("All LoadCells are calibrated"));
 }
 
 void LoadCellController::read_all_scale_coeff_from_persistent_memory() {
-  Log.noticeln(F("Reading all scale coefficients from persistent memory"));
+  Log.traceln(F("Reading all scale coefficients from persistent memory"));
 
   for (byte i = 1; i <= number_of_loadcells(); i++) {
-    Log.notice(F("Reading scale coeff of LoadCell #%d"), i);
+    Log.traceln(F("Reading scale coeff of LoadCell #%d"), i);
     float scale_coeff = read_scale_coeff_from_persistent_memory(i);
     set_scale(i, scale_coeff);
-    Log.noticeln("Scale coefficient: [%f]", scale_coeff);
-    Log.noticeln("done");
+    Log.traceln("Scale coefficient: [%f]", scale_coeff);
+    Log.traceln("done");
   }
 }
 
@@ -131,7 +132,7 @@ void LoadCellController::easy_start_with_params(
     loadcell_num,
     save_offset_persistent_memory,
     save_scale_persistent_memory);  // set offset and scale with calibration or with value
-  Log.noticeln(F("---------***---------"));
+  Log.traceln(F("---------***---------"));
 }
 
 void LoadCellController::easy_read_from_persistent_memory_with_params(
@@ -143,20 +144,20 @@ void LoadCellController::easy_read_from_persistent_memory_with_params(
   if (read_offset && read_scale) {
     loadcell_ptr->set_offset(read_offset_from_persistent_memory(loadcell_num));
     loadcell_ptr->set_scale(read_scale_coeff_from_persistent_memory(loadcell_num));
-    Log.noticeln(F("Offset and scale coefficient read from memory"));
-    Log.notice(F("Offset: %f"), loadcell_ptr->get_offset());
-    Log.notice(F("Scale coefficient: %f"), loadcell_ptr->get_scale());
-    Log.noticeln(F("---------***---------"));
+    Log.traceln(F("Offset and scale coefficient read from memory"));
+    Log.trace(F("Offset: %f"), loadcell_ptr->get_offset());
+    Log.trace(F("Scale coefficient: %f"), loadcell_ptr->get_scale());
+    Log.traceln(F("---------***---------"));
   } else if (read_offset && !read_scale) {
     loadcell_ptr->set_offset(read_offset_from_persistent_memory(loadcell_num));
-    Log.noticeln(F("---------***---------"));
-    Log.noticeln(F("Offset read from memory"));
-    Log.notice(F("Offset: %f"), loadcell_ptr->get_offset());
+    Log.traceln(F("---------***---------"));
+    Log.traceln(F("Offset read from memory"));
+    Log.trace(F("Offset: %f"), loadcell_ptr->get_offset());
   } else if (!read_offset && read_scale) {
     loadcell_ptr->set_scale(read_scale_coeff_from_persistent_memory(loadcell_num));
-    Log.noticeln(F("---------***---------"));
-    Log.noticeln(F("Scale coefficient read from memory"));
-    Log.notice(F("Scale coefficient: %f"), loadcell_ptr->get_scale());
+    Log.traceln(F("---------***---------"));
+    Log.traceln(F("Scale coefficient read from memory"));
+    Log.trace(F("Scale coefficient: %f"), loadcell_ptr->get_scale());
   }
 }
 
@@ -167,8 +168,8 @@ void LoadCellController::easy_calibration_with_params(
   LoadCell *loadcell_ptr = loadcells[loadcell_num - 1];
   if (calibrate_offset && calibrate_scale) {
     calibrate_both_params(loadcell_num);  // set offset and scale
-    Log.notice(F("Offset: %f"), loadcell_ptr->get_offset());
-    Log.notice(F("Scale coefficient: %f"), loadcell_ptr->get_scale());
+    Log.trace(F("Offset: %f"), loadcell_ptr->get_offset());
+    Log.trace(F("Scale coefficient: %f"), loadcell_ptr->get_scale());
   } else if (calibrate_offset && !calibrate_scale) {
     calibrate_tare_offset(loadcell_num);  // set offset
   } else if (!calibrate_offset && calibrate_scale) {
@@ -185,20 +186,20 @@ void LoadCellController::easy_save_to_persistent_memory_with_params(
   if (save_offset && save_scale) {
     save_offset_to_persistent_memory(loadcell_num);
     save_scale_coeff_to_persistent_memory(loadcell_num);
-    Log.noticeln(F("---------***---------"));
-    Log.noticeln(F("Offset and scale coefficient saved to persistent memory."));
-    Log.notice(F("Offset: %f"), loadcell_ptr->get_offset());
-    Log.notice(F("Scale coefficient: "), loadcell_ptr->get_scale());
+    Log.traceln(F("---------***---------"));
+    Log.traceln(F("Offset and scale coefficient saved to persistent memory."));
+    Log.trace(F("Offset: %f"), loadcell_ptr->get_offset());
+    Log.trace(F("Scale coefficient: "), loadcell_ptr->get_scale());
   } else if (save_offset && !save_scale) {
     save_offset_to_persistent_memory(loadcell_num);
-    Log.noticeln(F("---------***---------"));
-    Log.noticeln(F("Offset saved to persistent memory."));
-    Log.notice(F("Offset: %f"), loadcell_ptr->get_offset());
+    Log.traceln(F("---------***---------"));
+    Log.traceln(F("Offset saved to persistent memory."));
+    Log.trace(F("Offset: %f"), loadcell_ptr->get_offset());
   } else if (!save_offset && save_scale) {
     save_scale_coeff_to_persistent_memory(loadcell_num);
-    Log.noticeln(F("---------***---------"));
-    Log.noticeln(F("Scale coefficient saved to persistent memory."));
-    Log.notice(F("Scale coefficient: %f"), loadcell_ptr->get_scale());
+    Log.traceln(F("---------***---------"));
+    Log.traceln(F("Scale coefficient saved to persistent memory."));
+    Log.trace(F("Scale coefficient: %f"), loadcell_ptr->get_scale());
   }
 }
 
@@ -223,42 +224,42 @@ void LoadCellController::easy_handle_exceptions(
   assert_valid_load_cell_num(loadcell_num);
 
   if (calibrate_offset && read_offset_persistent_memory) {
-    Log.noticeln(F("ERROR 2 easy_start(): cannot calibrate offset and read it from memory."));
+    Log.traceln(F("ERROR 2 easy_start(): cannot calibrate offset and read it from memory."));
     while (1)
       ;
   }
   if (calibrate_scale && read_scale_persistent_memory) {
-    Log.noticeln(F("ERROR 3 easy_start(): cannot calibrate scale and read it from memory."));
+    Log.traceln(F("ERROR 3 easy_start(): cannot calibrate scale and read it from memory."));
     while (1)
       ;
   }
   if (read_offset_persistent_memory && save_offset_persistent_memory) {
-    Log.noticeln(F("ERROR 4 easy_start(): cannot read scale from memory and save it to memory."));
+    Log.traceln(F("ERROR 4 easy_start(): cannot read scale from memory and save it to memory."));
     while (1)
       ;
   }
   if (read_scale_persistent_memory && save_scale_persistent_memory) {
-    Log.noticeln(F("ERROR 5 easy_start(): cannot calibrate scale and read it from memory."));
+    Log.traceln(F("ERROR 5 easy_start(): cannot calibrate scale and read it from memory."));
     while (1)
       ;
   }
   if (calibrate_offset && tare_offset) {
-    Log.noticeln(F("ERROR 6 easy_start(): cannot calibrate offset and specify a tare offset."));
+    Log.traceln(F("ERROR 6 easy_start(): cannot calibrate offset and specify a tare offset."));
     while (1)
       ;
   }
   if (calibrate_scale && scale_coeff) {
-    Log.noticeln(F("ERROR 7 easy_start(): cannot calibrate scale and specify a scale factor."));
+    Log.traceln(F("ERROR 7 easy_start(): cannot calibrate scale and specify a scale factor."));
     while (1)
       ;
   }
   if (read_offset_persistent_memory && tare_offset) {
-    Log.noticeln(F("ERROR 8 easy_start(): cannot read offset from memory and specify a tare offset."));
+    Log.traceln(F("ERROR 8 easy_start(): cannot read offset from memory and specify a tare offset."));
     while (1)
       ;
   }
   if (read_scale_persistent_memory && scale_coeff) {
-    Log.noticeln(F("ERROR 9 easy_start(): cannot read scale from memoryand specify a scale coeff."));
+    Log.traceln(F("ERROR 9 easy_start(): cannot read scale from memoryand specify a scale coeff."));
     while (1)
       ;
   }
@@ -278,9 +279,8 @@ void LoadCellController::save_offset_to_persistent_memory(byte loadcell_num) {
   assert_valid_load_cell_num(loadcell_num);
 
   if (!SPIFFS.begin()) {
-    Log.noticeln(F("SPIFFS Mount Failed"));
-    while (1)
-      ;
+    Log.traceln(F("SPIFFS Mount Failed"));
+    return;
   }
   LoadCell *loadcell_ptr = loadcells[loadcell_num - 1];
   // since loadcell.get_offset() returns an int, it needs to be converted to long before saving to SPIFFS
@@ -290,14 +290,14 @@ void LoadCellController::save_offset_to_persistent_memory(byte loadcell_num) {
   dtostrf(offset, 6, 0, buffer);
   File file = SPIFFS.open(get_offset_file_name(loadcell_num).c_str(), FILE_WRITE);
   if (!file) {
-    Log.noticeln(F("failed to open file for writing"));
+    Log.traceln(F("failed to open file for writing"));
     return;
   }
   const char *buffer_ptr = buffer;
   if (file.print(buffer_ptr)) {
-    Log.noticeln(F("offset saved to memory"));
+    Log.traceln(F("offset saved to memory"));
   } else {
-    Log.noticeln(F("failed to saved offset to memory"));
+    Log.traceln(F("failed to saved offset to memory"));
   }
   file.close();
 }
@@ -318,7 +318,7 @@ void LoadCellController::save_scale_coeff_to_persistent_memory(byte loadcell_num
   assert_valid_load_cell_num(loadcell_num);
 
   if (!SPIFFS.begin()) {
-    Log.noticeln(F("SPIFFS Mount Failed"));
+    Log.traceln(F("SPIFFS Mount Failed"));
     return;
   }
   LoadCell *loadcell_ptr = loadcells[loadcell_num - 1];
@@ -331,15 +331,15 @@ void LoadCellController::save_scale_coeff_to_persistent_memory(byte loadcell_num
 
   File file = SPIFFS.open(get_scale_coeff_file_name(loadcell_num).c_str(), FILE_WRITE);
   if (!file) {
-    Log.noticeln(F("failed to open file for writing"));
+    Log.traceln(F("failed to open file for writing"));
     while (1)
       ;
   }
   const char *buffer_ptr = buffer;
   if (file.print(buffer_ptr)) {
-    Log.noticeln(F("file written"));
+    Log.traceln(F("file written"));
   } else {
-    Log.noticeln(F("failed to save scale coefficient to memory"));
+    Log.traceln(F("failed to save scale coefficient to memory"));
   }
   file.close();
 }
@@ -358,18 +358,18 @@ long LoadCellController::read_offset_from_persistent_memory(byte loadcell_num) {
   assert_valid_load_cell_num(loadcell_num);
 
   if (!SPIFFS.begin()) {
-    Log.noticeln(F("SPIFFS Mount Failed"));
+    Log.traceln(F("SPIFFS Mount Failed"));
     while (1)
       ;
   }
   File file = SPIFFS.open(get_offset_file_name(loadcell_num).c_str());
   if (!file || file.isDirectory()) {
-    Log.noticeln(F("failed to read offset from memory"));
+    Log.traceln(F("failed to read offset from memory"));
     while (1)
       ;
   }
   long offset;
-  // Log.noticeln("- read from file:");
+  // Log.traceln("- read from file:");
   while (file.available()) {
     offset = file.readStringUntil('\n').toInt();
   }
@@ -391,19 +391,19 @@ float LoadCellController::read_scale_coeff_from_persistent_memory(byte loadcell_
   assert_valid_load_cell_num(loadcell_num);
 
   if (!SPIFFS.begin()) {
-    Log.noticeln(F("SPIFFS Mount Failed"));
+    Log.traceln(F("SPIFFS Mount Failed"));
     while (1)
       ;
   }
 
   File file = SPIFFS.open(get_scale_coeff_file_name(loadcell_num).c_str());
   if (!file || file.isDirectory()) {
-    Log.noticeln(F("failed to read scale coefficient from memory"));
+    Log.traceln(F("failed to read scale coefficient from memory"));
     while (1)
       ;
   }
   float scale;
-  // Log.noticeln("- read from file:");
+  // Log.traceln("- read from file:");
   while (file.available()) {
     scale = file.readStringUntil('\n').toFloat();
   }
@@ -415,8 +415,8 @@ float LoadCellController::read_scale_coeff_from_persistent_memory(byte loadcell_
 void LoadCellController::calibrate_both_params(byte loadcell_num) {
   assert_valid_load_cell_num(loadcell_num);
 
-  Log.noticeln(F("***"));
-  Log.notice(F("Start calibration of loadcell #%d :"), loadcell_num);
+  Log.traceln(F("***"));
+  Log.trace(F("Start calibration of loadcell #%d :"), loadcell_num);
   calibrate_tare_offset(loadcell_num);
   delay(500);
   calibrate_scale_coeff(loadcell_num);
@@ -445,19 +445,19 @@ float LoadCellController::determine_offset(byte loadcell_num) {
   LoadCell *loadcell_ptr = loadcells[loadcell_num - 1];
   long tare_offset;
 
-  Log.noticeln(F("---------***---------"));
-  Log.notice(F("Determination of the tare offset of loadcell #%d"), loadcell_num);
-  Log.noticeln(F("Remove any load applied to the loadcell."));
-  Log.noticeln(F("Send 't' from serial monitor to set the tare offset."));
+  Log.traceln(F("---------***---------"));
+  Log.trace(F("Determination of the tare offset of loadcell #%d"), loadcell_num);
+  Log.traceln(F("Remove any load applied to the loadcell."));
+  Log.traceln(F("Send 't' from serial monitor to set the tare offset."));
   delay(3000);  // delay to allow stabilization of the output before tare
   bool _resume = false;
   while (_resume == false) {
     if (Serial.available() > 0) {
       char serial_reading = Serial.read();
       if (serial_reading == 't') {
-        Log.noticeln(F("Reading..."));
+        Log.traceln(F("Reading..."));
         tare_offset = loadcell_ptr->read_tare_average();
-        Log.notice(F("Offset: %f "), tare_offset);
+        Log.trace(F("Offset: %f "), tare_offset);
         _resume = true;
       }
     }
@@ -470,45 +470,45 @@ float LoadCellController::determine_scale_coeff(byte loadcell_num) {
 
   LoadCell *loadcell_ptr = loadcells[loadcell_num - 1];
 
-  Log.noticeln(F("---------***---------"));
-  Log.notice(F("Determination of the scale coeff of loadcell #%d"), loadcell_num);
-  Log.noticeln(F("How many weights will be used to calibrate the loadcell ?"));
+  Log.traceln(F("---------***---------"));
+  Log.trace(F("Determination of the scale coeff of loadcell #%d"), loadcell_num);
+  Log.traceln(F("How many weights will be used to calibrate the loadcell ?"));
   int num_weights = 0;
   bool _resume = false;
   while (_resume == false) {
     if (Serial.available() > 0) {
       num_weights = Serial.parseInt();
       if (num_weights != 0) {
-        Log.noticeln(F("%d calibration weight(s) will be used to determine scale coeff."), num_weights);
+        Log.traceln(F("%d calibration weight(s) will be used to determine scale coeff."), num_weights);
         _resume = true;
       }
     }
   }
   float scale_coeff_sum = 0;
   for (int i = 1; i < (num_weights + 1); i++) {
-    Log.notice(F("Place weight #%d n the loadcell."), i);
-    Log.noticeln(F("Then send its weight from serial monitor."));
+    Log.trace(F("Place weight #%d n the loadcell."), i);
+    Log.traceln(F("Then send its weight from serial monitor."));
     float known_mass = 0;
     _resume = false;
     while (_resume == false) {
       if (Serial.available() > 0) {
         known_mass = Serial.parseFloat();
         if (known_mass != 0) {
-          Log.notice(F("Known mass is: %f"), known_mass);
+          Log.trace(F("Known mass is: %f"), known_mass);
           _resume = true;
         }
       }
     }
     delay(2000);  // delay before beginning readings for stabilization of the output
     // byte times = loadcell_ptr->get_scale_coeff_n_readings();
-    Log.noticeln(F("Reading..."));
+    Log.traceln(F("Reading..."));
     float known_output = loadcell_ptr->read_scale_coeff_average();
     float mass_scale_coeff = calculate_scale_coeff(loadcell_num, known_output, known_mass);
-    Log.notice(F("The scale coefficient for this mass is %f"), mass_scale_coeff);
+    Log.trace(F("The scale coefficient for this mass is %f"), mass_scale_coeff);
     scale_coeff_sum += mass_scale_coeff;
   }
   float scale_coeff = scale_coeff_sum / num_weights;
-  Log.notice(F("Scale coefficient: %f"), scale_coeff);
+  Log.trace(F("Scale coefficient: %f"), scale_coeff);
   return scale_coeff;
 }
 
@@ -546,7 +546,7 @@ String LoadCellController::get_scale_coeff_file_name(byte loadcell_num) {
   return String(fileName);
 }
 
-float LoadCellController::get_offset(byte loadcell_num) {
+long LoadCellController::get_offset(byte loadcell_num) {
   assert_valid_load_cell_num(loadcell_num);
 
   LoadCell *loadcell_ptr = loadcells[loadcell_num - 1];
@@ -711,9 +711,9 @@ float LoadCellController::get_weight_with_auto_recalibration(byte loadcell_num, 
 
   // if no mouse came on the scale, we set the new offset to the average value
   if (tare) {
-    // Log.notice(F("*** TARE LoadCell #"));
-    // Log.notice(loadcell_num);
-    // Log.noticeln(F(" ***"));
+    // Log.trace(F("*** TARE LoadCell #"));
+    // Log.trace(loadcell_num);
+    // Log.traceln(F(" ***"));
     loadcell_ptr->set_offset(reading_sum / loadcell_ptr->get_tare_n_readings());
     weight = mass_from_raw(loadcell_num, reading_sum / loadcell_ptr->get_tare_n_readings());
   }

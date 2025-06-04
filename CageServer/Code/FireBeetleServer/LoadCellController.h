@@ -83,18 +83,7 @@
 #ifndef LoadCellController_h
 #define LoadCellController_h
 #include <Arduino.h>
-#include "HX711.h"
 #include "LoadCell.h"
-
-// Verify if the board is based on a ESP32 chip, like FireBeetle
-#if defined(ARDUINO_ARCH_ESP32)
-#include "FS.h"
-#include "SPIFFS.h"
-// Verify if the board is based on a Atmega328P chip, like Arduino Uno
-#elif defined(__AVR_ATmega328P__)
-#include <EEPROM.h>
-#endif
-
 
 class LoadCellController {
 protected:
@@ -275,12 +264,7 @@ public:
         * @param pd_sck Digital pin (or analog) connected to the SCK output of the HX711.
         * @param gain Gain of the HX711. Default is 128.
         */
-  void add_loadcell(
-    LoadCell &loadcell,
-    byte dout,
-    byte sck,
-    byte gain = 128);
-
+  void add_loadcell( byte dout, byte sck, byte gain = 128);
 
   /**
         * @brief Easy function managing the start-up of a LoadCell with parameters as input.
@@ -594,7 +578,7 @@ public:
         * @param loadcell_num Number of the LoadCell.
         * @return Offset value.
         */
-  float get_offset(byte loadcell_num);
+  long get_offset(byte loadcell_num);
 
 
   /**

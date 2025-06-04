@@ -60,12 +60,25 @@ protected:
         * @brief Number of readings averaged for a weight reading.
         */
        byte weight_n_readings = 5;
+
+
+       byte dout;
+       byte sck;
+       byte gain;
+
+       bool is_responding = true;
 public:
        /**
-        * @brief Construct a LoadCell object.
+        * @brief Construct a LoadCell object with its data_out pin (dout), shift_clock (sck) and gain. 
         */
-       LoadCell();
+       LoadCell(byte dout, byte sck, byte gain = 128);
 
+
+       /**
+        * @brief Start the HX711 with its dout, clk and gain parameters. Bring with us the parent version
+        */
+
+       bool initialize();
 
        /**
         * @brief Read the output of the LoadCell and average @ref weight_n_readings readings.

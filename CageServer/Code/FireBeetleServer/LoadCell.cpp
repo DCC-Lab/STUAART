@@ -35,12 +35,33 @@
 #define DOUT_MODE INPUT_PULLUP
 #endif
 
+LoadCell::LoadCell(byte dout, byte sck, byte gain) {
+  this->dout = dout;
+  this->sck = sck;
+  this->gain = gain;
+}
 
+bool LoadCell::initialize() {
+  Log.infoln("Initializing load cell[%d, %d]", this->dout, this->sck);
 
-LoadCell::LoadCell() {
+  begin(this->dout, this->sck, this->gain);
+
+  pinMode(this->dout, INPUT_PULLUP);
+  delay(10);
+
+  if (!wait_ready_timeout(1000)) {
+      Log.fatalln(F("The HX711 on pins DOUT=%d and SCK=%d is not responding."), dout, sck);
+      is_responding = false;
+  } else {
+    Log.infoln(F("Initialized load cell[%d, %d]"), dout, sck);
+    is_responding = true;
+  }
+
+  return is_responding; 
 }
 
 long LoadCell::read_raw_average() {
+
   byte times = get_weight_n_readings();
   long sum = 0;
 
@@ -83,6 +104,11 @@ float LoadCell::get_weight() {
 }
 
 void LoadCell::tare() {
+  if (!this->is_responding) {
+    Log.errorln("Unable to read from non-responding load cell");
+    return;
+  }
+
   double offset = read_tare_average();
   set_offset(offset);
 }
