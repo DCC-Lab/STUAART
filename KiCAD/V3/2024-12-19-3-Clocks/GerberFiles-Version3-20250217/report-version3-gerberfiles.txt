@@ -1,0 +1,13 @@
+Warning: Width correction constrained.  The width correction value must be in the range of [0.000001 mm; 0.199999 mm] for the current design rules.
+Info: Output directory '/Users/valeriepineaunoel/Documents/PhD/STUAART/KiCAD/V3/2024-12-19-3-Clocks/GerberFiles-Version3-20250217' created.
+Plotted to '/Users/valeriepineaunoel/Documents/PhD/STUAART/KiCAD/V3/2024-12-19-3-Clocks/GerberFiles-Version3-20250217/2024-12-19-3-Clocks-F_Cu.gbr'.
+Plotted to '/Users/valeriepineaunoel/Documents/PhD/STUAART/KiCAD/V3/2024-12-19-3-Clocks/GerberFiles-Version3-20250217/2024-12-19-3-Clocks-B_Cu.gbr'.
+Plotted to '/Users/valeriepineaunoel/Documents/PhD/STUAART/KiCAD/V3/2024-12-19-3-Clocks/GerberFiles-Version3-20250217/2024-12-19-3-Clocks-F_Paste.gbr'.
+Plotted to '/Users/valeriepineaunoel/Documents/PhD/STUAART/KiCAD/V3/2024-12-19-3-Clocks/GerberFiles-Version3-20250217/2024-12-19-3-Clocks-B_Paste.gbr'.
+Plotted to '/Users/valeriepineaunoel/Documents/PhD/STUAART/KiCAD/V3/2024-12-19-3-Clocks/GerberFiles-Version3-20250217/2024-12-19-3-Clocks-F_Silkscreen.gbr'.
+Plotted to '/Users/valeriepineaunoel/Documents/PhD/STUAART/KiCAD/V3/2024-12-19-3-Clocks/GerberFiles-Version3-20250217/2024-12-19-3-Clocks-B_Silkscreen.gbr'.
+Plotted to '/Users/valeriepineaunoel/Documents/PhD/STUAART/KiCAD/V3/2024-12-19-3-Clocks/GerberFiles-Version3-20250217/2024-12-19-3-Clocks-F_Mask.gbr'.
+Plotted to '/Users/valeriepineaunoel/Documents/PhD/STUAART/KiCAD/V3/2024-12-19-3-Clocks/GerberFiles-Version3-20250217/2024-12-19-3-Clocks-B_Mask.gbr'.
+Plotted to '/Users/valeriepineaunoel/Documents/PhD/STUAART/KiCAD/V3/2024-12-19-3-Clocks/GerberFiles-Version3-20250217/2024-12-19-3-Clocks-Edge_Cuts.gbr'.
+Created Gerber job file '/Users/valeriepineaunoel/Documents/PhD/STUAART/KiCAD/V3/2024-12-19-3-Clocks/GerberFiles-Version3-20250217/2024-12-19-3-Clocks-job.gbrjob'.
+Info: Done.
