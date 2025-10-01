@@ -17,8 +17,8 @@ const int SS_PIN = 21; // seule pin de carte SD à spécifier
 
 // const char *SSID = "TP-Link_37E9"; // of the router
 // const char *PASSWORD = "15351210"; // password of the router
-const char *SSID = "Valérie's iPhon";
-const char *PASSWORD = "nanacestlameilleure";
+const char *SSID = "INTERNET-EQUIPEMENTS"; // This network only works for the firebeetle with the red dot
+const char *PASSWORD = "ihe5hj29";
 WiFiServer server(80);             // créer un serveur qui écoute les clients qui veulent s'y connecter
 
 const char *REFRESH_CODE = "refresh"; // must be the same as in the python code, otherwise they won't be able to recognize one another
