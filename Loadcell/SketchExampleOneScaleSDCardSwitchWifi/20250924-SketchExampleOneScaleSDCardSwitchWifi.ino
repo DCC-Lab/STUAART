@@ -1,6 +1,4 @@
 // This script was used by VPN to test the new metal scales, that's all. 
-// No WiFi Server thing is in here because the WiFi changed at the center and Colloque does not exist anymore. I need to figure this out. 
-
 #include "LoadCell.h"
 #include "LoadCellController.h"
 #include <WiFi.h>
