@@ -1,0 +1,1 @@
+my_path = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/2025.10.16-RawWeightData.csv"

@@ -105,6 +105,7 @@ class Cage():
         """
 
         # fig, axs = plt.subplots(self.number_of_scales, 1, figsize=(13,7))
+        print(self.data_per_scale, self.data_per_scale.shape, type(self.data_per_scale), self.data_per_scale.dtype)
         for i in range(self.number_of_scales):
             self.data_per_scale[i].plot_signal(threshold=False, peaks=False, baseline=True, color=self.colors[i], is_saved=is_saved, real_data=self.real_data)
 
@@ -115,10 +116,10 @@ class Cage():
         Data acquisition starts with a plateau at 0g. When the mouse is in, the mean weight goes up.
         Creates two class variables with the time and the weight data when the mouse is in. 
         """
-        length = 5
+        length = 80
         for i in range(self.data.shape[0]):
             mean = np.mean(self.data[i: i+length])
-            if np.isclose(mean, 0, atol=1): # + or - one gram is still considered at 0g. 
+            if np.isclose(mean, 0, atol=3): # + or - one gram is still considered at 0g. 
                 i += length
             else:
                 break
@@ -419,7 +420,7 @@ class Cage():
             plt.plot(self.time, self.data, label="Convoluted")
             plt.legend()
             plt.xlabel("Time [hour]", fontsize=20)
-            plt.ylabel("Fake weight data [g]", fontsize=20)
+            plt.ylabel("Weight data [g]", fontsize=20)
             plt.show()
 
 
@@ -639,9 +640,13 @@ class Cage():
         axs[1].set_ylabel("Weight [g]", fontsize=16)
         axs[2].set_ylabel("Weight [g]", fontsize=16)
         fig.tight_layout()
+
         if is_saved:
             today = datetime.today().strftime('%Y-%m-%d')
-            plt.savefig(self.directory+today+"-TotalError_and_EventPrecision"+str(bins)+"-range"+str(evaluate_only_between_these_hours[0])+"to"+str(evaluate_only_between_these_hours[1])+"hours.png", format="png", dpi=600, transparent=True)
+            if evaluate_only_between_these_hours is not None:
+                plt.savefig(self.directory+today+"-TotalError_and_EventPrecision"+str(bins)+"-range"+str(evaluate_only_between_these_hours[0])+"to"+str(evaluate_only_between_these_hours[1])+"hours.png", format="png", dpi=600, transparent=True)
+            else:
+                plt.savefig(self.directory+today+"-TotalError_and_EventPrecision"+str(bins)+".png", format="png", dpi=600, transparent=True)
         plt.show()
 
     def retreive_indicator_behaviour_data_per_scale(self, directory:str, delay_in_seconds:int, include_not_annotated_data:bool=False):
@@ -701,7 +706,7 @@ class Cage():
 
     def produce_behaviour_dataset_per_scale(self, directory:str, delay_in_seconds:int):
         """
-        Uses groung truth annotations of all different behaviours and format in 2 second events, which is approximately 10 datapoints. 
+        Uses groung truth annotations of all different behaviours and format in 2 second events.
         Returns:
             - the weight measurements of each 10 datapoints (shape = (-1,10))
             - the scale indicator on which this moments is measured (shape = -1)
@@ -719,7 +724,7 @@ class Cage():
             for n in range(self.number_of_scales):
                 indices = np.where(indicator[n] == 1)[0]
                 weight_truth = self.raw_data_per_scale[n][indices]
-                new_size = (weight_truth.size // 10) * 10 # 10 data points is about 2 seconds
+                new_size = (weight_truth.size // 190) * 190 # 190 data points is about 2 seconds at 80 Hz
                 trim_weight_truth = weight_truth[:new_size]
                 trim_weight_truth = np.reshape(trim_weight_truth, (-1, 10))
                 two_second_data = np.array(list(two_second_data) + list(trim_weight_truth))
@@ -750,7 +755,7 @@ class Cage():
             indicator = self.behaviour_indicator[key]
             indices = np.where(indicator == 1)[0]
             weight_truth = self.raw_data[indices]
-            new_size = (weight_truth.size // 10) * 10 # 10 data points is about 2 seconds
+            new_size = (weight_truth.size // 190) * 190 # 190 data points is about 2 seconds at 80 Hz
             trim_weight_truth = weight_truth[:new_size]
             trim_weight_truth = np.reshape(trim_weight_truth, (-1, 10))
             two_second_data = np.array(list(two_second_data) + list(trim_weight_truth))
