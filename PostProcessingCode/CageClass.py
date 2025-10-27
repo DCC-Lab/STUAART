@@ -353,7 +353,7 @@ class Cage():
         conv_time = self.time 
         self.convolution_filter_with_padding_edge(kernel_type="high-pass")
 
-        hanging_indices = find_peaks(abs(self.data), height=15, distance=10)[0]
+        hanging_indices = find_peaks(abs(self.data), height=10, distance=10)[0]
         start_indices = []
         end_indices = []
         self.hanging_moments = np.zeros(shape=self.time.shape)
@@ -726,7 +726,7 @@ class Cage():
                 weight_truth = self.raw_data_per_scale[n][indices]
                 new_size = (weight_truth.size // 190) * 190 # 190 data points is about 2 seconds at 80 Hz
                 trim_weight_truth = weight_truth[:new_size]
-                trim_weight_truth = np.reshape(trim_weight_truth, (-1, 10))
+                trim_weight_truth = np.reshape(trim_weight_truth, (-1, 190))
                 two_second_data = np.array(list(two_second_data) + list(trim_weight_truth))
                 on_scale = np.array(list(on_scale) + list(np.repeat(n, trim_weight_truth.shape[0])))
                 targets = np.array(list(targets) + list(np.repeat(i, trim_weight_truth.shape[0])))
