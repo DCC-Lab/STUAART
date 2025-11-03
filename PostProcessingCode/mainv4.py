@@ -210,16 +210,16 @@ directory_behaviour = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20
 
 
 # # FFT OF THE 3 SCALES ALONE OF THE BASELINE SIGNAL. MAYBE THE 3 SCALES DO NOT HAVE THE SAME NOISE. 
-baseline_weight_per_scale = []
-for i in range(len(cage.raw_data_per_scale)):
-	baseline_weight_per_scale.append(cage.raw_data_per_scale[i][20:6200])
+# baseline_weight_per_scale = []
+# for i in range(len(cage.raw_data_per_scale)):
+# 	baseline_weight_per_scale.append(cage.raw_data_per_scale[i][20:6200])
 
-baseline_weight_per_scale = np.array(baseline_weight_per_scale)
+# baseline_weight_per_scale = np.array(baseline_weight_per_scale)
 
-baseline_weight_per_scale = np.where(baseline_weight_per_scale < -10, 0, baseline_weight_per_scale)
-baseline_weight_per_scale = np.where(baseline_weight_per_scale > 40, 0, baseline_weight_per_scale)
+# baseline_weight_per_scale = np.where(baseline_weight_per_scale < -10, 0, baseline_weight_per_scale)
+# baseline_weight_per_scale = np.where(baseline_weight_per_scale > 40, 0, baseline_weight_per_scale)
 
-colors = ["blue", "red", "green"]
+# colors = ["blue", "red", "green"]
 
 # fig = plt.figure(figsize=(15, 4))
 # for i in range(baseline_weight_per_scale.shape[0]):
@@ -230,34 +230,21 @@ colors = ["blue", "red", "green"]
 # fig.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/Baseline_weight_per_scale_outliers_removed_2.png", format="png")
 # plt.show()
 
-fft_baseline_per_scale = np.fft.fft(baseline_weight_per_scale)
-T = np.arange(0, fft_baseline_per_scale.shape[1])/80
-
-fig = plt.figure(figsize=(15, 4))
-
-for i in range(fft_baseline_per_scale.shape[0]):
-	N = len(fft_baseline_per_scale[i])
-	half = N // 2
-	freqs = np.fft.fftfreq(fft_baseline_per_scale[i].shape[0], d=T[1]-T[0])  # frequency bins
-	plt.plot(freqs[:len(freqs)//2], np.abs(fft_baseline_per_scale[i])[:len(freqs)//2], color=colors[i])
-
-plt.xlabel("Frequency [Hz]", fontsize=14)
-plt.ylabel("Amplitude", fontsize=14)
-fig.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/FFT_baseline_outliers_per_scale_removed_2.png", format="png")
-plt.show()
-
-
-
-# x = np.arange(0, fft_of_grooming.shape[1])/80
+# fft_baseline_per_scale = np.fft.fft(baseline_weight_per_scale)
+# T = np.arange(0, fft_baseline_per_scale.shape[1])/80
 
 # fig = plt.figure(figsize=(15, 4))
 
-# for i in range(len(indices_of_grooming)):
-# 	freqs = np.fft.fftfreq(fft_of_grooming[i].shape[0], d=x[1]-x[0])
-# 	plt.plot(freqs[:len(freqs)//2], np.abs(fft_of_grooming[i])[:len(freqs)//2], label="Index : " + str(indices_of_grooming[i]), alpha=0.7)
+# for i in range(fft_baseline_per_scale.shape[0]):
+# 	N = len(fft_baseline_per_scale[i])
+# 	half = N // 2
+# 	freqs = np.fft.fftfreq(fft_baseline_per_scale[i].shape[0], d=T[1]-T[0])  # frequency bins
+# 	plt.plot(freqs[:len(freqs)//2], np.abs(fft_baseline_per_scale[i])[:len(freqs)//2], color=colors[i])
 
-
-
+# plt.xlabel("Frequency [Hz]", fontsize=14)
+# plt.ylabel("Amplitude", fontsize=14)
+# fig.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/FFT_baseline_outliers_per_scale_removed_2.png", format="png")
+# plt.show()
 
 
 
