@@ -17,11 +17,11 @@ from scipy.signal import find_peaks
 
 # save_figure = False
 
-delay_video_weight = 179
+delay_video_weight = -25
 
 data = np.array(pd.read_csv(my_path))
-directory = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/"
-filename = "2025.10.16-RawWeightData.csv"
+directory = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/"
+filename = "2025.10.28-RawWeightData-80Hz.csv"
 cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_data=np.array([0, 22]))
 # cage.plot_data_per_scale()
 # cage.compute_individual_scale_information(first_day=True, produce_graph=True)
@@ -38,7 +38,7 @@ cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_dat
 
 # GROOMING
 # # Look at 2-second samples of weight data per behaviour type PER SCALE and produce PCA. 
-directory_behaviour = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/20251016-BehaviourDataAfterWatching/Behaviour/"
+directory_behaviour = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/20251028-BehaviourDataAfterWatching/Behaviour/"
 # two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
 # cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, PCs_to_plot=[1,2,3], label_per_scale=False)
 
@@ -177,12 +177,84 @@ directory_behaviour = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20
 # plt.show()
 
 
+# # 2025.11.03 
+# # FFT OF THE SYSTEM WHEN THERE IS NOTHING ON THE SCALES
+# baseline_weight = cage.raw_data[0:6500]
+
+# baseline_weight = np.where(baseline_weight < -10, 0, baseline_weight)
+# baseline_weight = np.where(baseline_weight > 40, 0, baseline_weight)
+
+# fig = plt.figure(figsize=(15, 4))
+# plt.plot(cage.raw_time[0:6500]*60*60, baseline_weight)
+# plt.ylim(-7, 7)
+# plt.xlabel("Time [s]", fontsize=14)
+# plt.ylabel("Weight [g]", fontsize=14)
+# fig.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/Baseline_weight_outliers_removed.png", format="png")
+# plt.show()
+
+# fft_baseline = np.fft.fft(baseline_weight)
+# T = 1/80
+# N = len(fft_baseline)
+# freqs = np.fft.fftfreq(N, T)  # frequency bins
+# half = N // 2
+# freqs = freqs[:half]
+# amplitude = np.abs(fft_baseline[:half]) * 2 / N  # normalize amplitude
+
+# fig = plt.figure(figsize=(15, 4))
+# plt.plot(freqs, amplitude)
+# plt.ylim(0, 0.15)
+# plt.xlabel("Frequency [Hz]", fontsize=14)
+# plt.ylabel("Amplitude", fontsize=14)
+# fig.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/FFT_baseline_outliers_removed.png", format="png")
+# plt.show()
+
+
+# # FFT OF THE 3 SCALES ALONE OF THE BASELINE SIGNAL. MAYBE THE 3 SCALES DO NOT HAVE THE SAME NOISE. 
+baseline_weight_per_scale = []
+for i in range(len(cage.raw_data_per_scale)):
+	baseline_weight_per_scale.append(cage.raw_data_per_scale[i][20:6200])
+
+baseline_weight_per_scale = np.array(baseline_weight_per_scale)
+
+baseline_weight_per_scale = np.where(baseline_weight_per_scale < -10, 0, baseline_weight_per_scale)
+baseline_weight_per_scale = np.where(baseline_weight_per_scale > 40, 0, baseline_weight_per_scale)
+
+colors = ["blue", "red", "green"]
+
+# fig = plt.figure(figsize=(15, 4))
+# for i in range(baseline_weight_per_scale.shape[0]):
+# 	plt.plot(cage.raw_time[20:6200]*60*60, baseline_weight_per_scale[i], color=colors[i], alpha=0.7)
+# plt.ylim(-2, 2)
+# plt.xlabel("Time [s]", fontsize=14)
+# plt.ylabel("Weight [g]", fontsize=14)
+# fig.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/Baseline_weight_per_scale_outliers_removed_2.png", format="png")
+# plt.show()
+
+fft_baseline_per_scale = np.fft.fft(baseline_weight_per_scale)
+T = np.arange(0, fft_baseline_per_scale.shape[1])/80
+
+fig = plt.figure(figsize=(15, 4))
+
+for i in range(fft_baseline_per_scale.shape[0]):
+	N = len(fft_baseline_per_scale[i])
+	half = N // 2
+	freqs = np.fft.fftfreq(fft_baseline_per_scale[i].shape[0], d=T[1]-T[0])  # frequency bins
+	plt.plot(freqs[:len(freqs)//2], np.abs(fft_baseline_per_scale[i])[:len(freqs)//2], color=colors[i])
+
+plt.xlabel("Frequency [Hz]", fontsize=14)
+plt.ylabel("Amplitude", fontsize=14)
+fig.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/FFT_baseline_outliers_per_scale_removed_2.png", format="png")
+plt.show()
 
 
 
+# x = np.arange(0, fft_of_grooming.shape[1])/80
 
+# fig = plt.figure(figsize=(15, 4))
 
-
+# for i in range(len(indices_of_grooming)):
+# 	freqs = np.fft.fftfreq(fft_of_grooming[i].shape[0], d=x[1]-x[0])
+# 	plt.plot(freqs[:len(freqs)//2], np.abs(fft_of_grooming[i])[:len(freqs)//2], label="Index : " + str(indices_of_grooming[i]), alpha=0.7)
 
 
 
