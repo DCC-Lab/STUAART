@@ -22,15 +22,15 @@ delay_video_weight = 179
 data = np.array(pd.read_csv(my_path))
 directory = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/"
 filename = "2025.10.16-RawWeightData.csv"
-cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_data=np.array([0, 20]))
+cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_data=np.array([0, 22]))
 # cage.plot_data_per_scale()
 # cage.compute_individual_scale_information(first_day=True, produce_graph=True)
 
 # HANGING
-cage.compute_hanging(first_day=True, produce_graph=True)
+# cage.compute_hanging(first_day=True, produce_graph=True)
 
 # LOCATION
-# directory_ground_truth_location = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/20251016-BehaviourDataAfterWatching/"
+# directory_ground_truth_location = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/20251028-BehaviourDataAfterWatching/"
 # filenames_ground_truth_location = ["On scale 1-Table 1.csv", "On scale 2-Table 1.csv", "On scale 3-Table 1.csv", "On scales 1 and 2-Table 1.csv", "On scales 2 and 3-Table 1.csv"]
 # cage.compute_location_on_scale(first_day=True, produce_graph=True, is_saved=True)
 # cage.compute_location_on_scale_accuracy(is_saved=True, directory_ground_truth=directory_ground_truth_location, filenames=filenames_ground_truth_location, delay_in_seconds=delay_video_weight, evaluate_only_between_these_hours=None)
@@ -38,7 +38,7 @@ cage.compute_hanging(first_day=True, produce_graph=True)
 
 # GROOMING
 # # Look at 2-second samples of weight data per behaviour type PER SCALE and produce PCA. 
-# directory_behaviour = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/20251016-BehaviourDataAfterWatching/Behaviour/"
+directory_behaviour = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/20251016-BehaviourDataAfterWatching/Behaviour/"
 # two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
 # cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, PCs_to_plot=[1,2,3], label_per_scale=False)
 
@@ -55,7 +55,7 @@ cage.compute_hanging(first_day=True, produce_graph=True)
 # print(two_second_data, type(two_second_data), two_second_data.shape)
 
 # fig, axs = plt.subplots(nrows=np.unique(labels).shape[0], figsize=(10,10)) # si 4 behaviours, alors 4 subplots
-# x = range(0, 380, 1)
+# x = range(0, 190, 1)
 # i = 0
 
 # for label in np.unique(labels):
@@ -66,12 +66,13 @@ cage.compute_hanging(first_day=True, produce_graph=True)
 
 # 	axs[i].set_title(str(label), fontsize=16)
 # 	axs[i].set_ylabel("Weight [g]", fontsize=12)
-# 	axs[i].set_xlabel("Timestamps (380 data points = 4 seconds)", fontsize=10)
+# 	axs[i].set_xlabel("Timestamps (190 data points = 2 seconds)", fontsize=10)
+# 	axs[i].set_ylim(bottom=0, top=40)
 
 # 	i += 1
 
 # fig.tight_layout()
-# plt.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/Figures/4second-behaviours-raw.png", format="png")
+# plt.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/2second-behaviours-raw.png", format="png")
 # plt.show()
 
 
@@ -93,16 +94,17 @@ cage.compute_hanging(first_day=True, produce_graph=True)
 # indices_clean_grooming = [58, 59, 65, 66, 70, 77, 80, 81, 88, 93, 100, 103]
 # weight_data_of_clean_grooming = two_second_data[indices_clean_grooming, :]
 # fft_of_clean_grooming = np.fft.fft(weight_data_of_clean_grooming)
-# x = range(0, 190, 1)
+# x = np.arange(0, fft_of_clean_grooming.shape[1])/80
 
 # fig = plt.figure(figsize=(15, 4))
 
 # for i in range(len(indices_clean_grooming)):
-# 	plt.plot(x, fft_of_clean_grooming[i], label="Index : " + str(indices_clean_grooming[i]), alpha=0.7)
+# 	freqs = np.fft.fftfreq(fft_of_clean_grooming[i].shape[0], d=x[1]-x[0])
+# 	plt.plot(freqs[:len(freqs)//2], np.abs(fft_of_clean_grooming[i])[:len(freqs)//2], label="Index : " + str(indices_clean_grooming[i]), alpha=0.7)
 
-# plt.ylim(-50, 50)
+# plt.ylim(0, 200)
 # plt.ylabel("Amplitude", fontsize=12)
-# plt.xlabel("Timestamp (190 data points = 2 seconds)", fontsize=12)
+# plt.xlabel("Frequency [Hz]", fontsize=12)
 # plt.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/Figures/RawGrooming/FFT_of_clean_grooming.png", format="png")
 # plt.show()
 
@@ -123,22 +125,56 @@ cage.compute_hanging(first_day=True, produce_graph=True)
 # indices_of_grooming = np.where(labels == "Grooming")[0]
 # data_of_grooming = two_second_data[indices_of_grooming, :]
 # fft_of_grooming = np.fft.fft(data_of_grooming)
-# x = range(0, 190, 1)
+# x = np.arange(0, fft_of_grooming.shape[1])/80
 
 # fig = plt.figure(figsize=(15, 4))
 
-# for i in range(indices_of_grooming.shape[0]):
-# 	plt.plot(x, fft_of_grooming[i], alpha=0.7)
+# for i in range(len(indices_of_grooming)):
+# 	freqs = np.fft.fftfreq(fft_of_grooming[i].shape[0], d=x[1]-x[0])
+# 	plt.plot(freqs[:len(freqs)//2], np.abs(fft_of_grooming[i])[:len(freqs)//2], label="Index : " + str(indices_of_grooming[i]), alpha=0.7)
 
-# plt.ylim(-50, 50)
+# plt.ylim(0, 200)
 # plt.ylabel("Amplitude", fontsize=12)
 # plt.xlabel("Timestamp (190 data points = 2 seconds)", fontsize=12)
 # plt.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/Figures/GroomingInvestiguation/FTT_all_grooming.png", format="png")
 # plt.show()
 
 
+# # 2025.10.31 
+# # I AM TRYING HERE TO IDENTIFY WHERE THE MOUSE IS GROOMING FOR A LONG TIME. 800 DATA POINTS = 10 SECONDS
+# cage.retreive_indicator_behaviour_data_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
 
+# # # The 3rd scale is where the mouse groomed the most. I'm going to isolate 10-second grooming events. 
+# indicator_behaviour_scale = cage.behaviour_indicator_per_scale["Grooming"][2]
+# diff = np.diff(np.concatenate(([0], indicator_behaviour_scale, [0])))
+# starts = np.where(diff == 1)[0]
+# ends = np.where(diff == -1)[0]
+# lengths = ends - starts
+# mask = lengths >= 1600 # 800 points = approximately 10 seconds
+# runs_exact_x = np.array(list(zip(starts[mask], ends[mask]))) # here I have the start and end elements of the grooming events 
 
+# data = np.array(cage.raw_data_per_scale)
+
+# figure, axs = plt.subplots(2, 1, figsize=(10,5))
+# for i in range(runs_exact_x.shape[0]):
+# 	length = runs_exact_x[i,1] - runs_exact_x[i,0]
+# 	x = np.arange(0, length, 1)/80
+# 	y = data[2, runs_exact_x[i,0]:runs_exact_x[i,1]]
+
+# 	axs[0].plot(x, y, alpha=0.5, label=i)
+# 	axs[0].set_xlabel("Time [sec]", fontsize=12)
+# 	axs[0].set_ylabel("Weight [g]", fontsize=12)
+# 	axs[0].legend()
+
+# 	fft_data = np.fft.fft(y)
+# 	freqs = np.fft.fftfreq(y.shape[0], d=x[1]-x[0])
+# 	axs[1].plot(freqs[:len(freqs)//2], np.abs(fft_data)[:len(freqs)//2], linewidth=1, alpha=0.5, label=i)
+# 	axs[1].set_xlabel("Frequency [Hz]", fontsize=12)
+# 	axs[1].set_ylabel("Amplitude", fontsize=12)
+# 	axs[1].set_ylim(bottom=0, top=600)
+# 	axs[1].legend()
+
+# plt.show()
 
 
 

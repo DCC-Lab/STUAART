@@ -25,7 +25,7 @@ data1 = data[:,1] # weight measurements scale 1, 300g
 data2 = data[:,2] # weight measurements scale 1, 100g
 data3 = data[:,3] # weight measurements scale 1, 100g
 
-real_data = np.array([[time[0], time[-1]],[20, 20]])
+real_data = np.array([[time[0], time[-1]],[22, 22]])
 
 # This is used in case we want to amplify the drift for testing
 # data1[3000:] += 3000
@@ -65,7 +65,7 @@ data3.find_baseline()
 
 data1.subtract_baseline()
 data2.subtract_baseline()
-# data3.subtract_baseline()
+data3.subtract_baseline()
 # data1.plot_signal(threshold=False, peaks=False, baseline=False, color=color_data1, is_saved=save_figure, real_data=real_data)
 # data2.plot_signal(threshold=False, peaks=False, baseline=False, color=color_data2, is_saved=save_figure, real_data=real_data)
 # data3.plot_signal(threshold=False, peaks=False, baseline=False, color=color_data3, is_saved=save_figure, real_data=real_data)

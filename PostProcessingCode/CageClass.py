@@ -649,6 +649,7 @@ class Cage():
                 plt.savefig(self.directory+today+"-TotalError_and_EventPrecision"+str(bins)+".png", format="png", dpi=600, transparent=True)
         plt.show()
 
+
     def retreive_indicator_behaviour_data_per_scale(self, directory:str, delay_in_seconds:int, include_not_annotated_data:bool=False):
         """
         Format ground truth data to have indicators of when the behavioural event is happening. 
@@ -755,9 +756,9 @@ class Cage():
             indicator = self.behaviour_indicator[key]
             indices = np.where(indicator == 1)[0]
             weight_truth = self.raw_data[indices]
-            new_size = (weight_truth.size // 190) * 190 # 190 data points is about 2 seconds at 80 Hz
+            new_size = (weight_truth.size // 800) * 800 # 190 data points is about 2 seconds at 80 Hz
             trim_weight_truth = weight_truth[:new_size]
-            trim_weight_truth = np.reshape(trim_weight_truth, (-1, 10))
+            trim_weight_truth = np.reshape(trim_weight_truth, (-1, 800))
             two_second_data = np.array(list(two_second_data) + list(trim_weight_truth))
             targets = np.array(list(targets) + list(np.repeat(i, trim_weight_truth.shape[0])))
             labels = np.array(list(labels) + list(np.repeat(key, trim_weight_truth.shape[0])))
@@ -846,14 +847,17 @@ class Cage():
         self.fft_of_behaviours = fft_of_behaviours
 
         if plot:
-            fig, axs = plt.subplots(len(self.fft_of_behaviours.keys()), 1, figsize=(16,10))
+            fig, axs = plt.subplots(len(self.fft_of_behaviours.keys()), 1, figsize=(10,10))
             j = 0
             for label in np.unique(labels):
-                x = np.arange(0, self.fft_of_behaviours[label].shape[1])
+                x = np.arange(0, self.fft_of_behaviours[label].shape[1])/80
                 for i in range(self.fft_of_behaviours[label].shape[0]):
-                    axs[j].plot(x, self.fft_of_behaviours[label][i], linewidth=1)
+                    freqs = np.fft.fftfreq(self.fft_of_behaviours[label][i].shape[0], d=x[1]-x[0])
+                    axs[j].plot(freqs[:len(freqs)//2], np.abs(self.fft_of_behaviours[label][i])[:len(freqs)//2], linewidth=1)
                     axs[j].set_title(label)
-                    axs[j].set_ylim(-60, 60)
+                    axs[j].set_ylim(0, 600)
+                    axs[j].set_xlabel("Frequency [Hz]")
+                    axs[j].set_ylabel("Amplitude")
                 j += 1
 
             plt.tight_layout()
