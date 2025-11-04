@@ -10,6 +10,10 @@ import matplotlib.pyplot as plt
 from CageClass import Cage
 from datetime import datetime
 from scipy.signal import find_peaks
+from sklearn.decomposition import FastICA
+from sklearn.cluster import HDBSCAN
+from sklearn.metrics import adjusted_rand_score
+import matplotlib.cm as cm
 
 # color_data1 = "b"
 # color_data2 = "r"
@@ -46,8 +50,8 @@ directory_behaviour = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20
 # two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
 # cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, label_per_scale=False)
 
-# two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
-# cage.fft_behaviour(dataset=two_second_data, labels=labels, plot=True)
+two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
+all_frequencies, all_amplitudes = cage.fft_behaviour(dataset=two_second_data, labels=labels, plot=True)
 
 
 # # 2025.10.24
@@ -245,6 +249,132 @@ directory_behaviour = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20
 # plt.ylabel("Amplitude", fontsize=14)
 # fig.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/FFT_baseline_outliers_per_scale_removed_2.png", format="png")
 # plt.show()
+
+
+# # JE VAIS ESSAYER DE FAIRE LE ICA DES DONNÉES 
+# Initialize ICA
+# weight_data = []
+# for i in range(len(cage.raw_data_per_scale)):
+# 	weight_data.append(cage.raw_data_per_scale[i])
+
+# weight_data = np.array(weight_data)
+
+# weight_data = np.where(weight_data < -10, 0, weight_data)
+# weight_data = np.where(weight_data > 40, 0, weight_data)
+
+# colors = ["blue", "red", "green"]
+
+# ica = FastICA(n_components=3, random_state=0)
+
+# # Fit ICA model and transform data
+# S_ = ica.fit_transform(weight_data)  # Reconstructed independent sources
+# A_ = ica.mixing_           # Estimated mixing matrix
+
+# # Optional: recover the signals back (check reconstruction)
+# X_reconstructed = S_ @ A_.T
+
+# fig, axes = plt.subplots(2, 3, figsize=(10, 6))
+# axes[0,0].set_ylabel("Mixed signals")
+# axes[1,0].set_ylabel("ICA recovered")
+
+# for i in range(3):
+#     axes[0,i].plot(weight_data[i, :], color=colors[i])
+#     axes[1,i].plot(S_[:, i], color=colors[i])
+
+# plt.tight_layout()
+# plt.show()
+
+
+# # 2025.11.04 
+# # JE VAIS ESSAYER DE FAIRE PCA SUR LES POWER SPECTRA
+
+# eigenvectors, projected_data = cage.pca(dataset=all_amplitudes, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, PCs_to_plot=[0,1,2], label_per_scale=False, x_label="Frequency [Hz]")
+
+# # # JE VAIS ENSUITE ESSAYER DE FAIRE DE LA CLASSIFICATION DU TYPE HDBSCAN
+
+# clusterer = HDBSCAN(
+#     min_cluster_size=2,  # minimum number of samples per cluster
+#     min_samples=11,       # smaller = more clusters, larger = fewer
+#     cluster_selection_epsilon=0.0
+# )
+# labels_hdbscan = clusterer.fit_predict(projected_data)
+
+# ari = adjusted_rand_score(targets, labels_hdbscan) # Measures similarity between cluster assignments, independent of label values. Perfect match = 1.0, 0.0 is random grouping. 
+# print("Adjusted Rand Index:", ari)
+
+# # -1 means "noise" points (unclustered)
+# n_clusters = len(set(labels_hdbscan)) - (1 if -1 in labels_hdbscan else 0)
+# print(f"Number of clusters found: {n_clusters}")
+
+# fig = plt.figure(figsize=(8,8))
+# ax = fig.add_subplot(111, projection="3d")
+# ax.scatter(projected_data[:, 0], projected_data[:, 1], projected_data[:,2], c=labels_hdbscan, cmap='Spectral', s=10)
+# ax.set_title("HDBSCAN Clusters in PCA Space")
+# ax.set_xlabel("PC 0", fontsize=14)
+# ax.set_ylabel("PC 1", fontsize=14)
+# ax.set_zlabel("PC 2", fontsize=14)
+# plt.show()
+
+# # JE VAIS ESSAYER DE FAIRE ICA PUIS HDBSCAN
+
+
+# X: (n_samples, n_features) — your weight data from the 3 scales
+# Example placeholder:
+# X = np.load("weights.npy")
+
+# ica = FastICA(n_components=3, random_state=0)
+# X_ica = ica.fit_transform(all_amplitudes)  # Independent components
+# A_ = ica.mixing_
+# # Compute variance captured by each component (not "explained variance")
+
+# unique_labels = sorted(list(set(labels)))
+# cmap = cm.get_cmap("jet", len(unique_labels))  # Use any colormap you like
+# color_map = {label: cmap(i) for i, label in enumerate(unique_labels)}
+# colors = [color_map[label] for label in labels]
+
+# fig = plt.figure(figsize=(8,8))
+# ax = fig.add_subplot(111, projection="3d")
+# ax.scatter(X_ica[:,0], X_ica[:,1], X_ica[:,2], c=colors, alpha=0.5)
+# for label in unique_labels:
+#     ax.scatter([], [], color=color_map[label], label=label)
+# ax.legend(title="Labels behaviour")
+# ax.set_xlabel("ICA component 0", fontsize=14)
+# ax.set_ylabel("ICA component 1", fontsize=14)
+# ax.set_zlabel("ICA component 2", fontsize=14)
+# plt.show()
+
+
+# clusterer = HDBSCAN(
+#     min_cluster_size=2,  # tune this
+#     min_samples=10,       # tune this
+# )
+# labels_hdbscan = clusterer.fit_predict(X_ica)
+
+# ari = adjusted_rand_score(targets, labels_hdbscan) # Measures similarity between cluster assignments, independent of label values. Perfect match = 1.0, 0.0 is random grouping. 
+# print("Adjusted Rand Index:", ari)
+
+# fig = plt.figure(figsize=(8,8))
+# ax = fig.add_subplot(111, projection="3d")
+# ax.scatter(X_ica[:, 0], X_ica[:, 1], X_ica[:,2], c=labels_hdbscan, cmap='Spectral', s=10)
+# ax.set_title("HDBSCAN Clusters in PCA Space")
+# ax.set_xlabel("ICA component 0", fontsize=14)
+# ax.set_ylabel("ICA component 1", fontsize=14)
+# ax.set_zlabel("ICA component 2", fontsize=14)
+# plt.title("HDBSCAN on ICA components")
+# plt.show()
+
+
+# plt.figure(figsize=(10,3))
+# plt.plot(labels_hdbscan, lw=0.7)
+# plt.title("Cluster assignment over time")
+# plt.xlabel("Time index")
+# plt.ylabel("Cluster ID")
+# plt.show()
+
+
+
+
+
 
 
 

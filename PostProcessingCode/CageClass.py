@@ -725,9 +725,9 @@ class Cage():
             for n in range(self.number_of_scales):
                 indices = np.where(indicator[n] == 1)[0]
                 weight_truth = self.raw_data_per_scale[n][indices]
-                new_size = (weight_truth.size // 190) * 190 # 190 data points is about 2 seconds at 80 Hz
+                new_size = (weight_truth.size // 800) * 800 # 190 data points is about 2 seconds at 80 Hz
                 trim_weight_truth = weight_truth[:new_size]
-                trim_weight_truth = np.reshape(trim_weight_truth, (-1, 190))
+                trim_weight_truth = np.reshape(trim_weight_truth, (-1, 800))
                 two_second_data = np.array(list(two_second_data) + list(trim_weight_truth))
                 on_scale = np.array(list(on_scale) + list(np.repeat(n, trim_weight_truth.shape[0])))
                 targets = np.array(list(targets) + list(np.repeat(i, trim_weight_truth.shape[0])))
@@ -768,7 +768,7 @@ class Cage():
 
 
 
-    def pca(self, dataset, number_of_PCs:int, targets, labels, on_scale, PCs_to_plot=[0,1,2], label_per_scale:bool=False):
+    def pca(self, dataset, number_of_PCs:int, targets, labels, on_scale, PCs_to_plot=[0,1,2], label_per_scale:bool=False, x_label:str=None):
         """
         Performs PCA on dataset. 
         number_of_PCs: number of PCs for the PCA.
@@ -820,19 +820,26 @@ class Cage():
         ax.set_zlabel("PC"+str(z) + " ({:.2f} %)".format(eigenvalues[z]*100), fontsize=14)
         plt.show()
 
-        # 2 : Plot 5 first PCs
+        # 2 : Plot 10 first PCs
         fig = plt.figure(figsize=(8,10))
         colormap = get_cmap('plasma')
         colors = [colormap(i / (10 - 1)) for i in range(10)]
         j = 0
         for i in range(10):
-            plt.plot(np.arange(0, dataset.shape[1]), eigenvectors[i] + j, label="PC" + str(i), alpha=0.7, color=colors[i], linewidth=4)
+            plt.plot(np.arange(0, dataset.shape[1])/10, eigenvectors[i] + j, label="PC" + str(i), alpha=0.7, color=colors[i], linewidth=4)
             j -= 1
         plt.legend(ncol=5, loc="upper center", bbox_to_anchor=(0.5, 1.1))
-        plt.xlabel("Timestamp", fontsize=15)
+
+        if x_label is not None:
+            plt.xlabel(x_label, fontsize=15)
+        else:
+            plt.xlabel("Data points", fontsize=15)
+
         plt.tick_params(left=False, labelleft=False)
         plt.tight_layout()
         plt.show()
+
+        return eigenvectors, projected_data
 
 
     def fft_behaviour(self, dataset, labels, plot:bool=False):
@@ -849,11 +856,17 @@ class Cage():
         if plot:
             fig, axs = plt.subplots(len(self.fft_of_behaviours.keys()), 1, figsize=(10,10))
             j = 0
+            T = np.arange(0, self.fft_of_behaviours[label].shape[1])/80
+            all_x = []
+            all_y = []
             for label in np.unique(labels):
-                x = np.arange(0, self.fft_of_behaviours[label].shape[1])/80
                 for i in range(self.fft_of_behaviours[label].shape[0]):
-                    freqs = np.fft.fftfreq(self.fft_of_behaviours[label][i].shape[0], d=x[1]-x[0])
-                    axs[j].plot(freqs[:len(freqs)//2], np.abs(self.fft_of_behaviours[label][i])[:len(freqs)//2], linewidth=1)
+                    freqs = np.fft.fftfreq(self.fft_of_behaviours[label][i].shape[0], d=T[1]-T[0])
+                    x = freqs[:len(freqs)//2]
+                    y = np.abs(self.fft_of_behaviours[label][i])[:len(freqs)//2]
+                    all_x.append(x)
+                    all_y.append(y)
+                    axs[j].plot(x, y, linewidth=1)
                     axs[j].set_title(label)
                     axs[j].set_ylim(0, 600)
                     axs[j].set_xlabel("Frequency [Hz]")
@@ -862,6 +875,10 @@ class Cage():
 
             plt.tight_layout()
             plt.show()
+
+        return np.array(all_x), np.array(all_y)
+
+
 
 
 
