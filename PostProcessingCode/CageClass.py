@@ -49,6 +49,27 @@ class Cage():
             time.append(int(s)/3600)
         return np.array(time)
 
+    @staticmethod
+    def compute_sampling_rate(time_array_in_hours):
+        """
+        Computes the sampling rate according to the time array. 
+        """
+        dt = np.diff(time_array_in_hours*60*60) # convert the time in seconds
+
+        # Compute the average sampling rate
+        fs_mean = 1 / np.mean(dt)
+
+        # You can also check the variability:
+        fs_std = np.std(1 / dt)
+
+        print(f"Estimated mean sampling rate: {fs_mean:.3f} Hz")
+        print(f"Standard deviation of sampling rate: {fs_std:.3f} Hz")
+        print(f"Min: {1/np.max(dt):.3f} Hz, Max: {1/np.min(dt):.3f} Hz")
+
+        return 1/np.min(dt), fs_mean
+
+
+
     def get_data_and_timepoints(self):
         """
         Get .csv data of time and weight measurements per scale and overall from the directory and the filename. 
@@ -705,6 +726,36 @@ class Cage():
 
 
 
+    def retreive_indicator_behaviour_data_per_timestamp(self, directory:str, delay_in_seconds:int, index=-1, timestamp=60):
+        """
+        Format ground truth data to have indicators of when the behavioural event is happening per timestamp. Default is 60 seconds.
+        0 : when the event is not happening
+        1 : when the event is happening
+        Produces a dictionnary of indicators per scale of when the behavioural event is happening. 
+        INDEX IS TO MAKE THINGS EASIER FOR NOW. ITS THE INDEX REPRESENTING THE TIME I TOOK A VIDEO TO MATCH THE ARRAY OF THE WEIGHT FOR MY TESTS. 
+        """
+        self.retreive_indicator_behaviour_data(directory=directory, delay_in_seconds=delay_in_seconds)
+        behaviour_indicator_per_timestamp = {}
+        for key in self.behaviour_indicator.keys():
+            data = self.behaviour_indicator[key][:index]
+            # Step 1: define the second bins (integers)
+            times = np.floor(self.raw_time[:index]*60*60).astype(int)
+
+            # Step 2: find unique seconds and compute mean signal per second
+            unique_times = np.unique(times)
+            indicator_per_timestamp = np.array([data[times == s].mean() for s in unique_times])
+
+            indices_where_not_timestamp_delay = np.where(np.diff(unique_times) != 1)[0]
+            
+            # Step 3: decide 1 or 0 depending on majority
+            majority_indicator = (indicator_per_timestamp >= 0.5).astype(int)
+
+            behaviour_indicator_per_timestamp[key] = majority_indicator
+
+        self.behaviour_indicator_per_timestamp = behaviour_indicator_per_timestamp
+
+
+
     def produce_behaviour_dataset_per_scale(self, directory:str, delay_in_seconds:int):
         """
         Uses groung truth annotations of all different behaviours and format in 2 second events.
@@ -735,6 +786,7 @@ class Cage():
             i += 1
 
         return two_second_data, on_scale, targets, labels
+
 
 
     def produce_behaviour_dataset(self, directory:str, delay_in_seconds:int):

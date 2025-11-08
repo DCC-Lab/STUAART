@@ -9,11 +9,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from CageClass import Cage
 from datetime import datetime
-from scipy.signal import find_peaks
+from scipy.signal import find_peaks, stft
 from sklearn.decomposition import FastICA
 from sklearn.cluster import HDBSCAN
-from sklearn.metrics import adjusted_rand_score
+from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score, fowlkes_mallows_score
 import matplotlib.cm as cm
+from hmmlearn import hmm
+from sklearn.preprocessing import StandardScaler
+from tqdm import tqdm
 
 # color_data1 = "b"
 # color_data2 = "r"
@@ -43,15 +46,15 @@ cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_dat
 # GROOMING
 # # Look at 2-second samples of weight data per behaviour type PER SCALE and produce PCA. 
 directory_behaviour = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/20251028-BehaviourDataAfterWatching/Behaviour/"
-# two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
+two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
 # cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, PCs_to_plot=[1,2,3], label_per_scale=False)
 
 # # Look at 2-second samples of weight data per behaviour type, overall weight of the system, and produce PCA. 
-# two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
+two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
 # cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, label_per_scale=False)
 
-two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
-all_frequencies, all_amplitudes = cage.fft_behaviour(dataset=two_second_data, labels=labels, plot=True)
+# two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
+# all_frequencies, all_amplitudes = cage.fft_behaviour(dataset=two_second_data, labels=labels, plot=True)
 
 
 # # 2025.10.24
@@ -251,40 +254,6 @@ all_frequencies, all_amplitudes = cage.fft_behaviour(dataset=two_second_data, la
 # plt.show()
 
 
-# # JE VAIS ESSAYER DE FAIRE LE ICA DES DONNÉES 
-# Initialize ICA
-# weight_data = []
-# for i in range(len(cage.raw_data_per_scale)):
-# 	weight_data.append(cage.raw_data_per_scale[i])
-
-# weight_data = np.array(weight_data)
-
-# weight_data = np.where(weight_data < -10, 0, weight_data)
-# weight_data = np.where(weight_data > 40, 0, weight_data)
-
-# colors = ["blue", "red", "green"]
-
-# ica = FastICA(n_components=3, random_state=0)
-
-# # Fit ICA model and transform data
-# S_ = ica.fit_transform(weight_data)  # Reconstructed independent sources
-# A_ = ica.mixing_           # Estimated mixing matrix
-
-# # Optional: recover the signals back (check reconstruction)
-# X_reconstructed = S_ @ A_.T
-
-# fig, axes = plt.subplots(2, 3, figsize=(10, 6))
-# axes[0,0].set_ylabel("Mixed signals")
-# axes[1,0].set_ylabel("ICA recovered")
-
-# for i in range(3):
-#     axes[0,i].plot(weight_data[i, :], color=colors[i])
-#     axes[1,i].plot(S_[:, i], color=colors[i])
-
-# plt.tight_layout()
-# plt.show()
-
-
 # # 2025.11.04 
 # # JE VAIS ESSAYER DE FAIRE PCA SUR LES POWER SPECTRA
 
@@ -363,7 +332,6 @@ all_frequencies, all_amplitudes = cage.fft_behaviour(dataset=two_second_data, la
 # plt.title("HDBSCAN on ICA components")
 # plt.show()
 
-
 # plt.figure(figsize=(10,3))
 # plt.plot(labels_hdbscan, lw=0.7)
 # plt.title("Cluster assignment over time")
@@ -372,6 +340,153 @@ all_frequencies, all_amplitudes = cage.fft_behaviour(dataset=two_second_data, la
 # plt.show()
 
 
+# # TEST SHORT-TIME FOURIER TRANSFORM + HMM
+
+index = np.where(cage.raw_time > 2.9999)[0][0]
+time = cage.raw_time[:index]
+print("Total time of the experiment : {:.4f} seconds.".format(time[-1]*60*60))
+
+max_sampling, fs_mean = cage.compute_sampling_rate(time_array_in_hours=cage.raw_time)
+nperseg = max_sampling * 3
+noverlap = max_sampling * 2
+
+# # WITH INTERPOLATION BEFORE TEH STFT. I have to interpolate to have the same number of data points per second to that I can compare my behaviour data with the ground truth
+time_uniform = np.arange(time[0]*60*60, time[-1]*60*60, 1/max_sampling)
+to_remove = np.array([3600, 3601, 3602, 3603, 3604, 3605, 7200, 7201])
+times_filtered = time_uniform[~np.isin(time_uniform.astype(int), to_remove.astype(int))]
+
+weight_per_scale = []
+for i in range(len(cage.raw_data_per_scale)):
+  data = cage.raw_data_per_scale[i][:index]
+  uniform_data = np.interp(times_filtered, time, data)
+  weight_per_scale.append(uniform_data)
+weight_per_scale = np.array(weight_per_scale)
+
+# Compute STFT for each scale
+spectrograms_with = []
+all_ts_with = []
+all_fs = []
+for i in tqdm(range(weight_per_scale.shape[0])):
+  data = weight_per_scale[i, :]
+  x_padded = np.pad(data, (int(max_sampling), int(max_sampling)), mode='constant') # this is to not miss the beginning and ending data
+  # f: frequency bins (0 → 40 Hz since Nyquist = fs/2)
+  # t: time points (centers of each window, spaced by 1 second)
+  # Zxx: complex spectrogram, shape = (n_frequencies, n_time_windows)
+  f, t_with, Zxx = stft(x_padded, fs=max_sampling, nperseg=nperseg, noverlap=noverlap, nfft=nperseg)
+  # Use magnitude (power spectrum)
+  spectrograms_with.append(np.abs(Zxx))
+  all_ts_with.append(t_with)
+  all_fs.append(f)
+
+
+
+
+# # WITHOUT INTERPOLATION BEFORE THE STFT
+weight_per_scale = []
+for i in range(len(cage.raw_data_per_scale)):
+  data = cage.raw_data_per_scale[i][:index]
+  weight_per_scale.append(data)
+weight_per_scale = np.array(weight_per_scale)
+
+# Compute STFT for each scale
+spectrograms_without = []
+all_ts = []
+all_fs = []
+for i in tqdm(range(weight_per_scale.shape[0])):
+  data = weight_per_scale[i, :]
+  x_padded = np.pad(data, (int(max_sampling), int(max_sampling)), mode='constant') # this is to not miss the beginning and ending data
+  # f: frequency bins (0 → 40 Hz since Nyquist = fs/2)
+  # t: time points (centers of each window, spaced by 1 second)
+  # Zxx: complex spectrogram, shape = (n_frequencies, n_time_windows)
+  f, t_without, Zxx = stft(x_padded, fs=max_sampling, nperseg=nperseg, noverlap=noverlap, nfft=nperseg)
+  # Use magnitude (power spectrum)
+  spectrograms_without.append(np.abs(Zxx))
+  all_ts.append(t_without)
+  all_fs.append(f)
+
+
+
+# # PLOT SPECTROGRAMS
+# n = len(spectrograms_with)
+# cols = 3
+# rows = int(np.ceil(n / cols))
+
+# fig, axes = plt.subplots(rows, cols, figsize=(15, 4 * rows))
+# axes = axes.flatten()
+
+# for i, ax in enumerate(axes[:n]):
+#   pcm = ax.pcolormesh(all_ts_with[i], all_fs[i], spectrograms_with[i], shading='gouraud', cmap="Greys", vmin=0, vmax=2)
+#   ax.set_title(f"Spectrogram from scale {i+1}")
+#   ax.set_ylabel('Freq [Hz]')
+#   ax.set_xlabel('Time [s]')
+#   # ax.set_ylim(bottom=0, top=5)
+
+# # Remove empty subplots if any
+# for ax in axes[n:]:
+#   ax.axis('off')
+
+# # fig.colorbar(pcm, ax=axes[:n], orientation='vertical', label='Amplitude')
+# fig.tight_layout()
+# plt.show()
+
+
+# Stack across scales and flatten frequency info
+# Shape: (n_time_windows, total_features)
+S_with = np.concatenate([s.T for s in spectrograms_with], axis=1)
+S_without = np.concatenate([s.T for s in spectrograms_without], axis=1)
+
+# Optional: scale the features
+S_with = StandardScaler().fit_transform(S_with)
+S_without = StandardScaler().fit_transform(S_without)
+
+# Fit an HMM to segment into different "behavioral states"
+n_states = 6  # e.g., you suspect 5 types of behavior
+model_with = hmm.GaussianHMM(n_components=n_states, covariance_type="diag", random_state=0)
+model_with.fit(S_with)
+
+model_without = hmm.GaussianHMM(n_components=n_states, covariance_type="diag", random_state=0)
+model_without.fit(S_without)
+
+# Predict hidden states
+states_with = model_with.predict(S_with)
+states_without = model_without.predict(S_without)
+
+cage.retreive_indicator_behaviour_data_per_timestamp(timestamp=60, directory=directory_behaviour, delay_in_seconds=delay_video_weight, index=index)
+print("Behaviour indocator per second : ", cage.behaviour_indicator_per_timestamp["Grooming"].shape)
+print("States without interpolation : ", states_without.shape, np.amin(states_without), np.amax(states_without))
+
+time_grondtruth = np.linspace(0, cage.behaviour_indicator_per_timestamp["Grooming"].shape[0], cage.behaviour_indicator_per_timestamp["Grooming"].shape[0])
+print(time_grondtruth.shape)
+interpol_states = np.floor(np.interp(time_grondtruth, t_without, states_without))
+print("Interpolated states : ", interpol_states.shape, np.amin(interpol_states), np.amax(interpol_states), np.unique(interpol_states))
+
+
+j = 0
+all_behaviour_indicators = np.zeros(shape=cage.behaviour_indicator_per_timestamp["Grooming"].shape[0])
+for key in cage.behaviour_indicator_per_timestamp.keys():
+  indicator_behaviour = cage.behaviour_indicator_per_timestamp[key]
+  all_behaviour_indicators = np.where(indicator_behaviour == 1, j, all_behaviour_indicators)
+  j += 1
+
+print("All_behaviour states ground truth : ", all_behaviour_indicators, all_behaviour_indicators.shape, np.unique(all_behaviour_indicators))
+
+
+ari = adjusted_rand_score(all_behaviour_indicators, interpol_states) # Measures similarity between cluster assignments, independent of label values. Perfect match = 1.0, 0.0 is random grouping. 
+print("Adjusted Rand Index:", ari)
+
+nmi = normalized_mutual_info_score(all_behaviour_indicators, interpol_states)
+print("Normalized mutual information score : ", nmi)
+
+fms = fowlkes_mallows_score(all_behaviour_indicators, interpol_states)
+print("Fowlkes–Mallows Index : ", fms)
+
+
+# plt.figure(figsize=(12, 4))
+# plt.plot(t_without, states_without, linewidth=0, marker="s", color="y", markersize=6, label="Without interpolation before STFT")
+# plt.plot(t_with, states_with, linewidth=0, marker="o", color="m", alpha=0.5, markersize=4, label="With interpolation before STFT")
+# plt.title("Inferred behavioral states over time")
+# # plt.legend()
+# plt.show()
 
 
 
