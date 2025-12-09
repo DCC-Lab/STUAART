@@ -19,7 +19,7 @@ class Cage():
         self.number_of_scales = number_of_scales
         self.real_data = real_data
 
-        self.threshold = [-10, 40] # min and max weight thresholds [g]
+        self.threshold = [-10, 40] # min and max mass thresholds [g]
 
         self.get_data_and_timepoints()
 
@@ -72,7 +72,7 @@ class Cage():
 
     def get_data_and_timepoints(self):
         """
-        Get .csv data of time and weight measurements per scale and overall from the directory and the filename. 
+        Get .csv data of time and mass measurements per scale and overall from the directory and the filename. 
         """
         all_data = np.array(pd.read_csv(self.directory+self.filename))
         data_list = []
@@ -94,7 +94,7 @@ class Cage():
 
     def sum_data_over_time(self):
         """
-        Sum data per time point to obtain the weight measurement over time of the whole cage system (and not only per scale).
+        Sum data per time point to obtain the mass measurement over time of the whole cage system (and not only per scale).
         """
         self.raw_data = np.sum(self.raw_data_per_scale, axis=0) # this variable kepts in memory the raw data
 
@@ -110,7 +110,7 @@ class Cage():
 
     def format_data_per_scale(self):
         """
-        Format weight data per scale by removing extreme outliers, finding the baseline shift and correcting for it. 
+        Format mass data per scale by removing extreme outliers, finding the baseline shift and correcting for it. 
         """
         for i in range(self.number_of_scales):
             self.raw_data_per_scale[i].set_outliers_threshold(self.threshold)
@@ -134,8 +134,8 @@ class Cage():
     def when_mouse_is_in(self):
         """
         Identifies the moment when the mouse is in the cage. 
-        Data acquisition starts with a plateau at 0g. When the mouse is in, the mean weight goes up.
-        Creates two class variables with the time and the weight data when the mouse is in. 
+        Data acquisition starts with a plateau at 0g. When the mouse is in, the mean mass goes up.
+        Creates two class variables with the time and the mass data when the mouse is in. 
         """
         length = 80
         for i in range(self.data.shape[0]):
@@ -145,7 +145,7 @@ class Cage():
             else:
                 break
         self.time_when_mouse_is_in = self.time[i+length]
-        self.weight_when_mouse_is_in = self.data[i+length]
+        self.mass_when_mouse_is_in = self.data[i+length]
 
 
     def remove_outliers(self, upper_threshold: float=45, change_tolerance: float=5):
@@ -191,9 +191,9 @@ class Cage():
         discrminate more points before convolutional filtering and gain in precision (we would avoid ups and downs more efficiently).
         
         Suggested aproach: Calculate the mean value over a fixed time interval (like 1 hour). Use a fraction of this mean as your
-        threshold (like 1/4). Mean value should always be around the weight of the mouse, so a fraction is a good guess for our threshold.
-        We can repeat that for the next time interval to have a dynamic threshold following the general tendency of the weight. Time interval length
-        should be chosen to match how fast weight is expected to change.
+        threshold (like 1/4). Mean value should always be around the mass of the mouse, so a fraction is a good guess for our threshold.
+        We can repeat that for the next time interval to have a dynamic threshold following the general tendency of the mass. Time interval length
+        should be chosen to match how fast mass is expected to change.
 
         Looping on all time intervals to calculate the threshold for each of them. Store them in an array to have the dynamic behaviour of our threshold.
         Give this array to another function that would remove all data points under the threshold for all time intervals.
@@ -228,7 +228,7 @@ class Cage():
         Arguments:
             - length: length of the kernel to convolve on signal. default is 10
             - iteration: number of consecutive convolutions to do. default is 1
-            - kernel_type: distribution of weight function of the kernel array. default is a simple average. (every value is the same) 
+            - kernel_type: distribution of mass function of the kernel array. default is a simple average. (every value is the same) 
         """
         # raise an error if number of iteration is not possible
         if iteration <= 0:
@@ -269,7 +269,7 @@ class Cage():
         Arguments:
             - length: length of the kernel to convolve on signal. default is 10
             - iteration: number of consecutive convolutions to do. default is 1
-            - kernel_type: distribution of weight function of the kernel array. default is a simple average. (every value is the same) 
+            - kernel_type: distribution of mass function of the kernel array. default is a simple average. (every value is the same) 
         """
         # raise an error if number of iteration is not possible
         if iteration <= 0:
@@ -346,25 +346,76 @@ class Cage():
         self.data = np.abs(filtered_array)
 
 
-    def compute_mean_data(self, smooth_level: int=3):
+    def compute_mean_data(self, smooth_level: int=3, produce_graph: bool=False, is_saved: bool=False):
         """
-        Computes the mean of the weight to smoothen it maximally and only see the tendency of the weight change over time.
+        Computes the mean of the mass to smoothen it maximally and only see the tendency of the mass change over time.
         First removes all data points under 10 g. 
         Then convolves the data using 600 points. 
 
         smooth_level : The higher, the smoother. Actively, it changes the number of iterations of convolution. 
         """
+        self.reset_data()
+        self.remove_outliers()
+
+        if produce_graph:
+            plt.figure(figsize=(13,5))
+            plt.plot(self.time, self.data, color="black", alpha=0.6, label="Raw data")
+
         self.remove_values_under_threshold(10)
         self.remove_outliers()
         self.convolution_filter_with_padding_edge(length=600, iteration=smooth_level)
 
+        if produce_graph:
+            plt.plot(self.time, self.data, color="black", linewidth=4, label="Smoothened data")
+
+            if self.real_data is not None:
+                plt.scatter([self.time[0], self.time[-1]], self.real_data, s=150, alpha=0.9, c="y", marker="*", label="Real mass", edgecolors="black")
+            
+            plt.legend(loc="upper right")
+            plt.xlabel("Time [hour]", fontsize=20)
+            plt.ylabel("Mass [g]", fontsize=20)
+
+            if is_saved:
+                today = datetime.today().strftime('%Y.%m.%d')
+                plt.savefig(self.directory+today+"-SumMassOverTime-Smoothened.png", format="png", transparent=True)
+
+            plt.show()
+
+
+    def remove_mean_data(self, smooth_level: int=3, produce_graph: bool=False, is_saved: bool=False):
+        """
+        Uses compute_mean_data to compute the mean data over time and then removes this mean to all data to center the data around zero.  
+        """
+
+        self.reset_data()
+        self.remove_outliers()
+        not_centered_data = self.data
+        self.compute_mean_data(smooth_level=smooth_level)
+        centered_data = not_centered_data-self.data
+
+        if produce_graph:
+            plt.figure(figsize=(13,5))
+            plt.plot(self.time, centered_data, color="black", alpha=1, label="Centered data")
+            plt.legend()
+            plt.xlabel("Time [hour]", fontsize=20)
+            plt.ylabel("Centered mass [g]", fontsize=20)
+
+            if self.real_data is not None:
+                plt.scatter([self.time[0], self.time[-1]], self.real_data, s=150, alpha=0.9, c="y", marker="*", label="Real mass", edgecolors="black")
+
+            if is_saved:
+                today = datetime.today().strftime('%Y.%m.%d')
+                plt.savefig(self.directory+today+"-CenteredData.png", format="png", transparent=True)
+
+            plt.show()
+
 
     def compute_hanging(self, threshold: int=10, bins: float=0.5, first_day: bool=False, produce_graph: bool=False):
         """
-        Hanging is when the weight data drops to 0g for more than 1 second. 
-        A convolution is done on a small window length (15 points) to smooth the data just enough to identify the moments when the weight data drops to 0g. 
-        A threshold is set so that all weight data going under the threshold in the convoluted weight data is when the mouse is hanging. 
-        If it is the first day, then the first weight data are at 0g, but they are not hanging data, as the mouse is not in yet. 
+        Hanging is when the mass data drops to 0g for more than 1 second. 
+        A convolution is done on a small window length (15 points) to smooth the data just enough to identify the moments when the mass data drops to 0g. 
+        A threshold is set so that all mass data going under the threshold in the convoluted mass data is when the mouse is hanging. 
+        If it is the first day, then the first mass data are at 0g, but they are not hanging data, as the mouse is not in yet. 
         The bins variable indicates how you want the hanging frequency to be computed. 0.5 is 30 min, 1 is one hour. 
         """
         self.reset_data()
@@ -392,7 +443,7 @@ class Cage():
                 i += 1
 
             else:
-            # verifies if the selected range has at least one second of weight measurement under 10g. If so, it is indeed hanging. Otherwise, it is not hanging. 
+            # verifies if the selected range has at least one second of mass measurement under 10g. If so, it is indeed hanging. Otherwise, it is not hanging. 
                 under_10_indices = np.where(conv_data[start:end] < threshold)[0]
 
                 if under_10_indices.shape[0] > 1/60/60:
@@ -441,15 +492,15 @@ class Cage():
             plt.plot(self.time, self.data, label="Convoluted")
             plt.legend()
             plt.xlabel("Time [hour]", fontsize=20)
-            plt.ylabel("Weight data [g]", fontsize=20)
+            plt.ylabel("mass data [g]", fontsize=20)
             plt.show()
 
 
 
     def compute_location_on_scale(self, bins:float=0.5, first_day: bool=False, produce_graph: bool=False, is_saved:bool=False):
         """
-        Time series of weight per individual scale are used to identify where the mouse is over time. 
-        After a simple average convolution, the mouse is identified are present on a scale if a non-zero weight is measured (between -2 and 2g). Otherwise, the mouse is not on the scale. 
+        Time series of mass per individual scale are used to identify where the mouse is over time. 
+        After a simple average convolution, the mouse is identified are present on a scale if a non-zero mass is measured (between -2 and 2g). Otherwise, the mouse is not on the scale. 
         The mouse can be on multiple scales at a time. 
         Extra parameters are calculated, such as the number of entries, the relative time spent and the presence bouts per time bin, defined by bins. 
         """
@@ -511,17 +562,17 @@ class Cage():
 
             plt.xlabel("Time [h]", fontsize=16)
             axs[0].legend()
-            axs[0].set_ylabel("Weight [g]", fontsize=16)
-            axs[1].set_ylabel("Weight [g]", fontsize=16)
-            axs[2].set_ylabel("Weight [g]", fontsize=16)
+            axs[0].set_ylabel("mass [g]", fontsize=16)
+            axs[1].set_ylabel("mass [g]", fontsize=16)
+            axs[2].set_ylabel("mass [g]", fontsize=16)
             fig.tight_layout()
 
             if is_saved:
-                today = datetime.today().strftime('%Y-%m-%d')
-                plt.savefig(self.directory+today+"-Time_series_with_location_indicator-"+str(bins)+".png", format="png", dpi=600)
+                today = datetime.today().strftime('%Y.%m.%d')
+                plt.savefig(self.directory+today+"-Time_series_with_location_indicator-"+str(bins)+".png", format="png", dpi=600, transparent=True)
             plt.show()
 
-            fig, axs = plt.subplots(ncols=1, nrows=3, figsize=(15,9))
+            fig, axs = plt.subplots(ncols=1, nrows=3, figsize=(13,9))
             x = np.arange(bins, self.time[-1], bins)
             i = 0
             for n in range(self.number_of_scales):
@@ -531,7 +582,7 @@ class Cage():
                 i += 0.12
 
             plt.xlabel("Time bins [h]", fontsize=16)
-            axs[0].legend(fontsize=16)
+            axs[0].legend(fontsize=14)
             axs[0].set_ylabel("Number of entries", fontsize=16)
             axs[1].set_ylabel("Average time spent per \n presence bout [h]", fontsize=16)
             axs[2].set_ylabel("Relative time [h/h]", fontsize=16)
@@ -543,16 +594,17 @@ class Cage():
             axs[2].set_xticks(x+0.12, labels=x, fontsize=13)
             fig.tight_layout()
             if is_saved:
+                today = datetime.today().strftime('%Y.%m.%d')
                 plt.savefig(self.directory+today+"-Entries_Averagetimeperbout_Relativetime_"+str(bins)+".png", format="png", dpi=600, transparent=True)
             plt.show()
 
 
     def compute_location_on_scale_accuracy(self, directory_ground_truth:str, filenames:list, delay_in_seconds:int=0, evaluate_only_between_these_hours:list=None, bins:float=0.5, first_day: bool=False, produce_graph: bool=False, is_saved:bool=False):
         """
-        This function needs ground truth data, potentially done by watching a video while recording the weight data, to compare the ground truth (video, manual annotations) with the identification of location with the weight data. 
+        This function needs ground truth data, potentially done by watching a video while recording the mass data, to compare the ground truth (video, manual annotations) with the identification of location with the mass data. 
         Data is formatted to obtain one numpy array per scale having the size of the raw_time data. Elements are 0s when the mouse is not on the scale and 1s when the mouse is on the scale. 
         These numpy arrays of 0s and 1s are compared together. 
-        A plot of the time series of weight per scale is done at the end with the ground truth moments in grey. 
+        A plot of the time series of mass per scale is done at the end with the ground truth moments in grey. 
         """
         self.compute_location_on_scale(bins=bins, first_day=first_day)
 
@@ -581,7 +633,7 @@ class Cage():
             start_times_scale_hours = self.format_time_in_hours(start_times_scale) # format the start times in hours, floats 
             delay_scale_hours = self.format_seconds_in_hours(delay_scale) # format the delays in hours, float
 
-            start_times_scale_hours = start_times_scale_hours - (delay_in_seconds/3600) # add delay between video and weight data measurements
+            start_times_scale_hours = start_times_scale_hours - (delay_in_seconds/3600) # add delay between video and mass data measurements
             start_times_in_hours.append(start_times_scale_hours) 
             delays_in_hours.append(delay_scale_hours)
 
@@ -610,7 +662,7 @@ class Cage():
             on_scales_truth_indicator[1, indices_during_event] = 1
             on_scales_truth_indicator[2, indices_during_event] = 1
 
-        # compute total time accuracy by counting the numbers of 1s in the ground truth and comparing to the total number of 1s in the location indicators found in weight data
+        # compute total time accuracy by counting the numbers of 1s in the ground truth and comparing to the total number of 1s in the location indicators found in mass data
         total_error_per_scale = []
         for n in range(self.number_of_scales):
             indices_presence_truth = np.where(on_scales_truth_indicator[n] == 1)[0]
@@ -657,13 +709,13 @@ class Cage():
 
         plt.xlabel("Time [h]", fontsize=16)
         axs[0].legend()
-        axs[0].set_ylabel("Weight [g]", fontsize=16)
-        axs[1].set_ylabel("Weight [g]", fontsize=16)
-        axs[2].set_ylabel("Weight [g]", fontsize=16)
+        axs[0].set_ylabel("mass [g]", fontsize=16)
+        axs[1].set_ylabel("mass [g]", fontsize=16)
+        axs[2].set_ylabel("mass [g]", fontsize=16)
         fig.tight_layout()
 
         if is_saved:
-            today = datetime.today().strftime('%Y-%m-%d')
+            today = datetime.today().strftime('%Y.%m.%d')
             if evaluate_only_between_these_hours is not None:
                 plt.savefig(self.directory+today+"-TotalError_and_EventPrecision"+str(bins)+"-range"+str(evaluate_only_between_these_hours[0])+"to"+str(evaluate_only_between_these_hours[1])+"hours.png", format="png", dpi=600, transparent=True)
             else:
@@ -687,7 +739,7 @@ class Cage():
             scale_indicator = data["On scale"].to_numpy()
             start_times_scale_hours = self.format_time_in_hours(start_times_scale) # format the start times in hours, floats 
             delay_scale_hours = self.format_seconds_in_hours(delay_scale) # format the delays in hours, float
-            start_times_scale_hours = start_times_scale_hours - (delay_in_seconds/3600) # add delay between video and weight data measurements
+            start_times_scale_hours = start_times_scale_hours - (delay_in_seconds/3600) # add delay between video and mass data measurements
 
             # here, we make an array of the size of self.raw_time, where 0 is when there is no grooming and 1 is when there is grooming
             event_indicator = np.zeros(shape=(self.number_of_scales, self.raw_time.shape[0]))
@@ -732,7 +784,7 @@ class Cage():
         0 : when the event is not happening
         1 : when the event is happening
         Produces a dictionnary of indicators per scale of when the behavioural event is happening. 
-        INDEX IS TO MAKE THINGS EASIER FOR NOW. ITS THE INDEX REPRESENTING THE TIME I TOOK A VIDEO TO MATCH THE ARRAY OF THE WEIGHT FOR MY TESTS. 
+        INDEX IS TO MAKE THINGS EASIER FOR NOW. ITS THE INDEX REPRESENTING THE TIME I TOOK A VIDEO TO MATCH THE ARRAY OF THE mass FOR MY TESTS. 
         """
         self.retreive_indicator_behaviour_data(directory=directory, delay_in_seconds=delay_in_seconds)
         behaviour_indicator_per_timestamp = {}
@@ -756,11 +808,11 @@ class Cage():
 
 
 
-    def produce_behaviour_dataset_per_scale(self, directory:str, delay_in_seconds:int):
+    def produce_behaviour_dataset_per_scale(self, directory:str, delay_in_seconds:int, length_in_timepoints:int=800):
         """
         Uses groung truth annotations of all different behaviours and format in 2 second events.
         Returns:
-            - the weight measurements of each 10 datapoints (shape = (-1,10))
+            - the mass measurements of each 10 datapoints (shape = (-1,10))
             - the scale indicator on which this moments is measured (shape = -1)
             - the targets, same as the labels, but int instead of str
             - the labels of different behaviours (shape= -1)
@@ -775,14 +827,14 @@ class Cage():
             indicator = self.behaviour_indicator_per_scale[key]
             for n in range(self.number_of_scales):
                 indices = np.where(indicator[n] == 1)[0]
-                weight_truth = self.raw_data_per_scale[n][indices]
-                new_size = (weight_truth.size // 800) * 800 # 190 data points is about 2 seconds at 80 Hz
-                trim_weight_truth = weight_truth[:new_size]
-                trim_weight_truth = np.reshape(trim_weight_truth, (-1, 800))
-                two_second_data = np.array(list(two_second_data) + list(trim_weight_truth))
-                on_scale = np.array(list(on_scale) + list(np.repeat(n, trim_weight_truth.shape[0])))
-                targets = np.array(list(targets) + list(np.repeat(i, trim_weight_truth.shape[0])))
-                labels = np.array(list(labels) + list(np.repeat(key, trim_weight_truth.shape[0])))
+                mass_truth = self.raw_data_per_scale[n][indices]
+                new_size = (mass_truth.size // length_in_timepoints) * length_in_timepoints # 190 data points is about 2 seconds at 80 Hz
+                trim_mass_truth = mass_truth[:new_size]
+                trim_mass_truth = np.reshape(trim_mass_truth, (-1, length_in_timepoints))
+                two_second_data = np.array(list(two_second_data) + list(trim_mass_truth))
+                on_scale = np.array(list(on_scale) + list(np.repeat(n, trim_mass_truth.shape[0])))
+                targets = np.array(list(targets) + list(np.repeat(i, trim_mass_truth.shape[0])))
+                labels = np.array(list(labels) + list(np.repeat(key, trim_mass_truth.shape[0])))
             i += 1
 
         return two_second_data, on_scale, targets, labels
@@ -793,7 +845,7 @@ class Cage():
         """
         Uses groung truth annotations of all different behaviours and format in 2 second events, which is approximately 10 datapoints. 
         Returns:
-            - the weight measurements of each 10 datapoints (shape = (-1,10))
+            - the mass measurements of each 10 datapoints (shape = (-1,10))
             - the scale indicator on which this moments is measured (shape = -1)
             - the targets, same as the labels, but int instead of str
             - the labels of different behaviours (shape= -1)
@@ -807,13 +859,13 @@ class Cage():
         for key in self.behaviour_indicator.keys():
             indicator = self.behaviour_indicator[key]
             indices = np.where(indicator == 1)[0]
-            weight_truth = self.raw_data[indices]
-            new_size = (weight_truth.size // 800) * 800 # 190 data points is about 2 seconds at 80 Hz
-            trim_weight_truth = weight_truth[:new_size]
-            trim_weight_truth = np.reshape(trim_weight_truth, (-1, 800))
-            two_second_data = np.array(list(two_second_data) + list(trim_weight_truth))
-            targets = np.array(list(targets) + list(np.repeat(i, trim_weight_truth.shape[0])))
-            labels = np.array(list(labels) + list(np.repeat(key, trim_weight_truth.shape[0])))
+            mass_truth = self.raw_data[indices]
+            new_size = (mass_truth.size // 800) * 800 # 190 data points is about 2 seconds at 80 Hz
+            trim_mass_truth = mass_truth[:new_size]
+            trim_mass_truth = np.reshape(trim_mass_truth, (-1, 800))
+            two_second_data = np.array(list(two_second_data) + list(trim_mass_truth))
+            targets = np.array(list(targets) + list(np.repeat(i, trim_mass_truth.shape[0])))
+            labels = np.array(list(labels) + list(np.repeat(key, trim_mass_truth.shape[0])))
             i += 1
 
         return two_second_data, targets, labels
@@ -878,7 +930,7 @@ class Cage():
         colors = [colormap(i / (10 - 1)) for i in range(10)]
         j = 0
         for i in range(10):
-            plt.plot(np.arange(0, dataset.shape[1])/10, eigenvectors[i] + j, label="PC" + str(i), alpha=0.7, color=colors[i], linewidth=4)
+            plt.plot(np.arange(0, dataset.shape[1]), eigenvectors[i] + j, label="PC" + str(i), alpha=0.7, color=colors[i], linewidth=4)
             j -= 1
         plt.legend(ncol=5, loc="upper center", bbox_to_anchor=(0.5, 1.1))
 

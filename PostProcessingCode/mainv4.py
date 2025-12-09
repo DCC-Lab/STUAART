@@ -24,36 +24,42 @@ from tqdm import tqdm
 
 # save_figure = False
 
-delay_video_weight = -25
+delay_video_mass = 20.5
 
-data = np.array(pd.read_csv(my_path))
-directory = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/"
-filename = "2025.10.28-RawWeightData-80Hz.csv"
-cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_data=np.array([0, 22]))
+directory = "/Users/valeriepineaunoel/Library/Mobile Documents/com~apple~CloudDocs/Documents/PhD/Results/STUAART/20251128-TestWithMouseForMoreBehaviourData/"
+filename = "2025.11.28-RawMassData_NoBufferLog.csv"
+# np.array([22.8, 22.8])
+cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_data=[23.6, 22.4])
 # cage.plot_data_per_scale()
 # cage.compute_individual_scale_information(first_day=True, produce_graph=True)
+# cage.compute_mean_data(smooth_level=4, produce_graph=True, is_saved=True)
 
 # HANGING
 # cage.compute_hanging(first_day=True, produce_graph=True)
 
 # LOCATION
-# directory_ground_truth_location = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/20251028-BehaviourDataAfterWatching/"
-# filenames_ground_truth_location = ["On scale 1-Table 1.csv", "On scale 2-Table 1.csv", "On scale 3-Table 1.csv", "On scales 1 and 2-Table 1.csv", "On scales 2 and 3-Table 1.csv"]
+directory_ground_truth_location = '/Users/valeriepineaunoel/Library/Mobile Documents/com~apple~CloudDocs/Documents/PhD/Results/STUAART/20251128-TestWithMouseForMoreBehaviourData/20251128-BehaviourDataAfterWatchingVideo/'
+filenames_ground_truth_location = ["On scale 1-Table 1.csv", "On scale 2-Table 1.csv", "On scale 3-Table 1.csv", "On scales 1 and 2-Table 1.csv", "On scales 2 and 3-Table 1.csv"]
 # cage.compute_location_on_scale(first_day=True, produce_graph=True, is_saved=True)
-# cage.compute_location_on_scale_accuracy(is_saved=True, directory_ground_truth=directory_ground_truth_location, filenames=filenames_ground_truth_location, delay_in_seconds=delay_video_weight, evaluate_only_between_these_hours=None)
+# cage.compute_location_on_scale_accuracy(is_saved=True, directory_ground_truth=directory_ground_truth_location, filenames=filenames_ground_truth_location, delay_in_seconds=delay_video_mass, evaluate_only_between_these_hours=[0, 1])
 
 
 # GROOMING
-# # Look at 2-second samples of weight data per behaviour type PER SCALE and produce PCA. 
-directory_behaviour = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/20251028-BehaviourDataAfterWatching/Behaviour/"
-two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
+# # Look at 2-second samples of mass data per behaviour type PER SCALE and produce PCA. 
+directory_behaviour = '/Users/valeriepineaunoel/Library/Mobile Documents/com~apple~CloudDocs/Documents/PhD/Results/STUAART/20251117-TestBufferScriptWithMouse/20251117-BehaviourDataAfterWatchingVideo/Behaviour/'
+# two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_mass)
 # cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, PCs_to_plot=[1,2,3], label_per_scale=False)
 
-# # Look at 2-second samples of weight data per behaviour type, overall weight of the system, and produce PCA. 
-two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
-# cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, label_per_scale=False)
+# # Look at 2-second samples of mass data per behaviour type, overall mass of the system, and produce PCA. 
+# two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=directory_behaviour, delay_in_seconds=delay_video_mass)
+# cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, PCs_to_plot=[1,2,3], label_per_scale=False)
 
-# two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
+two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_mass, length_in_timepoints=160)
+# np.savetxt(directory+"2sec-data/data.csv", two_second_data, delimiter=",")
+# np.savetxt(directory+"2sec-data/on_scale.csv", on_scale, delimiter=",")
+# np.savetxt(directory+"2sec-data/targets.csv", targets, delimiter=",")
+print(labels)
+
 # all_frequencies, all_amplitudes = cage.fft_behaviour(dataset=two_second_data, labels=labels, plot=True)
 
 
@@ -72,7 +78,7 @@ two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=dire
 # 		axs[i].plot(x, two_second_data[indices_of_behaviour[j], :], alpha=0.7)
 
 # 	axs[i].set_title(str(label), fontsize=16)
-# 	axs[i].set_ylabel("Weight [g]", fontsize=12)
+# 	axs[i].set_ylabel("mass [g]", fontsize=12)
 # 	axs[i].set_xlabel("Timestamps (190 data points = 2 seconds)", fontsize=10)
 # 	axs[i].set_ylim(bottom=0, top=40)
 
@@ -91,7 +97,7 @@ two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=dire
 
 # for j in indices_of_grooming:
 # 	plt.plot(x, two_second_data[j, :], label="Index : " + str(j))
-# 	plt.ylabel("Weight [g]", fontsize=10)
+# 	plt.ylabel("mass [g]", fontsize=10)
 # 	plt.xlabel("Timestamps (190 data points = 2 seconds)", fontsize=10)
 # 	plt.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/Figures/RawGrooming/Individual-2second-grooming-raw-index" + str(j) + ".png", format="png")
 # 	plt.close()
@@ -99,8 +105,8 @@ two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=dire
 
 # # THESE ARE THE ONES THAT I FOUND VISUALLY CLEAN SO I'M ONLY GOING TO FFT THESE TIME SERIES
 # indices_clean_grooming = [58, 59, 65, 66, 70, 77, 80, 81, 88, 93, 100, 103]
-# weight_data_of_clean_grooming = two_second_data[indices_clean_grooming, :]
-# fft_of_clean_grooming = np.fft.fft(weight_data_of_clean_grooming)
+# mass_data_of_clean_grooming = two_second_data[indices_clean_grooming, :]
+# fft_of_clean_grooming = np.fft.fft(mass_data_of_clean_grooming)
 # x = np.arange(0, fft_of_clean_grooming.shape[1])/80
 
 # fig = plt.figure(figsize=(15, 4))
@@ -122,17 +128,17 @@ two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=dire
 # for i in indices_clean_grooming:
 # 	plt.plot(x, two_second_data[i], label="Index : " + str(i), alpha=0.7)
 
-# plt.ylabel("Weight [g]", fontsize=12)
+# plt.ylabel("mass [g]", fontsize=12)
 # plt.xlabel("Timestamp (190 data points = 2 seconds)", fontsize=12)
-# plt.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/Figures/RawGrooming/Weight_data_of_clean_2second_grooming.png", format="png")
+# plt.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/Figures/RawGrooming/mass_data_of_clean_2second_grooming.png", format="png")
 # plt.show()
 
 
-# # FFT OF ALL 2-SECOND GROOMING EVENTS FOR VISUALISATION 
+# # FFT OF ALL 10-SECOND GROOMING EVENTS FOR VISUALISATION 
 # indices_of_grooming = np.where(labels == "Grooming")[0]
 # data_of_grooming = two_second_data[indices_of_grooming, :]
 # fft_of_grooming = np.fft.fft(data_of_grooming)
-# x = np.arange(0, fft_of_grooming.shape[1])/80
+# x = np.arange(0, fft_of_grooming.shape[1])/800
 
 # fig = plt.figure(figsize=(15, 4))
 
@@ -143,13 +149,13 @@ two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=dire
 # plt.ylim(0, 200)
 # plt.ylabel("Amplitude", fontsize=12)
 # plt.xlabel("Timestamp (190 data points = 2 seconds)", fontsize=12)
-# plt.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/Figures/GroomingInvestiguation/FTT_all_grooming.png", format="png")
+# # plt.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251016-TestSTUAARTOneMouse80Hz/Figures/GroomingInvestiguation/FTT_all_grooming.png", format="png")
 # plt.show()
 
 
 # # 2025.10.31 
 # # I AM TRYING HERE TO IDENTIFY WHERE THE MOUSE IS GROOMING FOR A LONG TIME. 800 DATA POINTS = 10 SECONDS
-# cage.retreive_indicator_behaviour_data_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_weight)
+# cage.retreive_indicator_behaviour_data_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_mass)
 
 # # # The 3rd scale is where the mouse groomed the most. I'm going to isolate 10-second grooming events. 
 # indicator_behaviour_scale = cage.behaviour_indicator_per_scale["Grooming"][2]
@@ -170,7 +176,7 @@ two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=dire
 
 # 	axs[0].plot(x, y, alpha=0.5, label=i)
 # 	axs[0].set_xlabel("Time [sec]", fontsize=12)
-# 	axs[0].set_ylabel("Weight [g]", fontsize=12)
+# 	axs[0].set_ylabel("mass [g]", fontsize=12)
 # 	axs[0].legend()
 
 # 	fft_data = np.fft.fft(y)
@@ -186,20 +192,20 @@ two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=dire
 
 # # 2025.11.03 
 # # FFT OF THE SYSTEM WHEN THERE IS NOTHING ON THE SCALES
-# baseline_weight = cage.raw_data[0:6500]
+# baseline_mass = cage.raw_data[0:6500]
 
-# baseline_weight = np.where(baseline_weight < -10, 0, baseline_weight)
-# baseline_weight = np.where(baseline_weight > 40, 0, baseline_weight)
+# baseline_mass = np.where(baseline_mass < -10, 0, baseline_mass)
+# baseline_mass = np.where(baseline_mass > 40, 0, baseline_mass)
 
 # fig = plt.figure(figsize=(15, 4))
-# plt.plot(cage.raw_time[0:6500]*60*60, baseline_weight)
+# plt.plot(cage.raw_time[0:6500]*60*60, baseline_mass)
 # plt.ylim(-7, 7)
 # plt.xlabel("Time [s]", fontsize=14)
-# plt.ylabel("Weight [g]", fontsize=14)
-# fig.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/Baseline_weight_outliers_removed.png", format="png")
+# plt.ylabel("mass [g]", fontsize=14)
+# fig.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/Baseline_mass_outliers_removed.png", format="png")
 # plt.show()
 
-# fft_baseline = np.fft.fft(baseline_weight)
+# fft_baseline = np.fft.fft(baseline_mass)
 # T = 1/80
 # N = len(fft_baseline)
 # freqs = np.fft.fftfreq(N, T)  # frequency bins
@@ -217,27 +223,27 @@ two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=dire
 
 
 # # FFT OF THE 3 SCALES ALONE OF THE BASELINE SIGNAL. MAYBE THE 3 SCALES DO NOT HAVE THE SAME NOISE. 
-# baseline_weight_per_scale = []
+# baseline_mass_per_scale = []
 # for i in range(len(cage.raw_data_per_scale)):
-# 	baseline_weight_per_scale.append(cage.raw_data_per_scale[i][20:6200])
+# 	baseline_mass_per_scale.append(cage.raw_data_per_scale[i][20:6200])
 
-# baseline_weight_per_scale = np.array(baseline_weight_per_scale)
+# baseline_mass_per_scale = np.array(baseline_mass_per_scale)
 
-# baseline_weight_per_scale = np.where(baseline_weight_per_scale < -10, 0, baseline_weight_per_scale)
-# baseline_weight_per_scale = np.where(baseline_weight_per_scale > 40, 0, baseline_weight_per_scale)
+# baseline_mass_per_scale = np.where(baseline_mass_per_scale < -10, 0, baseline_mass_per_scale)
+# baseline_mass_per_scale = np.where(baseline_mass_per_scale > 40, 0, baseline_mass_per_scale)
 
 # colors = ["blue", "red", "green"]
 
 # fig = plt.figure(figsize=(15, 4))
-# for i in range(baseline_weight_per_scale.shape[0]):
-# 	plt.plot(cage.raw_time[20:6200]*60*60, baseline_weight_per_scale[i], color=colors[i], alpha=0.7)
+# for i in range(baseline_mass_per_scale.shape[0]):
+# 	plt.plot(cage.raw_time[20:6200]*60*60, baseline_mass_per_scale[i], color=colors[i], alpha=0.7)
 # plt.ylim(-2, 2)
 # plt.xlabel("Time [s]", fontsize=14)
-# plt.ylabel("Weight [g]", fontsize=14)
-# fig.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/Baseline_weight_per_scale_outliers_removed_2.png", format="png")
+# plt.ylabel("mass [g]", fontsize=14)
+# fig.savefig("/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/Figures/Baseline_mass_per_scale_outliers_removed_2.png", format="png")
 # plt.show()
 
-# fft_baseline_per_scale = np.fft.fft(baseline_weight_per_scale)
+# fft_baseline_per_scale = np.fft.fft(baseline_mass_per_scale)
 # T = np.arange(0, fft_baseline_per_scale.shape[1])/80
 
 # fig = plt.figure(figsize=(15, 4))
@@ -259,11 +265,11 @@ two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=dire
 
 # eigenvectors, projected_data = cage.pca(dataset=all_amplitudes, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, PCs_to_plot=[0,1,2], label_per_scale=False, x_label="Frequency [Hz]")
 
-# # # JE VAIS ENSUITE ESSAYER DE FAIRE DE LA CLASSIFICATION DU TYPE HDBSCAN
+# # JE VAIS ENSUITE ESSAYER DE FAIRE DE LA CLASSIFICATION DU TYPE HDBSCAN
 
 # clusterer = HDBSCAN(
 #     min_cluster_size=2,  # minimum number of samples per cluster
-#     min_samples=11,       # smaller = more clusters, larger = fewer
+#     min_samples=3,       # smaller = more clusters, larger = fewer
 #     cluster_selection_epsilon=0.0
 # )
 # labels_hdbscan = clusterer.fit_predict(projected_data)
@@ -287,9 +293,9 @@ two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=dire
 # # JE VAIS ESSAYER DE FAIRE ICA PUIS HDBSCAN
 
 
-# X: (n_samples, n_features) — your weight data from the 3 scales
+# X: (n_samples, n_features) — your mass data from the 3 scales
 # Example placeholder:
-# X = np.load("weights.npy")
+# X = np.load("masss.npy")
 
 # ica = FastICA(n_components=3, random_state=0)
 # X_ica = ica.fit_transform(all_amplitudes)  # Independent components
@@ -342,67 +348,67 @@ two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=dire
 
 # # TEST SHORT-TIME FOURIER TRANSFORM + HMM
 
-index = np.where(cage.raw_time > 2.9999)[0][0]
-time = cage.raw_time[:index]
-print("Total time of the experiment : {:.4f} seconds.".format(time[-1]*60*60))
+# index = np.where(cage.raw_time > 0.745691)[0][0]
+# time = cage.raw_time[:index]
+# print("Total time of the experiment : {:.4f} seconds.".format(time[-1]*60*60))
 
-max_sampling, fs_mean = cage.compute_sampling_rate(time_array_in_hours=cage.raw_time)
-nperseg = max_sampling * 3
-noverlap = max_sampling * 2
+# max_sampling, fs_mean = cage.compute_sampling_rate(time_array_in_hours=cage.raw_time)
+# nperseg = max_sampling * 3
+# noverlap = max_sampling * 2
 
-# # WITH INTERPOLATION BEFORE TEH STFT. I have to interpolate to have the same number of data points per second to that I can compare my behaviour data with the ground truth
-time_uniform = np.arange(time[0]*60*60, time[-1]*60*60, 1/max_sampling)
-to_remove = np.array([3600, 3601, 3602, 3603, 3604, 3605, 7200, 7201])
-times_filtered = time_uniform[~np.isin(time_uniform.astype(int), to_remove.astype(int))]
+# # # WITH INTERPOLATION BEFORE THE STFT. I have to interpolate to have the same number of data points per second to that I can compare my behaviour data with the ground truth
+# time_uniform = np.arange(time[0]*60*60, time[-1]*60*60, 1/max_sampling)
+# to_remove = np.array([3600, 3601, 3602, 3603, 3604, 3605, 7200, 7201])
+# times_filtered = time_uniform[~np.isin(time_uniform.astype(int), to_remove.astype(int))]
 
-weight_per_scale = []
-for i in range(len(cage.raw_data_per_scale)):
-  data = cage.raw_data_per_scale[i][:index]
-  uniform_data = np.interp(times_filtered, time, data)
-  weight_per_scale.append(uniform_data)
-weight_per_scale = np.array(weight_per_scale)
+# mass_per_scale = []
+# for i in range(len(cage.raw_data_per_scale)):
+#   data = cage.raw_data_per_scale[i][:index]
+#   uniform_data = np.interp(times_filtered, time, data)
+#   mass_per_scale.append(uniform_data)
+# mass_per_scale = np.array(mass_per_scale)
 
-# Compute STFT for each scale
-spectrograms_with = []
-all_ts_with = []
-all_fs = []
-for i in tqdm(range(weight_per_scale.shape[0])):
-  data = weight_per_scale[i, :]
-  x_padded = np.pad(data, (int(max_sampling), int(max_sampling)), mode='constant') # this is to not miss the beginning and ending data
-  # f: frequency bins (0 → 40 Hz since Nyquist = fs/2)
-  # t: time points (centers of each window, spaced by 1 second)
-  # Zxx: complex spectrogram, shape = (n_frequencies, n_time_windows)
-  f, t_with, Zxx = stft(x_padded, fs=max_sampling, nperseg=nperseg, noverlap=noverlap, nfft=nperseg)
-  # Use magnitude (power spectrum)
-  spectrograms_with.append(np.abs(Zxx))
-  all_ts_with.append(t_with)
-  all_fs.append(f)
+# # Compute STFT for each scale
+# spectrograms_with = []
+# all_ts_with = []
+# all_fs = []
+# for i in tqdm(range(mass_per_scale.shape[0])):
+#   data = mass_per_scale[i, :]
+#   x_padded = np.pad(data, (int(max_sampling), int(max_sampling)), mode='constant') # this is to not miss the beginning and ending data
+#   # f: frequency bins (0 → 40 Hz since Nyquist = fs/2)
+#   # t: time points (centers of each window, spaced by 1 second)
+#   # Zxx: complex spectrogram, shape = (n_frequencies, n_time_windows)
+#   f, t_with, Zxx = stft(x_padded, fs=max_sampling, nperseg=nperseg, noverlap=noverlap, nfft=nperseg)
+#   # Use magnitude (power spectrum)
+#   spectrograms_with.append(np.abs(Zxx))
+#   all_ts_with.append(t_with)
+#   all_fs.append(f)
 
 
 
 
 # # WITHOUT INTERPOLATION BEFORE THE STFT
-weight_per_scale = []
-for i in range(len(cage.raw_data_per_scale)):
-  data = cage.raw_data_per_scale[i][:index]
-  weight_per_scale.append(data)
-weight_per_scale = np.array(weight_per_scale)
+# mass_per_scale = []
+# for i in range(len(cage.raw_data_per_scale)):
+#   data = cage.raw_data_per_scale[i][:index]
+#   mass_per_scale.append(data)
+# mass_per_scale = np.array(mass_per_scale)
 
-# Compute STFT for each scale
-spectrograms_without = []
-all_ts = []
-all_fs = []
-for i in tqdm(range(weight_per_scale.shape[0])):
-  data = weight_per_scale[i, :]
-  x_padded = np.pad(data, (int(max_sampling), int(max_sampling)), mode='constant') # this is to not miss the beginning and ending data
-  # f: frequency bins (0 → 40 Hz since Nyquist = fs/2)
-  # t: time points (centers of each window, spaced by 1 second)
-  # Zxx: complex spectrogram, shape = (n_frequencies, n_time_windows)
-  f, t_without, Zxx = stft(x_padded, fs=max_sampling, nperseg=nperseg, noverlap=noverlap, nfft=nperseg)
-  # Use magnitude (power spectrum)
-  spectrograms_without.append(np.abs(Zxx))
-  all_ts.append(t_without)
-  all_fs.append(f)
+# # Compute STFT for each scale
+# spectrograms_without = []
+# all_ts = []
+# all_fs = []
+# for i in tqdm(range(mass_per_scale.shape[0])):
+#   data = mass_per_scale[i, :]
+#   x_padded = np.pad(data, (int(max_sampling), int(max_sampling)), mode='constant') # this is to not miss the beginning and ending data
+#   # f: frequency bins (0 → 40 Hz since Nyquist = fs/2)
+#   # t: time points (centers of each window, spaced by 1 second)
+#   # Zxx: complex spectrogram, shape = (n_frequencies, n_time_windows)
+#   f, t_without, Zxx = stft(x_padded, fs=max_sampling, nperseg=nperseg, noverlap=noverlap, nfft=nperseg)
+#   # Use magnitude (power spectrum)
+#   spectrograms_without.append(np.abs(Zxx))
+#   all_ts.append(t_without)
+#   all_fs.append(f)
 
 
 
@@ -415,7 +421,7 @@ for i in tqdm(range(weight_per_scale.shape[0])):
 # axes = axes.flatten()
 
 # for i, ax in enumerate(axes[:n]):
-#   pcm = ax.pcolormesh(all_ts_with[i], all_fs[i], spectrograms_with[i], shading='gouraud', cmap="Greys", vmin=0, vmax=2)
+#   pcm = ax.pcolormesh(all_ts_with[i], all_fs[i], spectrograms_with[i], shading='gouraud', cmap="Greys", vmin=0, vmax=1.7)
 #   ax.set_title(f"Spectrogram from scale {i+1}")
 #   ax.set_ylabel('Freq [Hz]')
 #   ax.set_xlabel('Time [s]')
@@ -432,53 +438,53 @@ for i in tqdm(range(weight_per_scale.shape[0])):
 
 # Stack across scales and flatten frequency info
 # Shape: (n_time_windows, total_features)
-S_with = np.concatenate([s.T for s in spectrograms_with], axis=1)
-S_without = np.concatenate([s.T for s in spectrograms_without], axis=1)
+# S_with = np.concatenate([s.T for s in spectrograms_with], axis=1)
+# S_without = np.concatenate([s.T for s in spectrograms_without], axis=1)
 
-# Optional: scale the features
-S_with = StandardScaler().fit_transform(S_with)
-S_without = StandardScaler().fit_transform(S_without)
+# # Optional: scale the features
+# S_with = StandardScaler().fit_transform(S_with)
+# S_without = StandardScaler().fit_transform(S_without)
 
-# Fit an HMM to segment into different "behavioral states"
-n_states = 6  # e.g., you suspect 5 types of behavior
-model_with = hmm.GaussianHMM(n_components=n_states, covariance_type="diag", random_state=0)
-model_with.fit(S_with)
+# # Fit an HMM to segment into different "behavioral states"
+# n_states = 4  # e.g., you suspect 5 types of behavior
+# model_with = hmm.GaussianHMM(n_components=n_states, covariance_type="diag", random_state=0)
+# model_with.fit(S_with)
 
-model_without = hmm.GaussianHMM(n_components=n_states, covariance_type="diag", random_state=0)
-model_without.fit(S_without)
+# model_without = hmm.GaussianHMM(n_components=n_states, covariance_type="diag", random_state=0)
+# model_without.fit(S_without)
 
-# Predict hidden states
-states_with = model_with.predict(S_with)
-states_without = model_without.predict(S_without)
+# # Predict hidden states
+# states_with = model_with.predict(S_with)
+# states_without = model_without.predict(S_without)
 
-cage.retreive_indicator_behaviour_data_per_timestamp(timestamp=60, directory=directory_behaviour, delay_in_seconds=delay_video_weight, index=index)
-print("Behaviour indocator per second : ", cage.behaviour_indicator_per_timestamp["Grooming"].shape)
-print("States without interpolation : ", states_without.shape, np.amin(states_without), np.amax(states_without))
+# cage.retreive_indicator_behaviour_data_per_timestamp(timestamp=60, directory=directory_behaviour, delay_in_seconds=delay_video_mass, index=index)
+# print("Behaviour indicator per second : ", cage.behaviour_indicator_per_timestamp["Grooming"].shape)
+# print("States without interpolation : ", states_without.shape, np.amin(states_without), np.amax(states_without))
 
-time_grondtruth = np.linspace(0, cage.behaviour_indicator_per_timestamp["Grooming"].shape[0], cage.behaviour_indicator_per_timestamp["Grooming"].shape[0])
-print(time_grondtruth.shape)
-interpol_states = np.floor(np.interp(time_grondtruth, t_without, states_without))
-print("Interpolated states : ", interpol_states.shape, np.amin(interpol_states), np.amax(interpol_states), np.unique(interpol_states))
-
-
-j = 0
-all_behaviour_indicators = np.zeros(shape=cage.behaviour_indicator_per_timestamp["Grooming"].shape[0])
-for key in cage.behaviour_indicator_per_timestamp.keys():
-  indicator_behaviour = cage.behaviour_indicator_per_timestamp[key]
-  all_behaviour_indicators = np.where(indicator_behaviour == 1, j, all_behaviour_indicators)
-  j += 1
-
-print("All_behaviour states ground truth : ", all_behaviour_indicators, all_behaviour_indicators.shape, np.unique(all_behaviour_indicators))
+# time_grondtruth = np.linspace(0, cage.behaviour_indicator_per_timestamp["Grooming"].shape[0], cage.behaviour_indicator_per_timestamp["Grooming"].shape[0])
+# print(time_grondtruth.shape)
+# interpol_states = np.floor(np.interp(time_grondtruth, t_without, states_without))
+# print("Interpolated states : ", interpol_states.shape, np.amin(interpol_states), np.amax(interpol_states), np.unique(interpol_states))
 
 
-ari = adjusted_rand_score(all_behaviour_indicators, interpol_states) # Measures similarity between cluster assignments, independent of label values. Perfect match = 1.0, 0.0 is random grouping. 
-print("Adjusted Rand Index:", ari)
+# j = 0
+# all_behaviour_indicators = np.zeros(shape=cage.behaviour_indicator_per_timestamp["Grooming"].shape[0])
+# for key in cage.behaviour_indicator_per_timestamp.keys():
+#   indicator_behaviour = cage.behaviour_indicator_per_timestamp[key]
+#   all_behaviour_indicators = np.where(indicator_behaviour == 1, j, all_behaviour_indicators)
+#   j += 1
 
-nmi = normalized_mutual_info_score(all_behaviour_indicators, interpol_states)
-print("Normalized mutual information score : ", nmi)
+# print("All_behaviour states ground truth : ", all_behaviour_indicators, all_behaviour_indicators.shape, np.unique(all_behaviour_indicators))
 
-fms = fowlkes_mallows_score(all_behaviour_indicators, interpol_states)
-print("Fowlkes–Mallows Index : ", fms)
+
+# ari = adjusted_rand_score(all_behaviour_indicators, interpol_states) # Measures similarity between cluster assignments, independent of label values. Perfect match = 1.0, 0.0 is random grouping. 
+# print("Adjusted Rand Index:", ari)
+
+# nmi = normalized_mutual_info_score(all_behaviour_indicators, interpol_states)
+# print("Normalized mutual information score : ", nmi)
+
+# fms = fowlkes_mallows_score(all_behaviour_indicators, interpol_states)
+# print("Fowlkes–Mallows Index : ", fms)
 
 
 # plt.figure(figsize=(12, 4))

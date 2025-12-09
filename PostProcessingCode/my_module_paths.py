@@ -1,1 +1,1 @@
-my_path = "/Users/valeriepineaunoel/Documents/PhD/Results/STUAART/20251028-TestSTUAARTOneMouse80Hz2/2025.10.28-RawWeightData-80Hz.csv"
+my_path = "/Users/valeriepineaunoel/Library/Mobile Documents/com~apple~CloudDocs/Documents/PhD/Results/STUAART/20251128-TestWithMouseForMoreBehaviourData/2025.11.28-RawMassData_NoBufferLog.csv"
