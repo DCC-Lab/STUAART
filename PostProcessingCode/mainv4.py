@@ -24,12 +24,12 @@ from tqdm import tqdm
 
 # save_figure = False
 
-delay_video_mass = 20.5
+delay_video_mass = -43.5
 
-directory = "/Users/valeriepineaunoel/Library/Mobile Documents/com~apple~CloudDocs/Documents/PhD/Results/STUAART/20251128-TestWithMouseForMoreBehaviourData/"
-filename = "2025.11.28-RawMassData_NoBufferLog.csv"
+directory = "/Users/valeriepineaunoel/Library/Mobile Documents/com~apple~CloudDocs/Documents/PhD/Results/STUAART/20251117-TestBufferScriptWithMouse/"
+filename = "2025.11.17-TestBufferScriptWithMouse_NoBufferLog.csv"
 # np.array([22.8, 22.8])
-cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_data=[23.6, 22.4])
+cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_data=[22.8, 22.8])
 # cage.plot_data_per_scale()
 # cage.compute_individual_scale_information(first_day=True, produce_graph=True)
 # cage.compute_mean_data(smooth_level=4, produce_graph=True, is_saved=True)
@@ -38,15 +38,15 @@ cage = Cage(directory=directory, filename=filename, number_of_scales=3, real_dat
 # cage.compute_hanging(first_day=True, produce_graph=True)
 
 # LOCATION
-directory_ground_truth_location = '/Users/valeriepineaunoel/Library/Mobile Documents/com~apple~CloudDocs/Documents/PhD/Results/STUAART/20251128-TestWithMouseForMoreBehaviourData/20251128-BehaviourDataAfterWatchingVideo/'
-filenames_ground_truth_location = ["On scale 1-Table 1.csv", "On scale 2-Table 1.csv", "On scale 3-Table 1.csv", "On scales 1 and 2-Table 1.csv", "On scales 2 and 3-Table 1.csv"]
+# directory_ground_truth_location = '/Users/valeriepineaunoel/Library/Mobile Documents/com~apple~CloudDocs/Documents/PhD/Results/STUAART/20251128-TestWithMouseForMoreBehaviourData/20251128-BehaviourDataAfterWatchingVideo/'
+# filenames_ground_truth_location = ["On scale 1-Table 1.csv", "On scale 2-Table 1.csv", "On scale 3-Table 1.csv", "On scales 1 and 2-Table 1.csv", "On scales 2 and 3-Table 1.csv"]
 # cage.compute_location_on_scale(first_day=True, produce_graph=True, is_saved=True)
 # cage.compute_location_on_scale_accuracy(is_saved=True, directory_ground_truth=directory_ground_truth_location, filenames=filenames_ground_truth_location, delay_in_seconds=delay_video_mass, evaluate_only_between_these_hours=[0, 1])
 
 
 # GROOMING
 # # Look at 2-second samples of mass data per behaviour type PER SCALE and produce PCA. 
-directory_behaviour = '/Users/valeriepineaunoel/Library/Mobile Documents/com~apple~CloudDocs/Documents/PhD/Results/STUAART/20251117-TestBufferScriptWithMouse/20251117-BehaviourDataAfterWatchingVideo/Behaviour/'
+# directory_behaviour = '/Users/valeriepineaunoel/Library/Mobile Documents/com~apple~CloudDocs/Documents/PhD/Results/STUAART/20251117-TestBufferScriptWithMouse/20251117-BehaviourDataAfterWatchingVideo/Behaviour/'
 # two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_mass)
 # cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, PCs_to_plot=[1,2,3], label_per_scale=False)
 
@@ -54,11 +54,11 @@ directory_behaviour = '/Users/valeriepineaunoel/Library/Mobile Documents/com~app
 # two_second_data, targets, labels = cage.produce_behaviour_dataset(directory=directory_behaviour, delay_in_seconds=delay_video_mass)
 # cage.pca(dataset=two_second_data, number_of_PCs=10, targets=targets, labels=labels, on_scale=on_scale, PCs_to_plot=[1,2,3], label_per_scale=False)
 
-two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_mass, length_in_timepoints=160)
+# two_second_data, on_scale, targets, labels = cage.produce_behaviour_dataset_per_scale(directory=directory_behaviour, delay_in_seconds=delay_video_mass, length_in_timepoints=160)
 # np.savetxt(directory+"2sec-data/data.csv", two_second_data, delimiter=",")
 # np.savetxt(directory+"2sec-data/on_scale.csv", on_scale, delimiter=",")
 # np.savetxt(directory+"2sec-data/targets.csv", targets, delimiter=",")
-print(labels)
+# print(labels)
 
 # all_frequencies, all_amplitudes = cage.fft_behaviour(dataset=two_second_data, labels=labels, plot=True)
 
@@ -493,6 +493,12 @@ print(labels)
 # plt.title("Inferred behavioral states over time")
 # # plt.legend()
 # plt.show()
+
+
+
+
+# # 2025.12.09 : ESSAYER D'EXTRAIRE LES FEATURES ET DE VOIR SI JE SUIS CAPABLE D'IDENTIFIER LE GROOMING AVEC ÇA
+features = cage.extract_feature_every_timestamp()
 
 
 

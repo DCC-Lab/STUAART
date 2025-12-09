@@ -984,6 +984,87 @@ class Cage():
 
 
 
+    def simple_square_integral(self, data):
+        return np.sum(data**2)
+
+    def integrated_emg(self, data):
+        return np.sum(np.abs(data))
+
+    def waveform_length(self, data):
+        return np.sum(np.abs(np.diff(data)))
+
+    def mean_frequency(self, data, fs=1000):
+        freqs = np.fft.rfftfreq(len(data), 1/fs)
+        mag = np.abs(np.fft.rfft(data))
+        return np.sum(freqs * mag) / np.sum(mag)
+
+    def extract_features_in_one_window(self, data_in_window):
+        energy = self.simple_square_integral(data=data_in_window)
+        int_emg = self.integrated_emg(data=data_in_window)
+        wl = self.waveform_length(data=data_in_window)
+        mean_frequency = self.mean_frequency(data=data_in_window)
+
+        return np.array([energy, int_emg, wl, mean_frequency])
+
+
+    def extract_feature_every_timestamp(self, window_size: int=2, step_size :int=1):
+        """
+        window_size : the size of the window in seconds
+        step_size : the size of the step in seconds
+        """
+        self.reset_data()
+
+        time_in_seconds = self.time*60*60
+
+        t_start_windows = np.arange(time_in_seconds[0], time_in_seconds[-1], step_size)
+        t_end_windows = t_start_windows + window_size
+
+        start_indices = np.searchsorted(time_in_seconds, t_start_windows)
+        end_indices = np.searchsorted(time_in_seconds, t_end_windows)
+
+        results = np.zeros(shape=(self.number_of_scales, start_indices.shape[0], 4))
+        valid_times = [] # To keep track of which timestamp generated the result
+        all_energies = []
+        all_int_emg = []
+        all_wl = []
+        all_mean_frequency = []
+        for i, (start_idx, end_idx) in enumerate(zip(start_indices, end_indices)):
+
+            # Slice using the pre-calculated indices
+            window_data =  self.data_per_scale[:, start_idx:end_idx]
+            for n in range(self.number_of_scales):
+                # Check if window is empty (possible if data has large gaps)
+                if len(window_data[n]) > 0:
+                    features_in_window = self.extract_features_in_one_window(data_in_window=window_data[n])
+                    results[n, i] = features_in_window
+                    valid_times.append(t_start_windows[i])
+                    all_energies.append(features_in_window[0])
+                    all_int_emg.append(features_in_window[1])
+                    all_wl.append(features_in_window[2])
+                    all_mean_frequency.append(features_in_window[3])
+
+        results = np.array(results)
+
+        fig, axs = plt.subplots(nrows=4, ncols=1, figsize=(40,10))
+        axs[0].plot(valid_times, all_energies, color="black", alpha=0.7)
+        axs[0].set_ylabel("Energy", fontsize=12)
+        axs[0].set_xlabel("Time [s]", fontsize=12)
+        axs[1].plot(valid_times, all_int_emg, color="black", alpha=0.7)
+        axs[1].set_ylabel("Integrated EMG", fontsize=12)
+        axs[1].set_xlabel("Time [s]", fontsize=12)
+        axs[2].plot(valid_times, all_wl, color="black", alpha=0.7)
+        axs[2].set_ylabel("Waveform length", fontsize=12)
+        axs[2].set_xlabel("Time [s]", fontsize=12)
+        axs[3].plot(valid_times, all_mean_frequency, color="black", alpha=0.7)
+        axs[3].set_ylabel("Mean frequency", fontsize=12)
+        axs[3].set_xlabel("Time [s]", fontsize=12)
+
+        plt.tight_layout()
+        plt.show()
+
+        return results
+
+
 
 
 
