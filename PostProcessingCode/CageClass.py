@@ -1007,7 +1007,7 @@ class Cage():
         return np.array([energy, int_emg, wl, mean_frequency])
 
 
-    def extract_feature_every_timestamp(self, window_size: int=2, step_size :int=1):
+    def extract_feature_every_timestamp(self, window_size: int=2, step_size :int=1, behaviour_labels=None):
         """
         window_size : the size of the window in seconds
         step_size : the size of the step in seconds
@@ -1059,10 +1059,83 @@ class Cage():
         axs[3].set_ylabel("Mean frequency", fontsize=12)
         axs[3].set_xlabel("Time [s]", fontsize=12)
 
+        if behaviour_labels is None:
+            break
+        else:
+            all_behaviour_labels = 
+
         plt.tight_layout()
         plt.show()
 
         return results
+
+
+    def label_behaviour(self, directory_ground_truth:str, filename:str, delay_in_seconds:int=0, evaluate_only_between_these_hours:list=None, first_day: bool=False, produce_graph: bool=False, is_saved:bool=False):
+        """
+        This function needs ground truth data, potentially done by watching a video while recording the mass data, to compare the ground truth (video, manual annotations) with the identification of behaviours with the mass data. 
+        Data is formatted to obtain one numpy array per scale having the size of the raw_time data. Elements are 0s when the mouse is NOT doing the behaviour and 1s when the mouse is doing the behaviour. 
+        These numpy arrays of 0s and 1s are compared together. 
+        A plot of the time series of mass per scale is done at the end with the ground truth behavioural events in color. 
+        """
+        if evaluate_only_between_these_hours is not None:
+            indices_only_between_these_hours = np.where((self.raw_time > evaluate_only_between_these_hours[0]) & (self.raw_time < evaluate_only_between_these_hours[1]))[0]
+            time = self.raw_time[indices_only_between_these_hours[:-1]]
+            raw_data_per_scale = []
+            for n in range(self.number_of_scales):
+                raw_data_per_scale.append(self.raw_data_per_scale[n][indices_only_between_these_hours[0]:indices_only_between_these_hours[-1]])
+            raw_data_per_scale = np.array(raw_data_per_scale)
+        else:
+            time = self.raw_time
+            raw_data_per_scale = self.raw_data_per_scale
+
+
+        # get start times and the delay, the time the event happens, of all scales
+        data_behaviour = pd.read_csv(directory_ground_truth + filename) # get the raw data
+        start_times = data_behaviour["Start"].to_numpy() # get the start times
+        delay = data_behaviour["Delta"].to_numpy() # get the delays 
+
+        start_times_in_hours = self.format_time_in_hours(start_times) # format the start times in hours, floats 
+        delays_in_hours = self.format_seconds_in_hours(delay) # format the delays in hours, float
+        start_times_in_hours = start_times_hours - (delay_in_seconds/3600) # add delay between video and mass data measurements
+
+        # produce a numpy array indicating when the mouse is doing the behaviour
+        # 0s are when the mouse is NOT doing the behaviour and 1s is when the mouse is doing the behaviour
+        behaviour_indicator = np.zeros(shape=(3, time.shape[0]))
+        for i in range(len(start_times_in_hours[0])):
+            indices_during_event = np.where((time > start_times_in_hours[0][i]) & (time < start_times_in_hours[0][i]+delays_in_hours[0][i]))[0]
+            behaviour_indicator[0, indices_during_event] = 1
+
+        for i in range(len(start_times_in_hours[1])):
+            indices_during_event = np.where((time > start_times_in_hours[1][i]) & (time < start_times_in_hours[1][i]+delays_in_hours[1][i]))[0]
+            behaviour_indicator[1, indices_during_event] = 1
+
+        for i in range(len(start_times_in_hours[2])):
+            indices_during_event = np.where((time > start_times_in_hours[2][i]) & (time < start_times_in_hours[2][i]+delays_in_hours[2][i]))[0]
+            behaviour_indicator[2, indices_during_event] = 1
+
+        fig, axs = plt.subplots(nrows=self.number_of_scales, ncols=1, figsize=(13,7))
+        for n in range(self.number_of_scales):
+            axs[n].plot(time, raw_data_per_scale[n], color=self.colors[n])
+            axs[n].fill_between(time, np.amax(raw_data_per_scale[n]), where= behaviour_indicator[n] == 1, color="grey", alpha=0.5)
+
+        plt.xlabel("Time [h]", fontsize=16)
+        axs[0].legend()
+        axs[0].set_ylabel("mass [g]", fontsize=16)
+        axs[1].set_ylabel("mass [g]", fontsize=16)
+        axs[2].set_ylabel("mass [g]", fontsize=16)
+        fig.tight_layout()
+
+        if is_saved:
+            today = datetime.today().strftime('%Y.%m.%d')
+            if evaluate_only_between_these_hours is not None:
+                plt.savefig(self.directory+today+"-Behaviour_indicator_"+filename[:-12]+"-range"+str(evaluate_only_between_these_hours[0])+"to"+str(evaluate_only_between_these_hours[1])+"hours.png", format="png", dpi=600, transparent=True)
+            else:
+                plt.savefig(self.directory+today+"-Behaviour_indicator_"+filename[:-12]+".png", format="png", dpi=600, transparent=True)
+        plt.show()
+
+        return behaviour_indicator
+
+
 
 
 
