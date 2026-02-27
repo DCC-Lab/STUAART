@@ -69,24 +69,37 @@ def create_log_file(path_to_file, ip, file_title, start_time, data, status):
     
     save_to_caffeine_server([ip, 'logs'], local_log_path, log_title)
 
-def fetch_data(filename_param, index):
-    if index >= len(ALL_IPS): return False
-    ip = ALL_IPS[index]
-    start = time.time()
-    
-    # Construction de l'URL
-    # Si filename_param est "/2026.02.27.csv", l'URL sera http://172.16.6.6/2026.02.27.csv
-    url = f"http://{ip}{filename_param}" if filename_param else f"http://{ip}/"
-    
+def fetch_data(data_for_server, index):
+    ip = str(ALL_IPS[index])
     try:
-        print(f"Tentative de Fetch sur : {url}")
-        # On utilise urllib sans l'argument 'data' pour que ce soit un GET simple
-        with urllib.request.urlopen(url, timeout=10) as response:
-            html_data = response.read()
-            # ... suite du code (décodage et sauvegarde)
-            return True
+        start = time.time()
+        path_to_file = os.path.join(os.path.expanduser('~'), 'Documents', 'SmartCageData', ip)
+        os.makedirs(path_to_file, exist_ok=True)
+        
+        url = f"http://{ip}/{data_for_server}" # ou ta logique d'URL
+        print(f"Connexion à l'Arduino ({ip})...")
+        
+        web_url = urllib.request.urlopen(url, timeout=10)
+        html_data = web_url.read()
+        print(f"Données reçues de l'Arduino ({len(html_data)} octets)")
+
+        decoded_message = html_data.decode().split('\r\n')
+        file_title = decoded_message[0]
+        local_file_path = os.path.join(path_to_file, file_title)
+
+        # On écrit le fichier LOCALEMENT d'abord
+        with open(local_file_path, 'w') as f:
+            f.write('\n'.join(decoded_message[1:]))
+        print(f"Fichier écrit sur le Mac : {local_file_path}")
+
+        # Ensuite on tente Caffeine
+        print("Tentative d'envoi vers Caffeine...")
+        save_to_caffeine_server([ip], local_file_path, file_title)
+        print("Succès total : Arduino -> Mac -> Caffeine")
+        
+        return True
     except Exception as e:
-        print(f"Erreur réseau pour l'IP {ip}: {e}")
+        print(f"ERREUR : {e}")
         return False
 
 def refresh():
@@ -119,13 +132,14 @@ def fetch_date():
     '''
     selected_date = calendar.get_date()
     # On s'assure d'avoir le slash au début car ton snprintf l'inclut
-    filename = f"/{selected_date}.csv" 
+    # filename = f"/{selected_date}.csv" 
+    filename = "/2026.02.22.csv"
     
     for i in range(len(ALL_IPS)):
         # IMPORTANT: On ne passe pas d'argument 'data' ici pour forcer un GET
         threading.Thread(target=fetch_data, args=(filename, i)).start()
 
-        
+
 # UI Buttons
 calendar_fetch_button = tk.Button(text='Fetch selected date', command=fetch_date)
 calendar_fetch_button.pack(pady=5)
