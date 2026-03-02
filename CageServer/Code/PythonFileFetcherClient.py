@@ -6,11 +6,11 @@ import tkinter as tk
 from tkcalendar import Calendar
 import os
 import paramiko
-from Constants import *
+# from Constants import *
 import threading
 
 NBR_OF_IPS = 1
-IP_HEADER = "192.168.0."
+IP_HEADER = "172.16.6.6"
 INITIAL_IP = 101
 
 ALL_IPS = []

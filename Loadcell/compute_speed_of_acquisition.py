@@ -139,8 +139,8 @@ def identify_buffer_flushes(time, data, remove=False):
 
 
 if __name__ == "__main__":
-	directory = "/Users/valeriepineaunoel/Library/Mobile Documents/com~apple~CloudDocs/Documents/PhD/Results/STUAART/20251117-TestBufferScriptWithMouse/"
-	filename = "2025.11.17-TestBufferScriptWithMouse.csv"
+	directory = '/Users/valeriepineaunoel/Desktop/'
+	filename = "2026.02.22.csv"
 	data = pd.read_csv(directory+filename).to_numpy()
 	time = data[:, 0]
 	weight_data = data[:, 1:]
@@ -148,10 +148,10 @@ if __name__ == "__main__":
 	time, weight_data = identify_buffer_flushes(time=time, data=weight_data, remove=True)
 
 	frequency, stdev, number_of_points = calculate_frequency_of_acquisition(time=time)
-	print("FREQUENCY : ", frequency, stdev, number_of_points)
+	print(f"FREQUENCY : {frequency:.4f} +- {stdev:.4f} (done with {number_of_points} seconds)")
 	max_sampling_rate, sampling_rate = compute_sampling_rate(time=time)
 
-	plot_data(time=time, data=weight_data, directory=directory, is_saved=True)
+	# plot_data(time=time, data=weight_data, directory=directory, is_saved=False)
 
 
 
