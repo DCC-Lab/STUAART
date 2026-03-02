@@ -132,8 +132,8 @@ def fetch_date():
     '''
     selected_date = calendar.get_date()
     # On s'assure d'avoir le slash au début car ton snprintf l'inclut
-    # filename = f"/{selected_date}.csv" 
-    filename = "/2026.02.22.csv"
+    filename = f"/{selected_date}.csv" 
+    # filename = "/2026.02.22.csv"
     
     for i in range(len(ALL_IPS)):
         # IMPORTANT: On ne passe pas d'argument 'data' ici pour forcer un GET
