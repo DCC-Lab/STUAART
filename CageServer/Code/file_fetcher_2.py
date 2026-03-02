@@ -13,7 +13,7 @@ import threading
 SERVER_HOST = "172.16.1.109"  # L'adresse IP de ton serveur "Caféine"
 SERVER_USERNAME = "dcclab"
 SERVER_PASSWORD = "microscope"
-SERVER_PATH = "/Volumes/Goliath/vpineaunoel/stuaart/" # Chemin racine sur le serveur
+SERVER_PATH = "labdata/vpineaunoel/stuaart" # Chemin racine sur le serveur
 
 # Liste manuelle des IPs de tes cages (plus besoin de initialize_ips)
 ALL_IPS = ["172.16.6.6"] 
@@ -36,21 +36,27 @@ def save_to_caffeine_server(subfolders, local_file_path, file_title):
         ssh_client.connect(SERVER_HOST, username=SERVER_USERNAME, password=SERVER_PASSWORD)
         sftp = ssh_client.open_sftp()
         
-        remote_path = SERVER_PATH
+        # On part du chemin racine sur Goliath
+        current_path = SERVER_PATH
         
-        # Création récursive des dossiers sur le serveur
+        # On boucle pour créer les dossiers manquants (ex: 172.16.6.6, logs)
         for subfolder in subfolders:
-            remote_path = f"{remote_path}/{subfolder}"
+            current_path = f"{current_path}/{subfolder}"
             try:
-                sftp.chdir(remote_path)
+                sftp.stat(current_path) # Est-ce que le dossier existe?
             except IOError:
-                sftp.mkdir(remote_path)
+                print(f"Création du dossier sur Caffeine : {current_path}")
+                sftp.mkdir(current_path) # On le crée s'il manque
         
-        sftp.put(local_file_path, f"{remote_path}/{file_title}")
+        # Envoi final
+        remote_full_path = f"{current_path}/{file_title}"
+        sftp.put(local_file_path, remote_full_path)
+        
         sftp.close()
         ssh_client.close()
-        print(f"Succès: {file_title} envoyé au serveur.")
+        print(f"Succès: {file_title} envoyé sur Caffeine.")
     except Exception as e:
+        # C'est ici que tu recevais l'Errno 2
         print(f'Erreur serveur (SSH/SFTP): {e}')
 
 def create_log_file(path_to_file, ip, file_title, start_time, data, status):
@@ -73,13 +79,13 @@ def fetch_data(data_for_server, index):
     ip = str(ALL_IPS[index])
     try:
         start = time.time()
-        path_to_file = os.path.join(os.path.expanduser('~'), 'Documents', 'SmartCageData', ip)
+        path_to_file = os.path.join(os.path.expanduser('~'), 'Documents', 'STUAART-DataFetcher', ip)
         os.makedirs(path_to_file, exist_ok=True)
         
         url = f"http://{ip}/{data_for_server}" # ou ta logique d'URL
         print(f"Connexion à l'Arduino ({ip})...")
         
-        web_url = urllib.request.urlopen(url, timeout=10)
+        web_url = urllib.request.urlopen(url, timeout=60)
         html_data = web_url.read()
         print(f"Données reçues de l'Arduino ({len(html_data)} octets)")
 
@@ -132,7 +138,7 @@ def fetch_date():
     '''
     selected_date = calendar.get_date()
     # On s'assure d'avoir le slash au début car ton snprintf l'inclut
-    filename = f"/{selected_date}.csv" 
+    filename = f"{selected_date}.csv" 
     # filename = "/2026.02.22.csv"
     
     for i in range(len(ALL_IPS)):
