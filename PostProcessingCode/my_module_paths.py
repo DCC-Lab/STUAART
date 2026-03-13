@@ -1,0 +1,1 @@
+my_path = "/Users/valeriepineaunoel/Library/Mobile Documents/com~apple~CloudDocs/Documents/PhD/Results/STUAART/20251128-TestWithMouseForMoreBehaviourData/2025.11.28-RawMassData_NoBufferLog.csv"
