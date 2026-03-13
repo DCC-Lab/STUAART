@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.cm import get_cmap
 import scipy.fft as fft
+from scipy.ndimage import binary_closing, binary_opening
 import pandas as pd
 from scipy.signal import find_peaks
 from DataClass import Data
@@ -723,16 +724,30 @@ class Cage():
         plt.show()
 
 
-    def retreive_indicator_behaviour_data_per_scale(self, directory:str, delay_in_seconds:int, include_not_annotated_data:bool=False):
+    def retreive_indicator_behaviour_data_per_scale(self, directory:str, delay_in_seconds:int, include_not_annotated_data:bool=False, evaluate_only_between_these_hours: list=None):
         """
         Format ground truth data to have indicators of when the behavioural event is happening. 
         0 : when the event is not happening
         1 : when the event is happening
         Produces a dictionnary of indicators per scale of when the behavioural event is happening. 
         """
+        if evaluate_only_between_these_hours is not None:
+            indices_only_between_these_hours = np.where((self.raw_time > evaluate_only_between_these_hours[0]) & (self.raw_time < evaluate_only_between_these_hours[1]))[0]
+            time = self.raw_time[indices_only_between_these_hours[:-1]]
+            raw_data_per_scale = []
+            for n in range(self.number_of_scales):
+                raw_data_per_scale.append(self.raw_data_per_scale[n][indices_only_between_these_hours[0]:indices_only_between_these_hours[-1]])
+            raw_data_per_scale = np.array(raw_data_per_scale)
+        else:
+            time = self.raw_time
+            raw_data_per_scale = self.raw_data_per_scale
+
+
         filenames = os.listdir(directory)
         behaviour_indicator_per_scale = {}
         for name in filenames:
+            if name[:2] == "._":
+                continue
             data = pd.read_csv(directory + name) # get the raw data
             start_times_scale = data["Start"].to_numpy() # get the start times
             delay_scale = data["Delta"].to_numpy() # get the delays 
@@ -742,9 +757,9 @@ class Cage():
             start_times_scale_hours = start_times_scale_hours - (delay_in_seconds/3600) # add delay between video and mass data measurements
 
             # here, we make an array of the size of self.raw_time, where 0 is when there is no grooming and 1 is when there is grooming
-            event_indicator = np.zeros(shape=(self.number_of_scales, self.raw_time.shape[0]))
+            event_indicator = np.zeros(shape=(self.number_of_scales, time.shape[0]))
             for i in range(start_times_scale_hours.shape[0]):
-                indices_during_event = np.where((self.raw_time > start_times_scale_hours[i]) & (self.raw_time < start_times_scale_hours[i]+delay_scale_hours[i]))[0]
+                indices_during_event = np.where((time > start_times_scale_hours[i]) & (time < start_times_scale_hours[i]+delay_scale_hours[i]))[0]
                 event_indicator[int(scale_indicator[i])-1][indices_during_event] = 1
 
             position = name.find("-")
@@ -752,7 +767,7 @@ class Cage():
             behaviour_indicator_per_scale[behaviour_name] = event_indicator
 
         if include_not_annotated_data:
-            indicator_when_not_doing_behaviour = np.zeros(shape=(self.number_of_scales, self.raw_time.shape[0])) 
+            indicator_when_not_doing_behaviour = np.zeros(shape=(self.number_of_scales, time.shape[0])) 
             for key in behaviour_indicator_per_scale.keys():
                 indicators = behaviour_indicator_per_scale[key]
                 for n in range(self.number_of_scales):
@@ -808,67 +823,101 @@ class Cage():
 
 
 
-    def produce_behaviour_dataset_per_scale(self, directory:str, delay_in_seconds:int, length_in_timepoints:int=800):
+    # def produce_behaviour_dataset_per_scale(self, directory:str, delay_in_seconds:int, length_in_timepoints:int=800):
+    #     """
+    #     Uses groung truth annotations of all different behaviours and format in 2 second events.
+    #     Returns:
+    #         - the mass measurements of each 10 datapoints (shape = (-1,10))
+    #         - the scale indicator on which this moments is measured (shape = -1)
+    #         - the targets, same as the labels, but int instead of str
+    #         - the labels of different behaviours (shape= -1)
+    #     """
+    #     self.retreive_indicator_behaviour_data_per_scale(directory=directory, delay_in_seconds=delay_in_seconds)
+    #     i = 0
+    #     two_second_data = np.array([])
+    #     on_scale = np.array([])
+    #     targets = np.array([])
+    #     labels = np.array([])
+    #     for key in self.behaviour_indicator_per_scale.keys():
+    #         indicator = self.behaviour_indicator_per_scale[key]
+    #         for n in range(self.number_of_scales):
+    #             indices = np.where(indicator[n] == 1)[0]
+    #             mass_truth = self.raw_data_per_scale[n][indices]
+    #             new_size = (mass_truth.size // length_in_timepoints) * length_in_timepoints # 190 data points is about 2 seconds at 80 Hz
+    #             trim_mass_truth = mass_truth[:new_size]
+    #             trim_mass_truth = np.reshape(trim_mass_truth, (-1, length_in_timepoints))
+    #             two_second_data = np.array(list(two_second_data) + list(trim_mass_truth))
+    #             on_scale = np.array(list(on_scale) + list(np.repeat(n, trim_mass_truth.shape[0])))
+    #             targets = np.array(list(targets) + list(np.repeat(i, trim_mass_truth.shape[0])))
+    #             labels = np.array(list(labels) + list(np.repeat(key, trim_mass_truth.shape[0])))
+    #         i += 1
+
+    #     return two_second_data, on_scale, targets, labels
+
+
+
+    # def produce_behaviour_dataset(self, directory:str, delay_in_seconds:int):
+    #     """
+    #     Uses groung truth annotations of all different behaviours and format in 2 second events, which is approximately 10 datapoints. 
+    #     Returns:
+    #         - the mass measurements of each 10 datapoints (shape = (-1,10))
+    #         - the scale indicator on which this moments is measured (shape = -1)
+    #         - the targets, same as the labels, but int instead of str
+    #         - the labels of different behaviours (shape= -1)
+    #     """
+    #     self.retreive_indicator_behaviour_data(directory=directory, delay_in_seconds=delay_in_seconds)
+        
+    #     i = 0
+    #     two_second_data = np.array([])
+    #     targets = np.array([])
+    #     labels = np.array([])
+    #     for key in self.behaviour_indicator.keys():
+    #         indicator = self.behaviour_indicator[key]
+    #         indices = np.where(indicator == 1)[0]
+    #         mass_truth = self.raw_data[indices]
+    #         new_size = (mass_truth.size // 160) * 160 # 160 data points is about 2 seconds at 80 Hz
+    #         trim_mass_truth = mass_truth[:new_size]
+    #         trim_mass_truth = np.reshape(trim_mass_truth, (-1, 160))
+    #         two_second_data = np.array(list(two_second_data) + list(trim_mass_truth))
+    #         targets = np.array(list(targets) + list(np.repeat(i, trim_mass_truth.shape[0])))
+    #         labels = np.array(list(labels) + list(np.repeat(key, trim_mass_truth.shape[0])))
+    #         i += 1
+
+    #     return two_second_data, targets, labels
+
+
+
+    def produce_behaviour_dataset_per_scale(self, directory:str, delay_in_seconds:int, fs:int=80, window_duration_in_seconds:int=2):
         """
-        Uses groung truth annotations of all different behaviours and format in 2 second events.
-        Returns:
-            - the mass measurements of each 10 datapoints (shape = (-1,10))
-            - the scale indicator on which this moments is measured (shape = -1)
-            - the targets, same as the labels, but int instead of str
-            - the labels of different behaviours (shape= -1)
         """
         self.retreive_indicator_behaviour_data_per_scale(directory=directory, delay_in_seconds=delay_in_seconds)
-        i = 0
-        two_second_data = np.array([])
-        on_scale = np.array([])
-        targets = np.array([])
-        labels = np.array([])
-        for key in self.behaviour_indicator_per_scale.keys():
-            indicator = self.behaviour_indicator_per_scale[key]
-            for n in range(self.number_of_scales):
-                indices = np.where(indicator[n] == 1)[0]
-                mass_truth = self.raw_data_per_scale[n][indices]
-                new_size = (mass_truth.size // length_in_timepoints) * length_in_timepoints # 190 data points is about 2 seconds at 80 Hz
-                trim_mass_truth = mass_truth[:new_size]
-                trim_mass_truth = np.reshape(trim_mass_truth, (-1, length_in_timepoints))
-                two_second_data = np.array(list(two_second_data) + list(trim_mass_truth))
-                on_scale = np.array(list(on_scale) + list(np.repeat(n, trim_mass_truth.shape[0])))
-                targets = np.array(list(targets) + list(np.repeat(i, trim_mass_truth.shape[0])))
-                labels = np.array(list(labels) + list(np.repeat(key, trim_mass_truth.shape[0])))
-            i += 1
 
-        return two_second_data, on_scale, targets, labels
+        window_samples = int(window_duration_in_seconds * fs)
 
+        labels = []
+        targets = []
+        on_scale = []
+        data_in_windows = []
 
+        for n in range(self.number_of_scales):
+            i = 0
+            for key in self.behaviour_indicator_per_scale.keys():
+                indices_of_event = np.where(self.behaviour_indicator_per_scale[key][n] == 1)[0]
+                differences_of_1 = np.diff(indices_of_event) == 1
+                if differences_of_1.shape[0] >= window_samples:
+                    kernel = np.ones(window_samples, dtype=int)
+                    consecutive_counts = np.convolve(differences_of_1.astype(int), kernel, mode='valid')
+                    start_indices = np.where(consecutive_counts == window_samples)[0]
+                    end_indices = start_indices + window_samples
 
-    def produce_behaviour_dataset(self, directory:str, delay_in_seconds:int):
-        """
-        Uses groung truth annotations of all different behaviours and format in 2 second events, which is approximately 10 datapoints. 
-        Returns:
-            - the mass measurements of each 10 datapoints (shape = (-1,10))
-            - the scale indicator on which this moments is measured (shape = -1)
-            - the targets, same as the labels, but int instead of str
-            - the labels of different behaviours (shape= -1)
-        """
-        self.retreive_indicator_behaviour_data(directory=directory, delay_in_seconds=delay_in_seconds)
-        
-        i = 0
-        two_second_data = np.array([])
-        targets = np.array([])
-        labels = np.array([])
-        for key in self.behaviour_indicator.keys():
-            indicator = self.behaviour_indicator[key]
-            indices = np.where(indicator == 1)[0]
-            mass_truth = self.raw_data[indices]
-            new_size = (mass_truth.size // 800) * 800 # 190 data points is about 2 seconds at 80 Hz
-            trim_mass_truth = mass_truth[:new_size]
-            trim_mass_truth = np.reshape(trim_mass_truth, (-1, 800))
-            two_second_data = np.array(list(two_second_data) + list(trim_mass_truth))
-            targets = np.array(list(targets) + list(np.repeat(i, trim_mass_truth.shape[0])))
-            labels = np.array(list(labels) + list(np.repeat(key, trim_mass_truth.shape[0])))
-            i += 1
+                    for j, (start_idx, end_idx) in enumerate(zip(start_indices, end_indices)):
+                        data_in_windows.append(self.data_per_scale[n, start_idx:end_idx])
+                        labels.append(key)
+                        targets.append(i)
+                        on_scale.append(n)
+                i += 1
 
-        return two_second_data, targets, labels
+        return np.array(data_in_windows), np.array(on_scale), np.array(targets), np.array(labels)
 
 
 
@@ -983,7 +1032,6 @@ class Cage():
         return np.array(all_x), np.array(all_y)
 
 
-
     def simple_square_integral(self, data):
         return np.sum(data**2)
 
@@ -998,76 +1046,117 @@ class Cage():
         mag = np.abs(np.fft.rfft(data))
         return np.sum(freqs * mag) / np.sum(mag)
 
+    def zero_crossings(self, data, threshold=0.01):
+        return np.sum(np.abs(np.diff(np.sign(data))) > 0)
+
+    def hjorth_activity(self, data):
+        return np.var(data)
+
+    def hjorth_mobility(self, data):
+        return np.sqrt(np.var(np.diff(data)) / np.var(data))
+
     def extract_features_in_one_window(self, data_in_window):
         energy = self.simple_square_integral(data=data_in_window)
         int_emg = self.integrated_emg(data=data_in_window)
         wl = self.waveform_length(data=data_in_window)
         mean_frequency = self.mean_frequency(data=data_in_window)
+        zero_crossing = self.zero_crossings(data=data_in_window)
+        hjorth_activity = self.hjorth_activity(data=data_in_window)
+        hjorth_mobility = self.hjorth_mobility(data=data_in_window)
 
-        return np.array([energy, int_emg, wl, mean_frequency])
+        return np.array([energy, int_emg, wl, mean_frequency, zero_crossing, hjorth_activity, hjorth_mobility]), np.array(["Energy", "Integrated EMG", "Wavelength length", "Mean frequency [Hz]", "Zero Crossing", "Hjorth activity", "Hjorth mobility"])
 
 
-    def extract_feature_every_timestamp(self, window_size: int=2, step_size :int=1, behaviour_labels=None):
+    def extract_feature_every_timestamp(self, window_size: int=2, step_size :int=None, behaviour_labels=None, is_saved: bool=False, evaluate_only_between_these_hours: list= None, produce_graph: bool=False):
         """
         window_size : the size of the window in seconds
         step_size : the size of the step in seconds
         """
         self.reset_data()
+        self.remove_outliers()
 
-        time_in_seconds = self.time*60*60
+        if evaluate_only_between_these_hours is not None:
+            indices_only_between_these_hours = np.where((self.raw_time > evaluate_only_between_these_hours[0]) & (self.raw_time < evaluate_only_between_these_hours[1]))[0]
+            time = self.raw_time[indices_only_between_these_hours[:-1]]
+            time_in_seconds = time*60*60
+        else:
+            time_in_seconds = self.raw_time*60*60
 
-        t_start_windows = np.arange(time_in_seconds[0], time_in_seconds[-1], step_size)
+        if step_size is not None:
+            t_start_windows = np.arange(time_in_seconds[0], time_in_seconds[-1], step_size)
+        else:
+            t_start_windows = time_in_seconds
+
         t_end_windows = t_start_windows + window_size
 
         start_indices = np.searchsorted(time_in_seconds, t_start_windows)
         end_indices = np.searchsorted(time_in_seconds, t_end_windows)
 
-        results = np.zeros(shape=(self.number_of_scales, start_indices.shape[0], 4))
+        results = np.zeros(shape=(self.number_of_scales, start_indices.shape[0], 7))
         valid_times = [] # To keep track of which timestamp generated the result
         all_energies = []
         all_int_emg = []
         all_wl = []
         all_mean_frequency = []
+        all_will_ampl = []
+        all_zero_crossing = []
+        all_hjorth_activity = []
+        all_hjorth_mobility = []
         for i, (start_idx, end_idx) in enumerate(zip(start_indices, end_indices)):
 
             # Slice using the pre-calculated indices
             window_data =  self.data_per_scale[:, start_idx:end_idx]
+            centered_window_data = window_data - np.mean(window_data, axis=1)[:, np.newaxis]
             for n in range(self.number_of_scales):
                 # Check if window is empty (possible if data has large gaps)
                 if len(window_data[n]) > 0:
-                    features_in_window = self.extract_features_in_one_window(data_in_window=window_data[n])
+                    features_in_window, feature_names = self.extract_features_in_one_window(data_in_window=centered_window_data[n])
                     results[n, i] = features_in_window
-                    valid_times.append(t_start_windows[i])
                     all_energies.append(features_in_window[0])
                     all_int_emg.append(features_in_window[1])
                     all_wl.append(features_in_window[2])
                     all_mean_frequency.append(features_in_window[3])
+                    all_zero_crossing.append(features_in_window[4])
+                    all_hjorth_activity.append(features_in_window[5])
+                    all_hjorth_mobility.append(features_in_window[6])
+                    if n == 0:
+                        valid_times.append(t_start_windows[i])
+
 
         results = np.array(results)
 
-        fig, axs = plt.subplots(nrows=4, ncols=1, figsize=(40,10))
-        axs[0].plot(valid_times, all_energies, color="black", alpha=0.7)
-        axs[0].set_ylabel("Energy", fontsize=12)
-        axs[0].set_xlabel("Time [s]", fontsize=12)
-        axs[1].plot(valid_times, all_int_emg, color="black", alpha=0.7)
-        axs[1].set_ylabel("Integrated EMG", fontsize=12)
-        axs[1].set_xlabel("Time [s]", fontsize=12)
-        axs[2].plot(valid_times, all_wl, color="black", alpha=0.7)
-        axs[2].set_ylabel("Waveform length", fontsize=12)
-        axs[2].set_xlabel("Time [s]", fontsize=12)
-        axs[3].plot(valid_times, all_mean_frequency, color="black", alpha=0.7)
-        axs[3].set_ylabel("Mean frequency", fontsize=12)
-        axs[3].set_xlabel("Time [s]", fontsize=12)
+        if produce_graph:
+            fig, axs = plt.subplots(nrows=5, ncols=1, figsize=(50,10))
+            axs[0].plot(valid_times, all_energies, color="black", alpha=0.7)
+            axs[0].set_ylabel("Energy", fontsize=12)
+            axs[0].set_xlabel("Time [s]", fontsize=12)
+            axs[1].plot(valid_times, all_int_emg, color="black", alpha=0.7)
+            axs[1].set_ylabel("Integrated EMG", fontsize=12)
+            axs[1].set_xlabel("Time [s]", fontsize=12)
+            axs[2].plot(valid_times, all_wl, color="black", alpha=0.7)
+            axs[2].set_ylabel("Waveform length", fontsize=12)
+            axs[2].set_xlabel("Time [s]", fontsize=12)
+            axs[3].plot(valid_times, all_mean_frequency, color="black", alpha=0.7)
+            axs[3].set_ylabel("Mean frequency", fontsize=12)
+            axs[3].set_xlabel("Time [s]", fontsize=12)
+            axs[4].plot(valid_times, all_will_ampl, color="black", alpha=0.7)
+            axs[4].set_ylabel("Willison amplitude", fontsize=12)
+            axs[4].set_xlabel("Time [s]", fontsize=12)
 
-        if behaviour_labels is None:
-            break
-        else:
-            all_behaviour_labels = 
+            if behaviour_labels is not None:
+                axs[0].fill_between(self.time*60*60, np.amax(all_energies), where= behaviour_labels == 1, color="grey", alpha=0.5)
+                axs[1].fill_between(self.time*60*60, np.amax(all_int_emg), where= behaviour_labels == 1, color="grey", alpha=0.5)
+                axs[2].fill_between(self.time*60*60, np.amax(all_wl), where= behaviour_labels == 1, color="grey", alpha=0.5)
+                axs[3].fill_between(self.time*60*60, np.amax(all_mean_frequency), where= behaviour_labels == 1, color="grey", alpha=0.5)
+                axs[4].fill_between(self.time*60*60, np.amax(all_will_ampl), where= behaviour_labels == 1, color="grey", alpha=0.5)
 
-        plt.tight_layout()
-        plt.show()
+            plt.tight_layout()
+            if is_saved:
+                today = datetime.today().strftime('%Y.%m.%d')
+                plt.savefig(self.directory+today+"-Features.png", format="png", dpi=600, transparent=True)
+            plt.show()
 
-        return results
+        return valid_times, results, feature_names
 
 
     def label_behaviour(self, directory_ground_truth:str, filename:str, delay_in_seconds:int=0, evaluate_only_between_these_hours:list=None, first_day: bool=False, produce_graph: bool=False, is_saved:bool=False):
@@ -1077,6 +1166,192 @@ class Cage():
         These numpy arrays of 0s and 1s are compared together. 
         A plot of the time series of mass per scale is done at the end with the ground truth behavioural events in color. 
         """
+        self.reset_data()
+        self.remove_outliers()
+
+        if evaluate_only_between_these_hours is not None:
+            indices_only_between_these_hours = np.where((self.raw_time > evaluate_only_between_these_hours[0]) & (self.raw_time < evaluate_only_between_these_hours[1]))[0]
+            time = self.raw_time[indices_only_between_these_hours[:-1]]
+            raw_data_per_scale = []
+            for n in range(self.number_of_scales):
+                raw_data_per_scale.append(self.raw_data_per_scale[n][indices_only_between_these_hours[0]:indices_only_between_these_hours[-1]])
+            raw_data_per_scale = np.array(raw_data_per_scale)
+        else:
+            raw_data_per_scale = self.raw_data_per_scale
+
+
+        # get start times and the delay, the time the event happens, of all scales
+        data_behaviour = pd.read_csv(directory_ground_truth + filename) # get the raw data
+        start_times = data_behaviour["Start"].to_numpy() # get the start times
+        delay = data_behaviour["Delta"].to_numpy() # get the delays 
+
+        start_times_in_hours = self.format_time_in_hours(start_times) # format the start times in hours, floats 
+        delays_in_hours = self.format_seconds_in_hours(delay) # format the delays in hours, float
+        start_times_in_hours = start_times_in_hours - (delay_in_seconds/3600) # add delay between video and mass data measurements
+
+
+        # produce a numpy array indicating when the mouse is doing the behaviour
+        # 0s are when the mouse is NOT doing the behaviour and 1s is when the mouse is doing the behaviour
+        behaviour_indicator = np.zeros(shape=(self.time.shape[0]))
+        for i in range(len(start_times_in_hours)):
+            indices_during_event = np.where((self.time > start_times_in_hours[i]) & (self.time < start_times_in_hours[i]+delays_in_hours[i]))[0]
+            behaviour_indicator[indices_during_event] = 1
+
+        if produce_graph:
+            fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(13,7))
+            axs.plot(self.time, self.data, color="black")
+            axs.fill_between(self.time, np.amax(self.data), where= behaviour_indicator == 1, color="grey", alpha=0.5)
+
+            plt.xlabel("Time [h]", fontsize=16)
+            axs.legend()
+            axs.set_ylabel("Mass [g]", fontsize=16)
+            fig.tight_layout()
+
+            if is_saved:
+                today = datetime.today().strftime('%Y.%m.%d')
+                if evaluate_only_between_these_hours is not None:
+                    plt.savefig(self.directory+today+"-Behaviour_indicator_"+filename[:-12]+"-range"+str(evaluate_only_between_these_hours[0])+"to"+str(evaluate_only_between_these_hours[1])+"hours.png", format="png", dpi=600, transparent=True)
+                else:
+                    plt.savefig(self.directory+today+"-Behaviour_indicator_"+filename[:-12]+".png", format="png", dpi=600, transparent=True)
+            plt.show()
+
+        return behaviour_indicator
+
+
+    def process_indicators_to_events(self, indicators, fs: int=80, gap_to_bridge_in_seconds: float=0.2, min_duration_in_seconds: int=1):
+        clean_masks_per_scale = []
+        starts_per_scale = []
+        ends_per_scale = []
+        for n in range(self.number_of_scales):
+            # Ensure mask is a numpy array
+            mask = np.array(indicators[n]).astype(int)
+
+            # This fills 0s that are surrounded by 1s
+            gap_samples = int(gap_to_bridge_in_seconds * fs)
+            for i in range(1, gap_samples + 1):
+                # Shift mask and 'OR' it to fill small gaps
+                mask |= np.roll(mask, i) & np.roll(mask, -i)
+
+            # This finds continuous chunks and kills them if they are too short
+            min_samples = int(min_duration_in_seconds * fs)
+
+            # Find changes
+            diff = np.diff(np.concatenate(([0], mask, [0])))
+            starts = np.where(diff == 1)[0]
+            ends = np.where(diff == -1)[0]
+
+            clean_mask = np.zeros_like(mask)
+
+            for s, e in zip(starts, ends):
+                if (e - s) >= min_samples:
+                    clean_mask[s:e] = 1
+
+            clean_masks_per_scale.append(clean_mask)
+            starts_per_scale.append(starts)
+            ends_per_scale.append(ends)
+
+        clean_masks_per_scale = np.array(clean_masks_per_scale)
+
+        return clean_masks_per_scale, starts_per_scale, ends_per_scale
+
+
+    def identify_grooming_with_common_indices(self, timestamps, features, feature_names, produce_graph: bool=False, is_saved: bool=False):
+
+        # print("FEATURES : ", features, features.shape)
+
+        self.compute_location_on_scale(first_day=True) # self.presence_indicator_per_scale
+
+        common_indices = []
+        for n in range(self.number_of_scales):
+            indices_energy = np.where((features[n, :, 0] < 5113.330149347505 + 19188) & (features[n, :, 0] > 5113.330149347505 - 19188))[0]
+            indices_intemg = np.where((features[n, :, 1] < 267.08791215471336 + 500) & (features[n, :, 1] > 267.08791215471336 - 500))[0]
+            indices_wl = np.where((features[n, :, 2] < 120.38989329395125 + 166) & (features[n, :, 2] > 120.38989329395125 - 166))[0]
+            indices_meanfrequency = np.where((features[n, :, 3] < 256.8156956900453 + 71) & (features[n, :, 3] > 256.8156956900453 - 71))[0]
+            indices_zerocrossing = np.where((features[n, :, 4] < 75.64664281554205 + 40.269522943281906) & (features[n, :, 4] > 75.64664281554205 - 40.269522943281906))[0]
+            indices_hjorthactivity = np.where((features[n, :, 5] < 31.958313433421907 + 119.92583301727137) & (features[n, :, 5] > 31.958313433421907 - 119.92583301727137))[0]
+            indices_hjorthmobility = np.where((features[n, :, 6] < 1.3481269245967793 + 0.5386573885772532) & (features[n, :, 6] > 1.3481269245967793 - 0.5386573885772532))[0]
+            common_indices.append(np.intersect1d(indices_energy, np.intersect1d(indices_intemg, np.intersect1d(indices_wl, np.intersect1d(indices_meanfrequency, np.intersect1d(indices_willampl, np.intersect1d(indices_zerocrossing, np.intersect1d(indices_hjorthactivity, indices_hjorthmobility))))))))
+
+        grooming_indicator = np.zeros(shape=(self.number_of_scales, timestamps.shape[0]))
+        for n in range(self.number_of_scales):
+            grooming_indicator[n, common_indices[n]] = 1
+
+        clean_grooming_indicators_per_scale, start_indices_per_scale, end_indices_per_scale = self.process_indicators_to_events(indicators=grooming_indicator)
+
+        for n in range(self.number_of_scales):
+            clean_grooming_indicators_per_scale[n] = np.where(self.presence_indicator_per_scale[n, :clean_grooming_indicators_per_scale.shape[1]] == 0.0, 0, clean_grooming_indicators_per_scale[n])
+
+        return clean_grooming_indicators_per_scale
+
+
+    def identify_grooming_with_number_of_hits(self, timestamps, features, feature_names, min_number_of_hits: int=6, produce_graph: bool=False, is_saved: bool=False):
+
+        # print("FEATURES : ", features, features.shape)
+
+        self.compute_location_on_scale(first_day=True) # self.presence_indicator_per_scale
+
+        feature_ranges_ground_truth = {"Energy":[5113.330149347505, 19188], "Integrated EMG":[267.08791215471336, 500], "Wavelength length":[120.38989329395125, 166], "Mean frequency [Hz]":[256.8156956900453, 71], "Zero Crossing":[75.64664281554205, 40.269522943281906], "Hjorth activity":[31.958313433421907, 119.92583301727137], "Hjorth mobility":[1.3481269245967793, 0.5386573885772532]}
+
+        hits_per_scale = np.zeros(shape=(self.number_of_scales, features.shape[1]))
+        for n in range(self.number_of_scales):
+            for f in range(features.shape[2]):
+                feature_name = feature_names[f]
+                mean = feature_ranges_ground_truth[feature_name][0]
+                stdev = feature_ranges_ground_truth[feature_name][1]
+                indices_in_range = np.where((features[n, :, f] < mean + stdev) & (features[n, :, f] > mean - stdev))[0]
+                hits_per_scale[n, indices_in_range] += 1
+
+        grooming_indicator = np.zeros(shape=(self.number_of_scales, timestamps.shape[0]))
+        for n in range(self.number_of_scales):
+            hits_threshold_indices = np.where(hits_per_scale[n] > min_number_of_hits)[0]
+            grooming_indicator[n, hits_threshold_indices] = 1
+
+        for n in range(self.number_of_scales):
+            grooming_indicator[n] = np.where(self.presence_indicator_per_scale[n, :grooming_indicator.shape[1]] == 0.0, 0, grooming_indicator[n])
+
+        clean_grooming_indicators_per_scale, start_indices_per_scale, end_indices_per_scale = self.process_indicators_to_events(indicators=grooming_indicator)
+
+        for n in range(self.number_of_scales):
+            indices_starts = np.where(np.diff(clean_grooming_indicators_per_scale[n]) == 1)[0]
+            indices_ends = np.where(np.diff(clean_grooming_indicators_per_scale[n]) == -1)[0]
+            if clean_grooming_indicators_per_scale[n,0] == 1:
+                indices_ends = np.delete(indices_ends, 0)
+            starts = pd.to_timedelta(self.raw_time[indices_starts], unit='h').components
+            formatted_starts = [f"{h:02}:{m:02}:{s:02}" for h, m, s in zip(starts.hours, starts.minutes, starts.seconds)]
+            ends = pd.to_timedelta(self.raw_time[indices_ends], unit='h').components
+            formatted_ends = [f"{h:02}:{m:02}:{s:02}" for h, m, s in zip(ends.hours, ends.minutes, ends.seconds)]
+            data = {"Start [hh:mm:ss]": formatted_starts, "End [hh:mm:ss]": formatted_ends}
+            df = pd.DataFrame(data)
+            df.to_csv(self.directory + f"GroomingIdentification/Start_End_Times_Grooming_Events_Scale_{n}.csv")
+
+        return clean_grooming_indicators_per_scale
+
+
+
+    def compare_with_behaviour_labels(self, timestamps, behaviour_labels, behaviour_labels_ground_truth, evaluate_only_between_these_hours: list=None, produce_graph: bool=False, is_saved: bool=False):
+        self.reset_data()
+        self.remove_outliers()
+
+        # TODO : QUANTIFY UNPRECISIONs
+        detection_rate_ratio_per_scale = []
+        recall_per_scale = []
+        print("Total detection efficiency and Recall per scale :")
+        for n in range(self.number_of_scales):
+            indices_truth = np.where(behaviour_labels_ground_truth[n] == 1.0)[0]
+            indices = np.where(behaviour_labels[n] == 1.0)[0]
+
+            true_positives_indices = np.intersect1d(indices, indices_truth)
+            recall = true_positives_indices.shape[0]/indices_truth.shape[0]
+            recall_per_scale.append(recall)
+
+            detection_rate_ratio = (indices.shape[0]/behaviour_labels[n].shape[0])/(indices_truth.shape[0]/behaviour_labels[n].shape[0])
+            detection_rate_ratio_per_scale.append(detection_rate_ratio)
+
+            print(f"Scale {n} : Detection rate ratio is {detection_rate_ratio} and Recall is {recall}")
+
+        detection_rate_ratio_per_scale = np.array(detection_rate_ratio_per_scale)
+        recall_per_scale = np.array(recall_per_scale)
+
         if evaluate_only_between_these_hours is not None:
             indices_only_between_these_hours = np.where((self.raw_time > evaluate_only_between_these_hours[0]) & (self.raw_time < evaluate_only_between_these_hours[1]))[0]
             time = self.raw_time[indices_only_between_these_hours[:-1]]
@@ -1088,52 +1363,28 @@ class Cage():
             time = self.raw_time
             raw_data_per_scale = self.raw_data_per_scale
 
+        if produce_graph:
+            fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(25,10))
+            for n in range(self.number_of_scales):
+                axs[n].plot(time, raw_data_per_scale[n], color=self.colors[n])
+                axs[n].fill_between(time, np.amax(raw_data_per_scale[n])+10, where= behaviour_labels_ground_truth[n] == 1.0, color="grey", alpha=0.3, label="Ground truth")
+                axs[n].fill_between(time, np.amax(raw_data_per_scale[n])+5, where= behaviour_labels[n] == 1.0, color="yellow", alpha=0.5, label="Identified events")
+                axs[n].set_xlabel("Time [hour]", fontsize=16)
+                axs[n].set_ylabel("Mass [g]", fontsize=16)
+                axs[n].set_title(f"Detection rate ratio : {detection_rate_ratio_per_scale[n]:.4f} and Recall : {recall_per_scale[n]:.4f}")
+                axs[n].legend()
 
-        # get start times and the delay, the time the event happens, of all scales
-        data_behaviour = pd.read_csv(directory_ground_truth + filename) # get the raw data
-        start_times = data_behaviour["Start"].to_numpy() # get the start times
-        delay = data_behaviour["Delta"].to_numpy() # get the delays 
+            fig.tight_layout()
+            if is_saved:
+                today = datetime.today().strftime('%Y.%m.%d')
+                if evaluate_only_between_these_hours is not None:
+                    plt.savefig(self.directory+today+"-Comparison_grooming_with_labels-range"+str(evaluate_only_between_these_hours[0])+"to"+str(evaluate_only_between_these_hours[1])+"hours_atleast6hits_GroomingNestingEatingLicking.png", format="png", dpi=600, transparent=True)
+                else:
+                    plt.savefig(self.directory+today+"-Comparison_grooming_with_labels.png", format="png", dpi=600, transparent=True)
+            plt.show()
+        
 
-        start_times_in_hours = self.format_time_in_hours(start_times) # format the start times in hours, floats 
-        delays_in_hours = self.format_seconds_in_hours(delay) # format the delays in hours, float
-        start_times_in_hours = start_times_hours - (delay_in_seconds/3600) # add delay between video and mass data measurements
 
-        # produce a numpy array indicating when the mouse is doing the behaviour
-        # 0s are when the mouse is NOT doing the behaviour and 1s is when the mouse is doing the behaviour
-        behaviour_indicator = np.zeros(shape=(3, time.shape[0]))
-        for i in range(len(start_times_in_hours[0])):
-            indices_during_event = np.where((time > start_times_in_hours[0][i]) & (time < start_times_in_hours[0][i]+delays_in_hours[0][i]))[0]
-            behaviour_indicator[0, indices_during_event] = 1
-
-        for i in range(len(start_times_in_hours[1])):
-            indices_during_event = np.where((time > start_times_in_hours[1][i]) & (time < start_times_in_hours[1][i]+delays_in_hours[1][i]))[0]
-            behaviour_indicator[1, indices_during_event] = 1
-
-        for i in range(len(start_times_in_hours[2])):
-            indices_during_event = np.where((time > start_times_in_hours[2][i]) & (time < start_times_in_hours[2][i]+delays_in_hours[2][i]))[0]
-            behaviour_indicator[2, indices_during_event] = 1
-
-        fig, axs = plt.subplots(nrows=self.number_of_scales, ncols=1, figsize=(13,7))
-        for n in range(self.number_of_scales):
-            axs[n].plot(time, raw_data_per_scale[n], color=self.colors[n])
-            axs[n].fill_between(time, np.amax(raw_data_per_scale[n]), where= behaviour_indicator[n] == 1, color="grey", alpha=0.5)
-
-        plt.xlabel("Time [h]", fontsize=16)
-        axs[0].legend()
-        axs[0].set_ylabel("mass [g]", fontsize=16)
-        axs[1].set_ylabel("mass [g]", fontsize=16)
-        axs[2].set_ylabel("mass [g]", fontsize=16)
-        fig.tight_layout()
-
-        if is_saved:
-            today = datetime.today().strftime('%Y.%m.%d')
-            if evaluate_only_between_these_hours is not None:
-                plt.savefig(self.directory+today+"-Behaviour_indicator_"+filename[:-12]+"-range"+str(evaluate_only_between_these_hours[0])+"to"+str(evaluate_only_between_these_hours[1])+"hours.png", format="png", dpi=600, transparent=True)
-            else:
-                plt.savefig(self.directory+today+"-Behaviour_indicator_"+filename[:-12]+".png", format="png", dpi=600, transparent=True)
-        plt.show()
-
-        return behaviour_indicator
 
 
 
