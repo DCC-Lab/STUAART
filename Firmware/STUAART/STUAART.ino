@@ -296,6 +296,8 @@ void printHelp() {
   Serial.println(F("tare            re-tare all 3 cells (asks confirmation)"));
   Serial.println(F("tare <n>        re-tare cell n=1..3 (asks confirmation)"));
   Serial.println(F("cal <n> <w>     reference weight w grams on cell n -> recompute scale"));
+  Serial.println(F("set offset <n> <v>   force the offset of cell n to value v"));
+  Serial.println(F("set scale <n> <v>    force the scale of cell n to value v"));
   Serial.println(F("save            write offsets+scales to SPIFFS (asks confirmation)"));
   Serial.println(F("load            reload offsets+scales from SPIFFS"));
   Serial.println(F("wifi            retry WiFi connection (15 s timeout)"));
@@ -360,6 +362,24 @@ void runImmediate(const char* cmd) {
     } else {
       Serial.println(F("usage: cal <cell 1..3> <weight_g>"));
     }
+  } else if (strncmp(cmd, "set offset ", 11) == 0) {
+    int n; float v;
+    if (sscanf(cmd, "set offset %d %f", &n, &v) == 2 && n >= 1 && n <= 3) {
+      controller.set_offset(n, v);
+      Serial.print(F("offset cell ")); Serial.print(n);
+      Serial.print(F(" = ")); Serial.println(controller.get_offset(n));
+    } else {
+      Serial.println(F("usage: set offset <cell 1..3> <value>"));
+    }
+  } else if (strncmp(cmd, "set scale ", 10) == 0) {
+    int n; float v;
+    if (sscanf(cmd, "set scale %d %f", &n, &v) == 2 && n >= 1 && n <= 3 && v != 0.0f) {
+      controller.set_scale(n, v);
+      Serial.print(F("scale cell ")); Serial.print(n);
+      Serial.print(F(" = ")); Serial.println(controller.get_scale(n));
+    } else {
+      Serial.println(F("usage: set scale <cell 1..3> <non-zero value>"));
+    }
   } else if (strcmp(cmd, "save") == 0) {
     for (byte i = 1; i <= 3; i++) {
       controller.save_offset_to_persistent_memory(i);
@@ -402,6 +422,8 @@ void executeCommand(const char* cmd) {
   else if (strcmp(cmd, "stream on") == 0)                              { streamOn = true;  Serial.println(F("streaming ON")); }
   else if (strcmp(cmd, "stream off") == 0 || strcmp(cmd, "quiet") == 0) { streamOn = false; Serial.println(F("streaming OFF")); }
   else if (strncmp(cmd, "cal ", 4) == 0)                               runImmediate(cmd);
+  else if (strncmp(cmd, "set offset ", 11) == 0)                       runImmediate(cmd);
+  else if (strncmp(cmd, "set scale ", 10) == 0)                        runImmediate(cmd);
   else if (strncmp(cmd, "tare", 4) == 0)                               confirmAndRun(cmd);
   else if (strcmp(cmd, "save") == 0)                                   confirmAndRun(cmd);
   else if (strcmp(cmd, "load") == 0)                                   runImmediate(cmd);
