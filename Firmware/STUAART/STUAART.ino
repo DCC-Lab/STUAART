@@ -247,7 +247,7 @@ void flushBufferToSD(){
 Writes a clean file header for csv file.
 */
 void writeFileHeader(char *file_name) {
-  createFile(file_name, "time (ms), reading 1, reading 2, reading 3", FILE_WRITE);
+  createFile(file_name, "time (ms), reading 1, reading 2, reading 3, raw 1, raw 2, raw 3", FILE_WRITE);
 }
 
 
@@ -256,12 +256,19 @@ This method will be where we save the real data. For now it creates fake data.
 */
 void saveData()
 {
-  float weight1 = controller.get_weight(1);
-  float weight2 = controller.get_weight(2);
-  float weight3 = controller.get_weight(3);
+  // Read raws once and derive weights from them, so the two values on the
+  // same line come from the SAME HX711 conversion (no double read).
+  long raw1 = controller.read_raw_average(1);
+  long raw2 = controller.read_raw_average(2);
+  long raw3 = controller.read_raw_average(3);
+  float weight1 = controller.mass_from_raw(1, raw1);
+  float weight2 = controller.mass_from_raw(2, raw2);
+  float weight3 = controller.mass_from_raw(3, raw3);
 
   String fileLine = "";
-  fileLine += String(millis(), DEC) + "," + weight1 + "," + weight2 + "," + weight3 + "\n";
+  fileLine += String(millis(), DEC) + ","
+            + weight1 + "," + weight2 + "," + weight3 + ","
+            + raw1 + "," + raw2 + "," + raw3 + "\n";
 
   if (sdInitialized) {
     getTodaysDate();
@@ -290,7 +297,8 @@ void printHelp() {
   Serial.println(F("--- STUAART serial commands ---"));
   Serial.println(F("help, ?         this list"));
   Serial.println(F("info            WiFi, SD, RTC, calibration state"));
-  Serial.println(F("read            one immediate read of all 3 cells"));
+  Serial.println(F("read            one immediate read (weights + raws) of all 3 cells"));
+  Serial.println(F("raw             one immediate read of raw counts only"));
   Serial.println(F("stream on       start CSV streaming on Serial"));
   Serial.println(F("stream off      stop streaming (alias: quiet)"));
   Serial.println(F("tare            re-tare all 3 cells (asks confirmation)"));
@@ -327,9 +335,24 @@ void printInfo() {
 }
 
 void readOnce() {
-  Serial.print(controller.get_weight(1)); Serial.print(", ");
-  Serial.print(controller.get_weight(2)); Serial.print(", ");
-  Serial.println(controller.get_weight(3));
+  long r1 = controller.read_raw_average(1);
+  long r2 = controller.read_raw_average(2);
+  long r3 = controller.read_raw_average(3);
+  Serial.print(F("weights : "));
+  Serial.print(controller.mass_from_raw(1, r1)); Serial.print(F(", "));
+  Serial.print(controller.mass_from_raw(2, r2)); Serial.print(F(", "));
+  Serial.println(controller.mass_from_raw(3, r3));
+  Serial.print(F("raws    : "));
+  Serial.print(r1); Serial.print(F(", "));
+  Serial.print(r2); Serial.print(F(", "));
+  Serial.println(r3);
+}
+
+void readRaw() {
+  Serial.print(F("raws    : "));
+  Serial.print(controller.read_raw_average(1)); Serial.print(F(", "));
+  Serial.print(controller.read_raw_average(2)); Serial.print(F(", "));
+  Serial.println(controller.read_raw_average(3));
 }
 
 // Execute a command without further prompting. Used both for direct
@@ -419,6 +442,7 @@ void executeCommand(const char* cmd) {
   if (strcmp(cmd, "help") == 0 || strcmp(cmd, "?") == 0)              printHelp();
   else if (strcmp(cmd, "info") == 0)                                   printInfo();
   else if (strcmp(cmd, "read") == 0)                                   readOnce();
+  else if (strcmp(cmd, "raw") == 0)                                    readRaw();
   else if (strcmp(cmd, "stream on") == 0)                              { streamOn = true;  Serial.println(F("streaming ON")); }
   else if (strcmp(cmd, "stream off") == 0 || strcmp(cmd, "quiet") == 0) { streamOn = false; Serial.println(F("streaming OFF")); }
   else if (strncmp(cmd, "cal ", 4) == 0)                               runImmediate(cmd);
