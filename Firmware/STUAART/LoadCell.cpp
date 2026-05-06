@@ -76,7 +76,6 @@ static inline bool hx711_corrupted(long raw) {
 long LoadCell::safe_read(byte max_retries) {
   long raw = read();
   for (byte i = 0; hx711_corrupted(raw) && i < max_retries; i++) {
-    if (!wait_ready_timeout(100)) continue;
     raw = read();
   }
   return raw;
