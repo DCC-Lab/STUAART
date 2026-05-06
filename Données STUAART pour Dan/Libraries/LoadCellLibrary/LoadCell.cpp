@@ -65,38 +65,61 @@
 LoadCell::LoadCell() {
 }
 
+long LoadCell::safe_read(byte max_retries) {
+  long raw = read();
+  for (byte i = 0; raw == -1L && i < max_retries; i++) {
+    if (!wait_ready_timeout(100)) continue;
+    raw = read();
+  }
+  return raw;
+}
+
 long LoadCell::read_raw_average() {
   byte times = get_weight_n_readings();
   long sum = 0;
+  byte good = 0;
 
 	for (byte i = 0; i < times; i++) {
-		sum += read();
+		long raw = safe_read();
+		if (raw != -1L) {
+			sum += raw;
+			good++;
+		}
 		delay(0);
-    // Serial.println(i);
 	}
-	return sum / times;
+	return good > 0 ? sum / good : -1L;
 }
 
 long LoadCell::read_tare_average() {
   byte times = get_tare_n_readings();
   long sum = 0;
+  byte good = 0;
 
 	for (byte i = 0; i < times; i++) {
-		sum += read();
+		long raw = safe_read();
+		if (raw != -1L) {
+			sum += raw;
+			good++;
+		}
 		delay(0);
 	}
-	return sum / times;
+	return good > 0 ? sum / good : -1L;
 }
 
 long LoadCell::read_scale_coeff_average() {
   byte times = get_scale_coeff_n_readings();
   long sum = 0;
+  byte good = 0;
 
 	for (byte i = 0; i < times; i++) {
-		sum += read();
+		long raw = safe_read();
+		if (raw != -1L) {
+			sum += raw;
+			good++;
+		}
 		delay(0);
 	}
-	return sum / times;
+	return good > 0 ? sum / good : -1L;
 }
 
 double LoadCell::get_raw_value() {

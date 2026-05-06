@@ -68,6 +68,21 @@ public:
 
 
        /**
+        * @brief Read the HX711 with corruption detection and retry.
+        *
+        * The HX711 can return 0xFFFFFF (raw == -1L after sign extension) when
+        * the read sequence is disturbed: interrupt during a SCK pulse making
+        * the chip enter power-down, or DOUT line sharing a pin with the flash
+        * SPI bus (GPIO 6-11 on ESP32). This method calls read() and, if the
+        * value matches that signature, retries up to @p max_retries times,
+        * waiting for the chip to be ready between attempts. Returns the last
+        * raw value, or -1L if all retries still produced -1L. Callers should
+        * treat -1L as invalid.
+        */
+       long safe_read(byte max_retries = 3);
+
+
+       /**
         * @brief Read the output of the LoadCell and average @ref weight_n_readings readings.
         *
         * This function does @ref weight_n_readings readings of the raw output of the LoadCell and 
