@@ -39,6 +39,8 @@ const int SAVE_DATA_INTERVAL = 0;
 
 unsigned long reconnectTimestamp = 0;
 const int RECONNECT_WIFI_INTERVAL = 3600000;
+const unsigned long WIFI_CONNECT_TIMEOUT_MS = 15000;
+bool wifiConnected = false;
 
 const int BUFFER_SIZE = 1000;
 const int LINE_LENGTH = 50;
@@ -57,31 +59,30 @@ Retries every 500 milliseconds until it succeeds and then prints the local IP.
 */
 void connectToWifi()
 {
-  // We start by connecting to a WiFi network
   Serial.print("Connecting to ");
   Serial.println(SSID);
   WiFi.begin(SSID, PASSWORD);
-  while (WiFi.status() != WL_CONNECTED)
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && (millis() - start) < WIFI_CONNECT_TIMEOUT_MS)
   {
     delay(500);
     Serial.print(".");
   }
   Serial.println("");
-  Serial.println("WiFi connected.");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-  server.begin();
-  digitalWrite(pinLED2, HIGH);
-  delay(100);
-  digitalWrite(pinLED2, LOW);
-  delay(100);
-  digitalWrite(pinLED2, HIGH);
-  delay(100);
-  digitalWrite(pinLED2, LOW);
-  delay(100);
-  digitalWrite(pinLED2, HIGH);
-  delay(100);
-  digitalWrite(pinLED2, LOW);
+  if (WiFi.status() == WL_CONNECTED) {
+    wifiConnected = true;
+    Serial.println("WiFi connected.");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
+    server.begin();
+    for (int i = 0; i < 3; i++) {
+      digitalWrite(pinLED2, HIGH); delay(100);
+      digitalWrite(pinLED2, LOW);  delay(100);
+    }
+  } else {
+    wifiConnected = false;
+    Serial.println("WiFi unavailable, continuing without network. Data will go to Serial.");
+  }
 }
 
 
@@ -277,6 +278,10 @@ void saveData()
   String fileLine = "";
   fileLine += String(millis(), DEC) + "," + weight1 + "," + weight2 + "," + weight3 + "\n";
   writeFile(today, fileLine.c_str(), FILE_APPEND);
+
+  if (!wifiConnected) {
+    Serial.print(fileLine);
+  }
 }
 
 
