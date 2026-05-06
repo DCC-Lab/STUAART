@@ -70,14 +70,13 @@ public:
        /**
         * @brief Read the HX711 with corruption detection and retry.
         *
-        * The HX711 can return 0xFFFFFF (raw == -1L after sign extension) when
-        * the read sequence is disturbed: interrupt during a SCK pulse making
-        * the chip enter power-down, or DOUT line sharing a pin with the flash
-        * SPI bus (GPIO 6-11 on ESP32). This method calls read() and, if the
-        * value matches that signature, retries up to @p max_retries times,
-        * waiting for the chip to be ready between attempts. Returns the last
-        * raw value, or -1L if all retries still produced -1L. Callers should
-        * treat -1L as invalid.
+        * Rejects three known corruption signatures and retries up to
+        * @p max_retries times: 0xFFFFFF (-1, DOUT held HIGH by interrupt or
+        * flash bus contention on GPIO 6-11), 0x800000 (-8388608, negative
+        * saturation), and 0x7FFFFF (+8388607, positive saturation). None of
+        * these can occur during normal operation of a mouse-scale load cell.
+        * Returns the last raw value; callers should treat -1L as invalid
+        * (returned only if every retry was still corrupt).
         */
        long safe_read(byte max_retries = 3);
 

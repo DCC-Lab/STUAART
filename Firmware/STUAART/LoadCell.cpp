@@ -65,9 +65,17 @@
 LoadCell::LoadCell() {
 }
 
+static inline bool hx711_corrupted(long raw) {
+  // 0xFFFFFF (-1) : DOUT held HIGH (interrupt, flash bus)
+  // 0x800000 (-8388608) : 24-bit negative saturation
+  // 0x7FFFFF (+8388607) : 24-bit positive saturation
+  // None of these can occur during normal operation of a mouse-scale load cell.
+  return raw == -1L || raw == -8388608L || raw == 8388607L;
+}
+
 long LoadCell::safe_read(byte max_retries) {
   long raw = read();
-  for (byte i = 0; raw == -1L && i < max_retries; i++) {
+  for (byte i = 0; hx711_corrupted(raw) && i < max_retries; i++) {
     if (!wait_ready_timeout(100)) continue;
     raw = read();
   }
@@ -81,7 +89,7 @@ long LoadCell::read_raw_average() {
 
 	for (byte i = 0; i < times; i++) {
 		long raw = safe_read();
-		if (raw != -1L) {
+		if (!hx711_corrupted(raw)) {
 			sum += raw;
 			good++;
 		}
@@ -97,7 +105,7 @@ long LoadCell::read_tare_average() {
 
 	for (byte i = 0; i < times; i++) {
 		long raw = safe_read();
-		if (raw != -1L) {
+		if (!hx711_corrupted(raw)) {
 			sum += raw;
 			good++;
 		}
@@ -113,7 +121,7 @@ long LoadCell::read_scale_coeff_average() {
 
 	for (byte i = 0; i < times; i++) {
 		long raw = safe_read();
-		if (raw != -1L) {
+		if (!hx711_corrupted(raw)) {
 			sum += raw;
 			good++;
 		}
