@@ -41,6 +41,7 @@ unsigned long reconnectTimestamp = 0;
 const int RECONNECT_WIFI_INTERVAL = 3600000;
 const unsigned long WIFI_CONNECT_TIMEOUT_MS = 15000;
 bool wifiConnected = false;
+bool sdInitialized = false;
 
 const int BUFFER_SIZE = 1000;
 const int LINE_LENGTH = 50;
@@ -202,27 +203,12 @@ void writeFile(const char *path, const char *message, const char *mode){
 }
 
 void createFile(const char *path, const char *message, const char *mode){
-    while (!Serial)
-  {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
-  if (!SD.begin(SS_PIN))
-  {
-    Serial.println("initialization failed!");
-    return;
-  }
-  // open the file. note that only one file can be open at a time,
+  if (!sdInitialized) return;
   myFile = SD.open(path, mode);
-  // if the file opened okay, write to it:
-  if (myFile)
-  {
+  if (myFile) {
     myFile.println(message);
-    // close the file:
     myFile.close();
-  }
-  else
-  {
-    // if the file didn't open, print an error:
+  } else {
     Serial.println("error opening file");
   }
 }
@@ -265,19 +251,20 @@ This method will be where we save the real data. For now it creates fake data.
 */
 void saveData()
 {
-  getTodaysDate();
-  if (!SD.exists(today))
-  {
-    //This is to make sure we update the time correctly and we don't write into tomorrows file accidentally because Arduino's time might drift.
-    writeFileHeader(today);
-  }
   float weight1 = controller.get_weight(1);
   float weight2 = controller.get_weight(2);
   float weight3 = controller.get_weight(3);
 
   String fileLine = "";
   fileLine += String(millis(), DEC) + "," + weight1 + "," + weight2 + "," + weight3 + "\n";
-  writeFile(today, fileLine.c_str(), FILE_APPEND);
+
+  if (sdInitialized) {
+    getTodaysDate();
+    if (!SD.exists(today)) {
+      writeFileHeader(today);
+    }
+    writeFile(today, fileLine.c_str(), FILE_APPEND);
+  }
 
   if (!wifiConnected) {
     Serial.print(fileLine);
@@ -296,6 +283,14 @@ void setup()
   pinMode(pinLED2, OUTPUT);
   pinMode(pinLED3, OUTPUT);
   pinMode(pinLED4, OUTPUT);
+
+  if (SD.begin(SS_PIN)) {
+    sdInitialized = true;
+    Serial.println("SD card initialized");
+  } else {
+    sdInitialized = false;
+    Serial.println("SD card not found, data goes to Serial only");
+  }
 
   connectToWifi();
 
