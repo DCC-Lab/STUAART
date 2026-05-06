@@ -42,6 +42,11 @@ const int RECONNECT_WIFI_INTERVAL = 3600000;
 const unsigned long WIFI_CONNECT_TIMEOUT_MS = 15000;
 bool wifiConnected = false;
 bool sdInitialized = false;
+bool streamOn = false;                  // CSV stream to Serial : OFF by default
+const size_t CMD_BUF_SIZE = 64;
+char cmdBuf[CMD_BUF_SIZE];              // accumulates one line of user input
+size_t cmdLen = 0;
+char pendingCmd[CMD_BUF_SIZE] = "";     // command awaiting y/n confirmation
 
 const int BUFFER_SIZE = 1000;
 const int LINE_LENGTH = 50;
@@ -82,7 +87,7 @@ void connectToWifi()
     }
   } else {
     wifiConnected = false;
-    Serial.println("WiFi unavailable, continuing without network. Data will go to Serial.");
+    Serial.println("WiFi unavailable, continuing without network.");
   }
 }
 
@@ -266,12 +271,181 @@ void saveData()
     writeFile(today, fileLine.c_str(), FILE_APPEND);
   }
 
-  if (!wifiConnected) {
+  if (streamOn) {
     Serial.print(fileLine);
   }
 }
 
 
+
+// ============================================================================
+// Serial command interface
+//
+// CSV streaming on Serial is OFF by default. After boot, type 'help' to see
+// the list of commands. Destructive commands (tare, save, reset) require a
+// y/n confirmation on the next line.
+// ============================================================================
+
+void printHelp() {
+  Serial.println(F("--- STUAART serial commands ---"));
+  Serial.println(F("help, ?         this list"));
+  Serial.println(F("info            WiFi, SD, RTC, calibration state"));
+  Serial.println(F("read            one immediate read of all 3 cells"));
+  Serial.println(F("stream on       start CSV streaming on Serial"));
+  Serial.println(F("stream off      stop streaming (alias: quiet)"));
+  Serial.println(F("tare            re-tare all 3 cells (asks confirmation)"));
+  Serial.println(F("tare <n>        re-tare cell n=1..3 (asks confirmation)"));
+  Serial.println(F("cal <n> <w>     reference weight w grams on cell n -> recompute scale"));
+  Serial.println(F("save            write offsets+scales to SPIFFS (asks confirmation)"));
+  Serial.println(F("load            reload offsets+scales from SPIFFS"));
+  Serial.println(F("wifi            retry WiFi connection (15 s timeout)"));
+  Serial.println(F("time YYYY-MM-DD HH:MM:SS    set RTC"));
+  Serial.println(F("reset           soft reboot (asks confirmation)"));
+}
+
+void printInfo() {
+  Serial.println(F("--- STUAART status ---"));
+  Serial.print(F("WiFi      : "));
+  Serial.println(wifiConnected ? "connected" : "disconnected");
+  if (wifiConnected) {
+    Serial.print(F("IP        : "));
+    Serial.println(WiFi.localIP());
+  }
+  Serial.print(F("SD card   : "));
+  Serial.println(sdInitialized ? "ready" : "not found");
+  Serial.print(F("Streaming : "));
+  Serial.println(streamOn ? "ON" : "OFF");
+  Serial.print(F("Mode pin  : "));
+  Serial.println(digitalRead(MODE_PIN) == LOW ? "auto" : "manual cal");
+  for (byte i = 1; i <= 3; i++) {
+    Serial.print(F("cell ")); Serial.print(i);
+    Serial.print(F(" : offset=")); Serial.print(controller.get_offset(i));
+    Serial.print(F("  scale=")); Serial.println(controller.get_scale(i));
+  }
+}
+
+void readOnce() {
+  Serial.print(controller.get_weight(1)); Serial.print(", ");
+  Serial.print(controller.get_weight(2)); Serial.print(", ");
+  Serial.println(controller.get_weight(3));
+}
+
+// Execute a command without further prompting. Used both for direct
+// non-destructive commands and after a confirmed destructive one.
+void runImmediate(const char* cmd) {
+  if (strncmp(cmd, "tare", 4) == 0) {
+    int n = 0;
+    if (sscanf(cmd, "tare %d", &n) == 1 && n >= 1 && n <= 3) {
+      Serial.print(F("taring cell ")); Serial.println(n);
+      controller.tare(n);
+      Serial.print(F("offset cell ")); Serial.print(n);
+      Serial.print(F(" = ")); Serial.println(controller.get_offset(n));
+    } else {
+      Serial.println(F("taring all cells"));
+      controller.tare_all_loadcells(false);
+      for (byte i = 1; i <= 3; i++) {
+        Serial.print(F("offset cell ")); Serial.print(i);
+        Serial.print(F(" = ")); Serial.println(controller.get_offset(i));
+      }
+    }
+  } else if (strncmp(cmd, "cal ", 4) == 0) {
+    int n; float w;
+    if (sscanf(cmd, "cal %d %f", &n, &w) == 2 && n >= 1 && n <= 3 && w > 0) {
+      long raw = controller.read_scale_coeff_average(n);
+      float offset = controller.get_offset(n);
+      float scale = (raw - offset) / w;
+      controller.set_scale(n, scale);
+      Serial.print(F("scale cell ")); Serial.print(n);
+      Serial.print(F(" = ")); Serial.println(scale);
+    } else {
+      Serial.println(F("usage: cal <cell 1..3> <weight_g>"));
+    }
+  } else if (strcmp(cmd, "save") == 0) {
+    for (byte i = 1; i <= 3; i++) {
+      controller.save_offset_to_persistent_memory(i);
+      controller.save_scale_coeff_to_persistent_memory(i);
+    }
+    Serial.println(F("calibration saved to SPIFFS"));
+  } else if (strcmp(cmd, "load") == 0) {
+    for (byte i = 1; i <= 3; i++) {
+      controller.set_offset(i, controller.read_offset_from_persistent_memory(i));
+    }
+    controller.read_all_scale_coeff_from_persistent_memory();
+    Serial.println(F("calibration loaded from SPIFFS"));
+  } else if (strncmp(cmd, "time ", 5) == 0) {
+    int yr, mo, dy, hr, mn, sc;
+    if (sscanf(cmd, "time %d-%d-%d %d:%d:%d", &yr, &mo, &dy, &hr, &mn, &sc) == 6) {
+      rtc.adjust(DateTime(yr, mo, dy, hr, mn, sc));
+      Serial.println(F("RTC adjusted"));
+    } else {
+      Serial.println(F("usage: time YYYY-MM-DD HH:MM:SS"));
+    }
+  } else if (strcmp(cmd, "reset") == 0) {
+    Serial.println(F("rebooting..."));
+    delay(100);
+    ESP.restart();
+  }
+}
+
+void confirmAndRun(const char* cmd) {
+  strncpy(pendingCmd, cmd, CMD_BUF_SIZE - 1);
+  pendingCmd[CMD_BUF_SIZE - 1] = '\0';
+  Serial.print(F("confirm '")); Serial.print(cmd); Serial.println(F("' ? (y/n)"));
+}
+
+// Dispatch a finished command line. Pure routing : non-destructive commands
+// run immediately ; destructive ones go through confirmAndRun().
+void executeCommand(const char* cmd) {
+  if (strcmp(cmd, "help") == 0 || strcmp(cmd, "?") == 0)              printHelp();
+  else if (strcmp(cmd, "info") == 0)                                   printInfo();
+  else if (strcmp(cmd, "read") == 0)                                   readOnce();
+  else if (strcmp(cmd, "stream on") == 0)                              { streamOn = true;  Serial.println(F("streaming ON")); }
+  else if (strcmp(cmd, "stream off") == 0 || strcmp(cmd, "quiet") == 0) { streamOn = false; Serial.println(F("streaming OFF")); }
+  else if (strncmp(cmd, "cal ", 4) == 0)                               runImmediate(cmd);
+  else if (strncmp(cmd, "tare", 4) == 0)                               confirmAndRun(cmd);
+  else if (strcmp(cmd, "save") == 0)                                   confirmAndRun(cmd);
+  else if (strcmp(cmd, "load") == 0)                                   runImmediate(cmd);
+  else if (strcmp(cmd, "wifi") == 0)                                   connectToWifi();
+  else if (strncmp(cmd, "time ", 5) == 0)                              runImmediate(cmd);
+  else if (strcmp(cmd, "reset") == 0)                                  confirmAndRun(cmd);
+  else {
+    Serial.print(F("unknown command: ")); Serial.println(cmd);
+    Serial.println(F("type 'help' for the list"));
+  }
+}
+
+// Non-blocking : read available bytes, return true only when a full line
+// (terminated by \n or \r) has been accumulated in cmdBuf.
+bool readSerialLine() {
+  while (Serial.available()) {
+    char c = Serial.read();
+    if (c == '\n' || c == '\r') {
+      if (cmdLen == 0) continue;
+      cmdBuf[cmdLen] = '\0';
+      cmdLen = 0;
+      return true;
+    }
+    if (cmdLen < CMD_BUF_SIZE - 1) {
+      cmdBuf[cmdLen++] = c;
+    }
+  }
+  return false;
+}
+
+void processSerialInput() {
+  if (!readSerialLine()) return;
+  Serial.print(F("> ")); Serial.println(cmdBuf);
+  if (pendingCmd[0] != '\0') {
+    if (cmdBuf[0] == 'y' || cmdBuf[0] == 'Y') {
+      runImmediate(pendingCmd);
+    } else {
+      Serial.println(F("cancelled."));
+    }
+    pendingCmd[0] = '\0';
+  } else {
+    executeCommand(cmdBuf);
+  }
+}
 
 /*
 Initializes console, connects to the wifi, the local time and creates the initial test data.
@@ -317,6 +491,9 @@ void setup()
 
   startRealTimeClock();
 
+  Serial.println();
+  Serial.println(F("Type 'help' for the list of serial commands."));
+  Serial.println(F("Streaming is OFF; type 'stream on' to see live readings."));
 }
 
 
@@ -327,6 +504,9 @@ Sends today's if the REFRESH_CODE is present in the connection data.
 */
 void loop() {
   unsigned long currentMillis = millis();
+
+  // --- 0. Serial command interface ---
+  processSerialInput();
 
   // --- 1. Gestion de la sauvegarde locale (SD) ---
   if (abs((long)(currentMillis - saveTimestamp)) >= SAVE_DATA_INTERVAL) {
