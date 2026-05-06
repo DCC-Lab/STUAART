@@ -1,8 +1,88 @@
 /**
- * @mainpage LoadCell and LoadCellController libraries for Arduino
+ * @mainpage LoadCell and LoadCellController libraries for STUAART
  *
- * Welcome to the documentation of LoadCell and LoadCellController libraries.
- * This documentation provides complete documentation of the libraries.
+ * @section overview Overview
+ *
+ * Two custom Arduino classes for the STUAART automated mouse weighing
+ * system :
+ *
+ * - @ref LoadCell extends `bogde/HX711` with configurable averaging
+ *   counts for the three usage contexts (weight reading, tare
+ *   calibration, scale-coefficient calibration) and with a defensive
+ *   `safe_read()` that filters out three known HX711 corruption
+ *   signatures (`0xFFFFFF`, `0x800000`, `0x7FFFFF`).
+ * - @ref LoadCellController manages up to 10 LoadCell instances per
+ *   cage, persists calibration to SPIFFS (ESP32) or EEPROM (AVR), and
+ *   provides ready-to-use start-up routines.
+ *
+ * Both classes are compiled directly with the sketch (next to the
+ * `.ino`), so cloning the repo and opening `Firmware/STUAART/STUAART.ino`
+ * is enough to build the firmware.
+ *
+ * @section minimal Minimal usage
+ *
+ * @code
+ * #include "LoadCell.h"
+ * #include "LoadCellController.h"
+ *
+ * LoadCell loadcell;
+ * LoadCellController controller;
+ *
+ * void setup() {
+ *   Serial.begin(115200);
+ *   controller.add_loadcell(loadcell);
+ *   controller.easy_start_with_params(
+ *       1,     // loadcell number
+ *       27,    // DOUT  (avoid GPIO 6-11 on ESP32 : flash bus)
+ *       17,    // SCK
+ *       true,  // calibrate offset
+ *       true,  // calibrate scale
+ *       false, // read offset from memory
+ *       false, // read scale from memory
+ *       true,  // save offset to memory
+ *       true,  // save scale to memory
+ *       0,     // manual tare offset
+ *       0,     // manual scale coeff
+ *       128    // gain
+ *   );
+ * }
+ *
+ * void loop() {
+ *   controller.wait_ready_timeout(1, 1000);
+ *   Serial.println(controller.get_weight(1));
+ * }
+ * @endcode
+ *
+ * @section corruption HX711 corruption handling
+ *
+ * The HX711 24-bit ADC can return three values that are physically
+ * impossible during normal operation of a strain-gauge load cell :
+ *
+ * - `-1L` (`0xFFFFFF`) : DOUT was held HIGH during the read,
+ *   typically because an interrupt stretched a SCK pulse beyond 60 us
+ *   and the chip entered power-down, OR because the DOUT pin shares
+ *   a pad with the ESP32 internal flash SPI bus (GPIO 6 to 11).
+ * - `-8388608L` (`0x800000`) : 24-bit negative saturation, observed
+ *   when the boot tare hits a fully corrupted read on a flash-pin DOUT.
+ * - `+8388607L` (`0x7FFFFF`) : 24-bit positive saturation, mirror image.
+ *
+ * @ref LoadCell::safe_read retries up to three times when any of these
+ * appears, and the three averaging methods exclude such samples from
+ * the mean rather than averaging garbage in. Callers should treat a
+ * returned `-1L` as an invalid reading (returned only if every retry
+ * was still corrupt).
+ *
+ * For the GPIO 9 case, the software workaround is partial : intermediate
+ * bit-patterns from the flash bus can still corrupt occasional reads
+ * without matching one of the three signatures. The proper fix is a
+ * hardware strap that moves the DOUT off the flash pin.
+ *
+ * @section references References
+ *
+ * - bogde/HX711 : https://github.com/bogde/HX711
+ * - STUAART repo : https://github.com/DCC-Lab/STUAART
+ *
+ * @author Nathan Bérubé, Valérie Pineau Noël, Daniel C. Côté
  */
 
 /**
@@ -82,9 +162,9 @@ public:
 
 
        /**
-        * @brief Read the output of the LoadCell and average @ref weight_n_readings readings.
+        * @brief Read the output of the LoadCell and average `weight_n_readings` readings.
         *
-        * This function does @ref weight_n_readings readings of the raw output of the LoadCell and 
+        * This function does `weight_n_readings` readings of the raw output of the LoadCell and 
         * calculates their average before returning the average raw output.
         * 
         * @return The raw averaged reading of the LoadCell.
@@ -93,9 +173,9 @@ public:
 
 
        /**
-        * @brief Read the output of the LoadCell and average @ref tare_n_readings readings.
+        * @brief Read the output of the LoadCell and average `tare_n_readings` readings.
         *
-        * This function does @ref tare_n_readings readings of the raw output of the LoadCell and 
+        * This function does `tare_n_readings` readings of the raw output of the LoadCell and 
         * calculates their average before returning the average raw output. It is useful inside calibration scripts.
         * 
         * @return The raw averaged reading of the LoadCell for the tare offset caibration.
@@ -104,9 +184,9 @@ public:
 
 
        /**
-        * @brief Read the output of the LoadCell and average @ref scale_coeff_n_readings readings.
+        * @brief Read the output of the LoadCell and average `scale_coeff_n_readings` readings.
         *
-        * This function does @ref scale_coeff_n_readings readings of the raw output of the LoadCell and 
+        * This function does `scale_coeff_n_readings` readings of the raw output of the LoadCell and 
         * calculates their average before returning the average raw output. It is useful inside calibration scripts.
         * 
         * @return The raw averaged reading of the LoadCell for the scale coefficient calibration.
@@ -118,7 +198,7 @@ public:
         * @brief Read the raw output of the LoadCell and substracts the offset.
         *
         * This function reads the average of readings of the LoadCell raw output with 
-        * @ref read_raw_average() then substracts the offset accessed with @ref get_offset().
+        * @ref read_raw_average() then substracts the offset accessed with `HX711::get_offset()`.
         * 
         * @return The raw averaged reading of the LoadCell difference with the offset.
         */
@@ -151,7 +231,7 @@ public:
         * @brief Set the number of readings averaged for the determination of the tare offset.
         *
         * This function sets the member variable tare_n_readings. It also limits the range of value that is possible
-        * for this member variable -> @ref tare_n_readings ∈ [1, 255].
+        * for this member variable -> `tare_n_readings` ∈ [1, 255].
         * 
         * Anything below 1 will be set to 1 and anything above 255 will be set to 255 to be able to store in a byte.
         * 
@@ -163,7 +243,7 @@ public:
        /**
         * @brief Get the number of readings averaged for the determination of the tare offset.
         *
-        * This function returns the member variable @ref tare_n_readings.
+        * This function returns the member variable `tare_n_readings`.
         * 
         * @return The number of readgings averaged for the determination of the tare offset.
         */
@@ -174,7 +254,7 @@ public:
         * @brief Set the number of readings averaged for the determination of the scale coefficient.
         *
         * This function sets the member variable scale_coeff_n_readings. It also limits the range of value that is possible
-        * for this member variable -> @ref scale_coeff_n_readings ∈ [1, 255].
+        * for this member variable -> `scale_coeff_n_readings` ∈ [1, 255].
         * 
         * Anything below 1 will be set to 1 and anything above 255 will be set to 255 to be able to store in a byte.
         * 
@@ -186,7 +266,7 @@ public:
        /**
         * @brief Get the number of readings averaged for the determination of the scale coefficient.
         *
-        * This function returns the member variable @ref scale_coeff_n_readings.
+        * This function returns the member variable `scale_coeff_n_readings`.
         * 
         * @return The number of readgings averaged for the determination of the tare offset.
         */
@@ -197,7 +277,7 @@ public:
         * @brief Set the number of readings averaged for a weight reading.
         *
         * This function sets the member variable weight_n_readings. It also limits the range of value that is possible
-        * for this member variable -> @ref weight_n_readings ∈ [1, 255].
+        * for this member variable -> `weight_n_readings` ∈ [1, 255].
         * 
         * Anything below 1 will be set to 1 and anything above 255 will be set to 255 to be able to store in a byte.
         * 
@@ -209,7 +289,7 @@ public:
        /**
         * @brief Get the number of readings averaged for a weight reading.
         *
-        * This function returns the member variable @ref scale_coeff_n_readings.
+        * This function returns the member variable `scale_coeff_n_readings`.
         * 
         * @return The number of readgings averaged for the determination of the tare offset.
         */
