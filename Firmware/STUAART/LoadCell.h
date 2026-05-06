@@ -231,7 +231,7 @@ public:
         * @brief Set the number of readings averaged for the determination of the tare offset.
         *
         * This function sets the member variable tare_n_readings. It also limits the range of value that is possible
-        * for this member variable -> `tare_n_readings` ∈ [1, 255].
+        * for this member variable -> `tare_n_readings` in [1, 255].
         * 
         * Anything below 1 will be set to 1 and anything above 255 will be set to 255 to be able to store in a byte.
         * 
@@ -254,7 +254,7 @@ public:
         * @brief Set the number of readings averaged for the determination of the scale coefficient.
         *
         * This function sets the member variable scale_coeff_n_readings. It also limits the range of value that is possible
-        * for this member variable -> `scale_coeff_n_readings` ∈ [1, 255].
+        * for this member variable -> `scale_coeff_n_readings` in [1, 255].
         * 
         * Anything below 1 will be set to 1 and anything above 255 will be set to 255 to be able to store in a byte.
         * 
@@ -277,7 +277,7 @@ public:
         * @brief Set the number of readings averaged for a weight reading.
         *
         * This function sets the member variable weight_n_readings. It also limits the range of value that is possible
-        * for this member variable -> `weight_n_readings` ∈ [1, 255].
+        * for this member variable -> `weight_n_readings` in [1, 255].
         * 
         * Anything below 1 will be set to 1 and anything above 255 will be set to 255 to be able to store in a byte.
         * 
