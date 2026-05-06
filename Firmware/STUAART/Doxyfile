@@ -349,7 +349,7 @@ OPTIMIZE_OUTPUT_SLICE  = NO
 #
 # Note see also the list of default file extension mappings.
 
-EXTENSION_MAPPING      =
+EXTENSION_MAPPING = ino=C++
 
 # If the MARKDOWN_SUPPORT tag is enabled then Doxygen pre-processes all comments
 # according to the Markdown format, which allows for more readable
@@ -911,7 +911,7 @@ EXTERNAL_TOOL_PATH     =
 # messages are off.
 # The default value is: NO.
 
-QUIET = YES
+QUIET = NO
 
 # The WARNINGS tag can be used to turn on/off the warning messages that are
 # generated to standard error (stderr) by Doxygen. If WARNINGS is set to YES

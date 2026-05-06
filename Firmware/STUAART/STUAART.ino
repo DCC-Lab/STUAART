@@ -285,14 +285,125 @@ void saveData()
 
 
 
-// ============================================================================
-// Serial command interface
-//
-// CSV streaming on Serial is OFF by default. After boot, type 'help' to see
-// the list of commands. Destructive commands (tare, save, reset) require a
-// y/n confirmation on the next line.
-// ============================================================================
+/**
+ * @page serial_commands STUAART Serial Command Interface
+ *
+ * @section serial_overview Overview
+ *
+ * The STUAART firmware exposes an interactive command interface on the
+ * USB serial port at 115200 baud. After boot the firmware prints a hint
+ * pointing at `help` and waits for input. CSV streaming on Serial is
+ * **OFF by default** ; type `stream on` to start it.
+ *
+ * The line accumulator is non-blocking : the firmware keeps reading the
+ * load cells at 80 Hz while you type. Each command is terminated by `\n`
+ * or `\r` (Enter). A typed line is echoed back as `> <cmd>` for
+ * confirmation.
+ *
+ * @section destructive Destructive command confirmation
+ *
+ * Commands that modify state (tare, save, reset) ask a `y/n` confirmation
+ * on the next line :
+ *
+ * @code
+ * > tare
+ * confirm 'tare' ? (y/n)
+ * > y
+ * taring all cells
+ * offset cell 1 = -1212208.00
+ * ...
+ * @endcode
+ *
+ * Any reply other than `y` or `Y` cancels.
+ *
+ * @section commands Command reference
+ *
+ * | Command                       | Confirm? | Effect                                                                       |
+ * | ---                           | ---      | ---                                                                          |
+ * | `help`, `?`                   | no       | List all commands                                                            |
+ * | `info`                        | no       | Show WiFi / SD / RTC / streaming / calibration state                         |
+ * | `read`                        | no       | One immediate read : weights and raws of all 3 cells                         |
+ * | `raw`                         | no       | One immediate read : raw 24-bit signed counts only                           |
+ * | `stream on`                   | no       | Start CSV streaming on Serial (`time, w1, w2, w3, raw1, raw2, raw3`)         |
+ * | `stream off`, `quiet`         | no       | Stop streaming                                                               |
+ * | `tare`                        | yes      | Re-tare all 3 cells (reads current raw as new zero)                          |
+ * | `tare <n>`                    | yes      | Re-tare cell `n` (1, 2 or 3) only                                            |
+ * | `cal <n> <w>`                 | no       | Place reference weight `w` grams on cell `n`, recompute its scale            |
+ * | `set offset <n> <v>`          | no       | Force the offset of cell `n` to `v` (RAM only ; use `save` to persist)       |
+ * | `set scale <n> <v>`           | no       | Force the scale of cell `n` to `v` (RAM only ; `v` must be non-zero)         |
+ * | `save`                        | yes      | Write all offsets and scales to SPIFFS                                       |
+ * | `load`                        | no       | Reload all offsets and scales from SPIFFS                                    |
+ * | `wifi`                        | no       | Retry WiFi connection (15 s timeout)                                         |
+ * | `time YYYY-MM-DD HH:MM:SS`    | no       | Set the PCF8523 RTC                                                          |
+ * | `reset`                       | yes      | Soft reboot the firmware                                                     |
+ *
+ * @section workflow Typical bench workflow
+ *
+ * Calibrate cell 1 with a 100 g reference weight :
+ *
+ * @code
+ * > tare
+ * confirm 'tare' ? (y/n)
+ * > y                          # cells must be empty at this point
+ * taring all cells
+ * offset cell 1 = -1212208.00
+ *
+ *                              # place 100 g on cell 1
+ * > cal 1 100.0
+ * scale cell 1 = -15701.53
+ *
+ * > save
+ * confirm 'save' ? (y/n)
+ * > y
+ * calibration saved to SPIFFS
+ * @endcode
+ *
+ * Observe live readings :
+ *
+ * @code
+ * > stream on
+ * streaming ON
+ * 16365,11.22,0.05,-0.02,-2475471,-1212268,-1213545
+ * 16372,11.21,0.09, 0.04,-2476234,-1212156,-1213402
+ * ...
+ * @endcode
+ *
+ * Reset cell 1 to a known offset and scale (e.g. when boot tare was
+ * polluted by GPIO 9 corruption) :
+ *
+ * @code
+ * > set offset 1 -1212208
+ * offset cell 1 = -1212208.00
+ * > set scale 1 -15701.53
+ * scale cell 1 = -15701.53
+ * > save
+ * @endcode
+ *
+ * @section impl Implementation notes
+ *
+ * - `readSerialLine()` accumulates bytes into a 64-byte buffer
+ *   `cmdBuf` and returns `true` only when a complete line is received.
+ *   Called once per `loop()` iteration.
+ * - `executeCommand()` dispatches a finished line. Non-destructive
+ *   commands run inline ; destructive ones go through `confirmAndRun()`
+ *   which stores the request in `pendingCmd` and prompts for `y/n`.
+ * - `runImmediate()` executes a (possibly confirmed) command. Used both
+ *   for direct non-destructive commands and after `y` confirmation.
+ * - `processSerialInput()` is the main entry point called from `loop()`.
+ *
+ * @section notes Notes on persistence
+ *
+ * `set offset` and `set scale` modify only the RAM state. Use `save` to
+ * persist the values to SPIFFS. Note that the firmware boot path in auto
+ * mode currently re-tares (overwriting any saved offset on the next
+ * reboot). The scale survives. Future improvement : read offset from
+ * SPIFFS at boot if `controller` has a saved value.
+ */
 
+/**
+ * @brief Print the list of supported serial commands and a one-line
+ * description of each.
+ */
 void printHelp() {
   Serial.println(F("--- STUAART serial commands ---"));
   Serial.println(F("help, ?         this list"));
@@ -313,6 +424,11 @@ void printHelp() {
   Serial.println(F("reset           soft reboot (asks confirmation)"));
 }
 
+/**
+ * @brief Print a status summary on Serial : WiFi state and IP, SD card
+ * presence, streaming state, mode-pin state, and per-cell offsets and
+ * scales.
+ */
 void printInfo() {
   Serial.println(F("--- STUAART status ---"));
   Serial.print(F("WiFi      : "));
@@ -334,6 +450,13 @@ void printInfo() {
   }
 }
 
+/**
+ * @brief Read all 3 cells once and print both the calibrated weights
+ * (in grams) and the underlying raw 24-bit signed counts. The weight
+ * and raw on the same line come from the same HX711 conversion, so
+ * the user can verify the calibration formula directly :
+ * `weight = (raw - offset) / scale`.
+ */
 void readOnce() {
   long r1 = controller.read_raw_average(1);
   long r2 = controller.read_raw_average(2);
@@ -348,6 +471,12 @@ void readOnce() {
   Serial.println(r3);
 }
 
+/**
+ * @brief Read all 3 cells once and print only the raw 24-bit signed
+ * counts (no calibration applied). Useful for diagnosing HX711
+ * corruption signatures by eye : `0xFFFFFF` (-1) means the read was
+ * corrupted by flash bus contention or by an interrupt.
+ */
 void readRaw() {
   Serial.print(F("raws    : "));
   Serial.print(controller.read_raw_average(1)); Serial.print(F(", "));
@@ -355,8 +484,19 @@ void readRaw() {
   Serial.println(controller.read_raw_average(3));
 }
 
-// Execute a command without further prompting. Used both for direct
-// non-destructive commands and after a confirmed destructive one.
+/**
+ * @brief Execute a command immediately, without further prompting.
+ *
+ * Called both for direct non-destructive commands (cal, set offset,
+ * set scale, load, time) and from `processSerialInput()` once the
+ * user has confirmed a destructive command with `y`.
+ *
+ * Recognised commands : `tare [n]`, `cal <n> <w>`, `set offset <n> <v>`,
+ * `set scale <n> <v>`, `save`, `load`, `time YYYY-MM-DD HH:MM:SS`,
+ * `reset`. See @ref serial_commands for the user-facing reference.
+ *
+ * @param cmd Null-terminated command line, without trailing newline.
+ */
 void runImmediate(const char* cmd) {
   if (strncmp(cmd, "tare", 4) == 0) {
     int n = 0;
@@ -430,14 +570,35 @@ void runImmediate(const char* cmd) {
   }
 }
 
+/**
+ * @brief Stage a destructive command and prompt for `y/n` confirmation.
+ *
+ * Stores the command in the global `pendingCmd[]` buffer and prints
+ * the prompt. The next line received by `processSerialInput()` is
+ * interpreted as the confirmation : `y` or `Y` runs the staged command
+ * via `runImmediate()`, anything else cancels.
+ *
+ * @param cmd The command to stage. Copied into `pendingCmd[]`.
+ */
 void confirmAndRun(const char* cmd) {
   strncpy(pendingCmd, cmd, CMD_BUF_SIZE - 1);
   pendingCmd[CMD_BUF_SIZE - 1] = '\0';
   Serial.print(F("confirm '")); Serial.print(cmd); Serial.println(F("' ? (y/n)"));
 }
 
-// Dispatch a finished command line. Pure routing : non-destructive commands
-// run immediately ; destructive ones go through confirmAndRun().
+/**
+ * @brief Dispatch a finished command line.
+ *
+ * Pure routing : recognises the leading token and either runs the
+ * command directly via `runImmediate()` (or inline for the
+ * non-state-changing commands `help`, `info`, `read`, `raw`,
+ * `stream on/off`, `wifi`) or stages it for confirmation via
+ * `confirmAndRun()` (`tare`, `save`, `reset`).
+ *
+ * Unknown commands trigger an error message pointing at `help`.
+ *
+ * @param cmd Null-terminated command line, without trailing newline.
+ */
 void executeCommand(const char* cmd) {
   if (strcmp(cmd, "help") == 0 || strcmp(cmd, "?") == 0)              printHelp();
   else if (strcmp(cmd, "info") == 0)                                   printInfo();
@@ -460,8 +621,20 @@ void executeCommand(const char* cmd) {
   }
 }
 
-// Non-blocking : read available bytes, return true only when a full line
-// (terminated by \n or \r) has been accumulated in cmdBuf.
+/**
+ * @brief Non-blocking line accumulator.
+ *
+ * Reads whatever bytes are currently available on `Serial` and appends
+ * them to `cmdBuf[]` (capped at `CMD_BUF_SIZE - 1` to leave room for
+ * the null terminator). Returns `true` only when a complete line has
+ * been received (terminated by `\n` or `\r`). Empty lines are ignored.
+ *
+ * Designed to be called once per `loop()` iteration so the firmware
+ * can keep sampling the load cells while the user types.
+ *
+ * @return `true` if a full line is now in `cmdBuf` and ready for
+ * dispatch ; `false` otherwise.
+ */
 bool readSerialLine() {
   while (Serial.available()) {
     char c = Serial.read();
@@ -478,6 +651,18 @@ bool readSerialLine() {
   return false;
 }
 
+/**
+ * @brief Main entry point of the serial command interface, called once
+ * per `loop()` iteration.
+ *
+ * If `readSerialLine()` has not yet accumulated a full line, returns
+ * immediately. Otherwise echoes the line (`> <cmd>`) and routes :
+ *
+ * - if a destructive command is currently staged in `pendingCmd[]`,
+ *   the line is interpreted as a `y/n` confirmation : `y` or `Y` runs
+ *   it via `runImmediate()`, anything else cancels.
+ * - otherwise, the line is dispatched via `executeCommand()`.
+ */
 void processSerialInput() {
   if (!readSerialLine()) return;
   Serial.print(F("> ")); Serial.println(cmdBuf);
