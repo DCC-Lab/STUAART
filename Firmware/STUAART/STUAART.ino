@@ -59,10 +59,19 @@ bool bufferFull = false;
 static char today[16];
 static char yesterday[16];
 
-/*
-This function tries to connect to the wifi using the SSID and the PASSWORD.
-Retries every 500 milliseconds until it succeeds and then prints the local IP.
-*/
+/**
+ * @brief Try to connect to WiFi using the hardcoded SSID and PASSWORD.
+ *
+ * Retries every 500 ms until the chip reports `WL_CONNECTED` or the
+ * configured `WIFI_CONNECT_TIMEOUT_MS` (15 s) elapses, whichever comes
+ * first. On success, sets the global `wifiConnected = true`, starts the
+ * HTTP `server`, and blinks `pinLED2` three times. On timeout, sets
+ * `wifiConnected = false` and continues without network ; the firmware
+ * keeps logging to SD and (if enabled) Serial.
+ *
+ * Called once from @ref setup and again on a 1-hour interval from
+ * @ref loop, so a transient outage recovers automatically.
+ */
 void connectToWifi()
 {
   Serial.print("Connecting to ");
@@ -93,6 +102,17 @@ void connectToWifi()
 
 
 
+/**
+ * @brief Fetch the current local time from timeapi.io over HTTPS.
+ *
+ * Issues a GET to `https://timeapi.io/api/Time/current/zone?timeZone=America/Toronto`,
+ * parses the JSON response with ArduinoJson, and reads the `datetime`
+ * field. Currently the result is not pushed to the RTC (the JSON is
+ * extracted but the assignment is commented out) ; this function is a
+ * stub for future synchronization.
+ *
+ * Requires WiFi to be connected. Logs an error otherwise.
+ */
 void getTimeHTTP() {
   if ((WiFi.status() == WL_CONNECTED)) {
     HTTPClient http;
@@ -128,6 +148,18 @@ void getTimeHTTP() {
 
 
 
+/**
+ * @brief Initialize the PCF8523 real-time clock and seed it with the
+ * compile-time date and time.
+ *
+ * Halts the firmware in an infinite loop if `rtc.begin()` fails (no
+ * RTC found on the I2C bus). On success, calls `rtc.adjust()` with
+ * the `__DATE__`/`__TIME__` macros so the clock is at least roughly
+ * correct after a flash, and `rtc.start()` to clear any STOP bit.
+ *
+ * The compile-time seed is a coarse fallback ; for accurate time use
+ * the `time YYYY-MM-DD HH:MM:SS` serial command after boot.
+ */
 void startRealTimeClock(){
   // Wait for serial port to connect. Needed for native USB port only
   #ifndef ESP8266
@@ -146,9 +178,14 @@ void startRealTimeClock(){
   rtc.start(); // Ensure the RTC is running (clears the STOP bit if necessary)
 }
 
-/*
-Gets through the time server today's date.
-*/
+/**
+ * @brief Format today's date as a CSV filename in the global `today[]`
+ * buffer, e.g. `/2026.05.06.csv`.
+ *
+ * Reads the current time from the PCF8523 RTC and writes the formatted
+ * string into `today[]` via `snprintf`. Used by @ref saveData to pick
+ * the destination file on the SD card.
+ */
 void getTodaysDate(){
   DateTime now = rtc.now(); // Get the current date and time from the RTC
   int year = now.year();
@@ -159,9 +196,13 @@ void getTodaysDate(){
 } 
 
 
-/*
-Gets through the time server yesterday's date.
-*/
+/**
+ * @brief Format yesterday's date as a CSV filename in the global
+ * `today[]` buffer (sic ; the function reuses the same buffer).
+ *
+ * @warning Naive implementation : subtracts 1 from `now.day()` without
+ * handling month / year roll-over. Fails on the first of any month.
+ */
 void getYesterdaysDate(){
   DateTime now = rtc.now(); // Get the current date and time from the RTC
   int year = now.year();
@@ -172,10 +213,19 @@ void getYesterdaysDate(){
 }
 
 
-/*
-Writes a file in the SD card at the specified path. Puts in the specified message.
-Writes in the serial consol error if it doesn't succeed.
-*/
+/**
+ * @brief Buffer one CSV line, flush to SD when the in-memory ring fills.
+ *
+ * The firmware accumulates up to `BUFFER_SIZE` (1000) lines in RAM
+ * via @ref addToBuffer. When the ring becomes full, this function
+ * opens the daily file, calls @ref flushBufferToSD to drain the ring,
+ * appends the new line, closes the file, and blinks `pinLED1`. This
+ * batched write avoids opening the SD card on every sample at 80 Hz.
+ *
+ * @param path Destination filename on the SD card (e.g. `/2026.05.06.csv`).
+ * @param message Null-terminated CSV line, including trailing `\n`.
+ * @param mode `FILE_WRITE` (overwrite) or `FILE_APPEND`.
+ */
 void writeFile(const char *path, const char *message, const char *mode){
   if (bufferFull == false){
     addToBuffer(message);
@@ -207,6 +257,18 @@ void writeFile(const char *path, const char *message, const char *mode){
 }
 }
 
+/**
+ * @brief Create or truncate a file on the SD card and write a single
+ * line to it.
+ *
+ * Used by @ref writeFileHeader to drop the CSV header at the top of a
+ * new daily file. No-op if `sdInitialized` is `false`.
+ *
+ * @param path Destination filename on the SD card.
+ * @param message Null-terminated text written via `myFile.println()`
+ * (a `\n` is appended automatically).
+ * @param mode Typically `FILE_WRITE` (truncates).
+ */
 void createFile(const char *path, const char *message, const char *mode){
   if (!sdInitialized) return;
   myFile = SD.open(path, mode);
@@ -219,6 +281,17 @@ void createFile(const char *path, const char *message, const char *mode){
 }
 
 
+/**
+ * @brief Append a CSV line to the in-RAM ring buffer.
+ *
+ * Copies up to `LINE_LENGTH - 1` characters from `message` into
+ * `buffer[head]`, ensures null termination, and advances `head` modulo
+ * `BUFFER_SIZE`. When `head` catches up to `tail`, sets the
+ * `bufferFull` flag so @ref writeFile knows to flush.
+ *
+ * @param message Null-terminated CSV line (truncated if longer than
+ * `LINE_LENGTH - 1` bytes).
+ */
 void addToBuffer(const char *message){
   strncpy(buffer[head], message, LINE_LENGTH - 1);
   buffer[head][LINE_LENGTH - 1] = '\0';  // ensure null-termination
@@ -232,6 +305,16 @@ void addToBuffer(const char *message){
 }
 
 
+/**
+ * @brief Drain the in-RAM ring buffer to the currently open SD file.
+ *
+ * Called from @ref writeFile while `myFile` is open. Iterates from
+ * `tail` to `head` and writes each buffered line via `myFile.print()`.
+ * Resets the `bufferFull` flag and appends a sentinel marker line
+ * `--, --, --, --` so a downstream reader can spot a flush boundary.
+ *
+ * @pre `myFile` must already be open in the caller.
+ */
 void flushBufferToSD(){
   while (head != tail || bufferFull) {
     myFile.print(buffer[tail]);
@@ -243,17 +326,40 @@ void flushBufferToSD(){
 
 
 
-/*
-Writes a clean file header for csv file.
-*/
+/**
+ * @brief Write the 7-column CSV header at the top of a new daily file.
+ *
+ * Header :
+ * `time (ms), reading 1, reading 2, reading 3, raw 1, raw 2, raw 3`
+ *
+ * The `reading` wording is preserved so existing post-processing scripts
+ * that match on those names keep working ; the three `raw` columns are
+ * the new signed 24-bit HX711 counts.
+ *
+ * @param file_name Destination CSV path on the SD card.
+ */
 void writeFileHeader(char *file_name) {
   createFile(file_name, "time (ms), reading 1, reading 2, reading 3, raw 1, raw 2, raw 3", FILE_WRITE);
 }
 
 
-/*
-This method will be where we save the real data. For now it creates fake data.
-*/
+/**
+ * @brief Sample the 3 load cells once and persist the row.
+ *
+ * Reads the raw 24-bit count from each cell via `read_raw_average()`
+ * and converts each one to grams via `mass_from_raw()`, so the weight
+ * and raw on the same line come from the *same* HX711 conversion (no
+ * double read). Builds a 7-field CSV line :
+ *
+ * `time(ms), w1, w2, w3, raw1, raw2, raw3\n`
+ *
+ * If the SD card is initialised, the line is appended to today's file
+ * (creating it with a header if needed). If `streamOn` is true, the
+ * same line is mirrored on Serial.
+ *
+ * Called every iteration of @ref loop ; throughput is bounded by the
+ * HX711 conversion rate (~80 Hz on STUAART hardware).
+ */
 void saveData()
 {
   // Read raws once and derive weights from them, so the two values on the
@@ -678,9 +784,31 @@ void processSerialInput() {
   }
 }
 
-/*
-Initializes console, connects to the wifi, the local time and creates the initial test data.
-*/
+/**
+ * @brief Arduino entry point : initialize peripherals and choose mode.
+ *
+ * Order :
+ * 1. Open Serial at 115200 baud.
+ * 2. Configure the four LED pins as outputs.
+ * 3. Initialize the SD card (`SD.begin`) once. Set `sdInitialized` to
+ *    track success ; subsequent SD operations no-op gracefully if it
+ *    failed.
+ * 4. Try WiFi via @ref connectToWifi (15 s timeout).
+ * 5. Configure the mode pin (`MODE_PIN`, GPIO 13) as `INPUT_PULLDOWN`
+ *    and register the three load cells with the controller.
+ * 6. Branch on `MODE_PIN` :
+ *    - LOW (SW1 OFF) : auto mode. Tare all cells live (compensates
+ *      drift) and load scale coefficients from SPIFFS.
+ *    - HIGH (SW1 ON) : manual calibration mode. Interactive tare and
+ *      scale calibration via the legacy LoadCellController prompts on
+ *      Serial.
+ * 7. Start the PCF8523 RTC.
+ * 8. Print a hint pointing at `help` and exit to @ref loop.
+ *
+ * @note In auto mode, the boot tare overwrites any offset previously
+ * persisted to SPIFFS. To force a known offset, use
+ * `set offset <n> <v>` then `save` *after* boot.
+ */
 void setup()
 {
   Serial.begin(115200);
@@ -728,11 +856,26 @@ void setup()
 }
 
 
-/*
-Loops, waiting for a client connection.
-When there is a client, reads the connection data, then sends either yesterday's data or today's.
-Sends today's if the REFRESH_CODE is present in the connection data.
-*/
+/**
+ * @brief Arduino main loop : sample the cells and service the IO interfaces.
+ *
+ * Each iteration runs four steps :
+ *
+ * 1. **Serial command interface** (@ref processSerialInput) : checks
+ *    Serial for a finished command line and dispatches it.
+ * 2. **Local data save** (@ref saveData) : reads the 3 cells once and
+ *    writes the row to SD (and Serial if `streamOn`). The pacing
+ *    `if (currentMillis - saveTimestamp >= SAVE_DATA_INTERVAL)` is
+ *    effectively unbounded since `SAVE_DATA_INTERVAL = 0` ; throughput
+ *    is bounded by the HX711 80 Hz conversion rate.
+ * 3. **WiFi reconnection** : on a 1-hour interval
+ *    (`RECONNECT_WIFI_INTERVAL = 3600000`), retry @ref connectToWifi
+ *    so a transient network outage recovers automatically.
+ * 4. **HTTP server** : if a client is connected, parse the GET line,
+ *    open the requested CSV from SD (default = today's), and stream
+ *    it back over the socket in 128-byte chunks. The client uses this
+ *    to pull data without a USB connection.
+ */
 void loop() {
   unsigned long currentMillis = millis();
 
