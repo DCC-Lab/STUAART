@@ -76,6 +76,16 @@ static char yesterday[16];
  */
 void connectToWifi()
 {
+  // Disconnect any previous attempt and clear the AP config so a fresh
+  // begin() does not collide with an in-flight state machine. Without
+  // this, calling connectToWifi a second time (e.g. after a `wifi set`
+  // command) triggers ESP-IDF :
+  //     E (xxxxx) wifi:sta is connecting, cannot set config
+  // even though the previous attempt has already timed out.
+  WiFi.disconnect(false, true);   // (wifioff=false, eraseap=true)
+  WiFi.mode(WIFI_STA);
+  delay(100);
+
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
@@ -596,6 +606,10 @@ void printHelp() {
  */
 void printInfo() {
   Serial.println(F("--- STUAART status ---"));
+  Serial.print(F("WiFi MAC  : "));
+  Serial.println(WiFi.macAddress());          // always available, even disconnected
+  Serial.print(F("WiFi SSID : "));
+  Serial.println(ssid);
   Serial.print(F("WiFi      : "));
   Serial.println(wifiConnected ? "connected" : "disconnected");
   if (wifiConnected) {
@@ -848,15 +862,20 @@ void executeCommand(const char* cmd) {
 }
 
 /**
- * @brief Non-blocking line accumulator.
+ * @brief Non-blocking line accumulator with local echo.
  *
  * Reads whatever bytes are currently available on `Serial` and appends
- * them to `cmdBuf[]` (capped at `CMD_BUF_SIZE - 1` to leave room for
- * the null terminator). Returns `true` only when a complete line has
- * been received (terminated by `\n` or `\r`). Empty lines are ignored.
+ * them to `cmdBuf[]`. Each printable character is echoed back so the
+ * user sees what they typed even if their terminal does not provide
+ * local echo (Arduino IDE Serial Monitor and many bare miniterm
+ * sessions do not). Backspace (0x08) and DEL (0x7F) erase the last
+ * character both from the buffer and visually on the terminal via
+ * the `\b \b` sequence.
  *
- * Designed to be called once per `loop()` iteration so the firmware
- * can keep sampling the load cells while the user types.
+ * Returns `true` only when a complete line has been received
+ * (terminated by `\n` or `\r`). Empty lines are ignored. Designed to
+ * be called once per `loop()` iteration so the firmware keeps
+ * sampling the load cells while the user types.
  *
  * @return `true` if a full line is now in `cmdBuf` and ready for
  * dispatch ; `false` otherwise.
@@ -865,13 +884,29 @@ bool readSerialLine() {
   while (Serial.available()) {
     char c = Serial.read();
     if (c == '\n' || c == '\r') {
+      // Most terminals send CRLF for Enter ; without this guard the
+      // second char of the pair would trigger an extra echoed newline
+      // AFTER the `> ` prompt, leaving a blank line before the user's
+      // next input. We ignore EOL chars that arrive while the buffer
+      // is empty (= we already processed an Enter).
       if (cmdLen == 0) continue;
+      Serial.write('\n');                 // echo newline once
       cmdBuf[cmdLen] = '\0';
       cmdLen = 0;
       return true;
     }
-    if (cmdLen < CMD_BUF_SIZE - 1) {
-      cmdBuf[cmdLen++] = c;
+    if (c == 0x08 || c == 0x7F) {         // backspace or DEL
+      if (cmdLen > 0) {
+        cmdLen--;
+        Serial.print(F("\b \b"));         // erase one char on terminal
+      }
+      continue;
+    }
+    if (c >= 0x20 && c < 0x7F) {          // printable ASCII
+      if (cmdLen < CMD_BUF_SIZE - 1) {
+        cmdBuf[cmdLen++] = c;
+        Serial.write(c);                  // echo the typed character
+      }
     }
   }
   return false;
@@ -882,16 +917,18 @@ bool readSerialLine() {
  * per `loop()` iteration.
  *
  * If `readSerialLine()` has not yet accumulated a full line, returns
- * immediately. Otherwise echoes the line (`> <cmd>`) and routes :
+ * immediately. Otherwise routes :
  *
  * - if a destructive command is currently staged in `pendingCmd[]`,
  *   the line is interpreted as a `y/n` confirmation : `y` or `Y` runs
  *   it via `runImmediate()`, anything else cancels.
  * - otherwise, the line is dispatched via `executeCommand()`.
+ *
+ * After dispatch, prints a `> ` prompt so the user sees a clear
+ * boundary before their next command.
  */
 void processSerialInput() {
   if (!readSerialLine()) return;
-  Serial.print(F("> ")); Serial.println(cmdBuf);
   if (pendingCmd[0] != '\0') {
     if (cmdBuf[0] == 'y' || cmdBuf[0] == 'Y') {
       runImmediate(pendingCmd);
@@ -902,6 +939,7 @@ void processSerialInput() {
   } else {
     executeCommand(cmdBuf);
   }
+  Serial.print(F("> "));                  // prompt for next command
 }
 
 /**
@@ -974,6 +1012,7 @@ void setup()
   Serial.println();
   Serial.println(F("Type 'help' for the list of serial commands."));
   Serial.println(F("Streaming is OFF; type 'stream on' to see live readings."));
+  Serial.print(F("> "));               // initial prompt
 }
 
 
