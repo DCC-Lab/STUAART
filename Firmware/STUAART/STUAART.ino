@@ -596,6 +596,10 @@ void printHelp() {
  */
 void printInfo() {
   Serial.println(F("--- STUAART status ---"));
+  Serial.print(F("WiFi MAC  : "));
+  Serial.println(WiFi.macAddress());          // always available, even disconnected
+  Serial.print(F("WiFi SSID : "));
+  Serial.println(ssid);
   Serial.print(F("WiFi      : "));
   Serial.println(wifiConnected ? "connected" : "disconnected");
   if (wifiConnected) {
