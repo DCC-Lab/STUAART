@@ -53,29 +53,17 @@
  * }
  * @endcode
  *
- * @section mp_corruption HX711 corruption handling
+ * @section mp_more Further reading
  *
- * The HX711 24-bit ADC can return three values that are physically
- * impossible during normal operation of a strain-gauge load cell :
- *
- * - `-1L` (`0xFFFFFF`) : DOUT was held HIGH during the read,
- *   typically because an interrupt stretched a SCK pulse beyond 60 us
- *   and the chip entered power-down, OR because the DOUT pin shares
- *   a pad with the ESP32 internal flash SPI bus (GPIO 6 to 11).
- * - `-8388608L` (`0x800000`) : 24-bit negative saturation, observed
- *   when the boot tare hits a fully corrupted read on a flash-pin DOUT.
- * - `+8388607L` (`0x7FFFFF`) : 24-bit positive saturation, mirror image.
- *
- * @ref LoadCell::safe_read retries up to three times when any of these
- * appears, and the three averaging methods exclude such samples from
- * the mean rather than averaging garbage in. Callers should treat a
- * returned `-1L` as an invalid reading (returned only if every retry
- * was still corrupt).
- *
- * For the GPIO 9 case, the software workaround is partial : intermediate
- * bit-patterns from the flash bus can still corrupt occasional reads
- * without matching one of the three signatures. The proper fix is a
- * hardware strap that moves the DOUT off the flash pin.
+ * - @ref architecture : full system block diagram, pin mapping, boot
+ *   modes and CSV format.
+ * - @ref corruption : statistics, signatures, retry flow and the
+ *   hardware strap procedure for the GPIO 9 / flash bus issue on the
+ *   STUAART V2 PCB.
+ * - @ref calibration : the linear weight model, calibration workflow,
+ *   persistence diagram and drift considerations.
+ * - @ref serial_commands : the interactive command interface on
+ *   USB Serial.
  *
  * @section references References
  *
