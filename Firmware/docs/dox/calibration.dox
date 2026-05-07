@@ -1,0 +1,175 @@
+/**
+ * @page calibration Calibration and the weight equation
+ *
+ * @section cal_model The linear model
+ *
+ * Each load cell + HX711 chain is modeled as a linear function from
+ * applied mass to raw 24-bit ADC count :
+ *
+ * @verbatim
+ *     raw  =  scale * mass  +  offset
+ * @endverbatim
+ *
+ * Two parameters per cell, both stored on SPIFFS :
+ *
+ * | Parameter | Units              | What it captures                                |
+ * | ---       | ---                | ---                                             |
+ * | `offset`  | counts             | Raw value at zero load (tare reference)         |
+ * | `scale`   | counts / gram      | Sensitivity ; sign depends on wiring polarity   |
+ *
+ * The firmware reverses the equation to derive a weight :
+ *
+ * @verbatim
+ *     mass  =  ( raw - offset )  /  scale
+ * @endverbatim
+ *
+ * implemented in @ref LoadCellController::mass_from_raw. The two
+ * values are independent : a wrong `offset` shifts every reading
+ * uniformly, a wrong `scale` rotates the response curve.
+ *
+ * @section cal_signs Why scales can be negative
+ *
+ * `scale` can be either positive or negative depending on the polarity
+ * of the load cell wiring. The HX711 measures the differential
+ * voltage `V(A+) − V(A-)`. Swapping the A+ and A- leads inverts the
+ * sign of every conversion, which translates to a negative `scale`
+ * in the linear model.
+ *
+ * On STUAART production data we observe :
+ *
+ * - cell 2 scale ≈ −15 700 counts/g
+ * - cell 3 scale ≈ −14 700 counts/g
+ *
+ * Both negative because the cells were wired with the same convention.
+ * Cell 1 in some calibrations shows a positive scale (~+143 000) which
+ * is anomalous and likely the result of a calibration done on a
+ * GPIO-9-corrupted reading.
+ *
+ * @section cal_typical Typical bench calibration
+ *
+ * The interactive flow uses the @ref serial_commands command interface :
+ *
+ * @verbatim
+ *     1. Empty the cells.
+ *     2. > tare      (asks confirmation)   -> reads raw, stores as offset
+ *     3. Place a known reference weight w on cell 1.
+ *     4. > cal 1 100.0                     -> averages 50 reads, computes
+ *                                             scale = (raw - offset) / w
+ *     5. Repeat steps 3-4 for cells 2 and 3.
+ *     6. > save      (asks confirmation)   -> writes both to SPIFFS
+ * @endverbatim
+ *
+ * @dot
+ * digraph cal_flow {
+ *   graph [fontname="Helvetica", fontsize=10, rankdir=TB];
+ *   node  [fontname="Helvetica", fontsize=10, shape=box, style=rounded];
+ *
+ *   empty  [label="Cells empty"];
+ *   tare   [label="tare\n(reads raw, stores offset)"];
+ *   place  [label="Place known weight w grams"];
+ *   cal    [label="cal n w\n(reads avg raw, computes\nscale = (raw - offset) / w)"];
+ *   more   [label="more cells ?", shape=diamond];
+ *   save   [label="save\n(persists to SPIFFS)"];
+ *   done   [label="ready", shape=ellipse];
+ *
+ *   empty -> tare -> place -> cal -> more;
+ *   more  -> place [label="yes"];
+ *   more  -> save  [label="no"];
+ *   save  -> done;
+ * }
+ * @enddot
+ *
+ * @section cal_persist Persistence and boot behaviour
+ *
+ * SPIFFS holds two files per cell :
+ *
+ * - `/offsetN.txt`  : the tare reference for cell N
+ * - `/scaleN.txt`   : the scale coefficient for cell N
+ *
+ * On a fresh boot in **auto mode** (SW1 OFF), the firmware :
+ *
+ * - **re-tares** every cell live by averaging
+ *   `tare_n_readings = 2` raw reads. This compensates slow drift due
+ *   to temperature and creep in the printed platforms, but
+ *   **overwrites** any offset previously persisted to SPIFFS.
+ * - **loads** the scale coefficients from SPIFFS unchanged.
+ *
+ * In **manual cal mode** (SW1 ON), the firmware enters the interactive
+ * sequence above and persists everything to SPIFFS at the end.
+ *
+ * @dot
+ * digraph cal_persistence {
+ *   graph [fontname="Helvetica", fontsize=10, rankdir=LR];
+ *   node  [fontname="Helvetica", fontsize=10, shape=box, style=rounded];
+ *
+ *   subgraph cluster_ram {
+ *     label = "RAM (LoadCellController)";
+ *     style = dashed;
+ *     ram_off [label="OFFSET[N]"];
+ *     ram_scl [label="SCALE[N]"];
+ *   }
+ *
+ *   subgraph cluster_flash {
+ *     label = "SPIFFS (persistent)";
+ *     style = dashed;
+ *     fl_off [label="/offsetN.txt"];
+ *     fl_scl [label="/scaleN.txt"];
+ *   }
+ *
+ *   adc [label="HX711 raw read", shape=cylinder];
+ *
+ *   adc    -> ram_off [label="boot tare\n(auto mode)", color=red, fontcolor=red];
+ *   fl_off -> ram_off [label="manual\nload command", style=dashed];
+ *   ram_off-> fl_off  [label="save command"];
+ *
+ *   fl_scl -> ram_scl [label="boot load\n(both modes)", color=blue, fontcolor=blue];
+ *   adc    -> ram_scl [label="cal command\n(via reference weight)"];
+ *   ram_scl-> fl_scl  [label="save command"];
+ * }
+ * @enddot
+ *
+ * @section cal_manual Manual override
+ *
+ * `set offset <n> <v>` and `set scale <n> <v>` modify only the RAM
+ * state. Use `save` afterwards to persist. Useful when the boot tare
+ * has been polluted by GPIO 9 corruption and you want to force a known
+ * reasonable value :
+ *
+ * @code
+ * > set offset 1 -1212208       # cell 2 was -1212300, similar order
+ * offset cell 1 = -1212208.00
+ * > set scale 1 -15701.53       # match the cell 2 scale
+ * scale cell 1 = -15701.53
+ * > save                         # persist both
+ * @endcode
+ *
+ * @warning In auto mode, the saved offset will be overwritten by the
+ * next boot tare. The manual override is therefore only a "right now"
+ * fix, not a durable one. To make it durable, change the boot path to
+ * read the offset from SPIFFS instead of re-taring (one of the
+ * improvements catalogued in `Firmware/docs/improvements-to-port.md`).
+ *
+ * @section cal_drift Drift considerations
+ *
+ * The 3D-printed scale platforms creep under sustained load, and the
+ * load cells themselves drift with temperature. Production data from
+ * STUAART shows ~0.5 g of drift over a 24-hour mouse experiment.
+ * Strategies in current use :
+ *
+ * - **Re-tare at every boot** (auto mode default) : compensates
+ *   day-over-day drift but assumes the cage is empty when the firmware
+ *   boots, which is not always true in practice.
+ * - **Auto-recalibration during the run** :
+ *   @ref LoadCellController::get_weight_with_auto_recalibration
+ *   re-tares any cell that reads below `mouse_weight / 3` for too long.
+ *   Not currently called from the production sketch but available.
+ * - **Post-processing baseline correction** : subtract a slowly varying
+ *   baseline from the raw stream offline. See `PostProcessingCode/`.
+ *
+ * @section cal_print_stiff Mechanical : platform stiffness
+ *
+ * The CAD note in `CAD/` recommends printing the load cell platforms
+ * with high infill density to maximize stiffness and minimize creep.
+ * A stiffer platform also reduces the effect of mouse position on the
+ * platform on the measured weight.
+ */

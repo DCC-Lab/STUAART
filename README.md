@@ -1,128 +1,99 @@
 # STUAART
 
-Repo of the STUAART project, created July 12 2023, Nathan Bérubé. Valérie Pineau Noël conitnued the editting. 
+Repo of the STUAART project, created July 12 2023 by Nathan Bérubé. Continued by Valérie Pineau Noël and Daniel C. Côté (DCC/M Lab, Université Laval / CERVO).
 
+## Overview
 
+STUAART is an automated weighing system for mice that tracks individual weights over weeks. Each cage holds three independent scales ; each scale is a load cell (Wheatstone bridge) read by an HX711 24-bit amplifier connected via a 2-pin protocol (DOUT, SCK) to a DFRobot FireBeetle ESP32 V1 microcontroller. The microcontroller logs every measurement to a microSD card and exposes a small HTTP server so a host can pull today's CSV over Wi-Fi.
 
-## CAD files on fusion 360:
+## Repository layout
 
-Mireille has access to all the CAD files of the different components. Ask her to be added to the Fusion360 team.
+| Folder | What's there |
+|---|---|
+| **`Firmware/`** | The production firmware : sketch + custom libraries, a docs folder with the Doxygen-generated PDF, and a README that explains compile/upload. **Start here.** |
+| `Loadcell/` | Historical drift / linearity / mouse-experiment material, plus standalone example sketches. See `Loadcell/README.md`. |
+| `KiCAD/` | Three PCB revisions : `Version1/`, `V2/` (currently in production), `V3/` (newer revision, not deployed). |
+| `CAD/` | Mechanical 3D files for the scale platforms (Mireille manages the Fusion360 team for the rest). Print with high infill density to keep stiffness and reduce creep. |
+| `CapacitiveSensor/` | Example sketch and a guide PDF for the capacitive sensor used to detect mouse presence. |
+| `CageServer/` | Code for a host-side server (separate from the microcontroller HTTP server). |
+| `PostProcessingCode/` | Python scripts used after data collection. |
+| `Presentations/` | Talk slides on the project. |
 
-There are also two .stl [files](CAD) of the load cell platforms as example for 3D printing. It is important to print with a high infill density to maximize the stifness of the platforms to reduce creep.
+## Getting started with the firmware
 
+See [Firmware/README.md](Firmware/README.md) for the full procedure. Summary :
 
+1. Install Arduino IDE 2.x or `arduino-cli`.
+2. Add the Espressif boards URL in Preferences and install the `esp32` core (board package).
+3. Library Manager : install **HX711 by Bogde**, **RTClib by Adafruit**, and **ArduinoJson by bblanchon**. Tested versions are listed in `Firmware/README.md`.
+4. Open `Firmware/STUAART/STUAART.ino`. The custom libraries (`LoadCell.{h,cpp}` and `LoadCellController.{h,cpp}`) sit beside the `.ino` and compile automatically as part of the sketch — no copying to `~/Documents/Arduino/libraries/`.
+5. Pick board `FireBeetle-ESP32` (`esp32:esp32:firebeetle32`), pick the USB serial port, then Verify and Upload.
 
-## Arduino LoadCell library and LoadCellController library:
+If `arduino-cli` complains during upload with *Unable to verify flash chip connection*, the default upload speed of 921600 baud is too fast for the CH340 USB-serial chip on the FireBeetle. Force 115200 :
 
-### Documentation
-They are based on the following library that can be found [here](https://github.com/bogde/HX711)
-
-There is a pdf of the documentation in the repo: [Documentation.pdf](Loadcell/ArduinoLibraries/Documentation.pdf)
-
-This pdf was generated from the latex folder with Doxygen: [latex](Loadcell/ArduinoLibraries/latex)
-
-
-There is also an html file that can be opened on your web browser to have a web page of the documentation
-Copy the repo and then open the [index.html](Loadcell/ArduinoLibraries/html/index.html) file.
-
-### How to install the libraries
-
-Copy the repo on your computer and indentify the [LoadCellLibrary](Loadcell/ArduinoLibraries/LoadCellLibrary) and the [LoadCellControllerLibrary](Loadcell/ArduinoLibraries/LoadCellControllerLibrary). Move these folders to your Arduino/libraries folder on your computer.
-
-
-You can now use the libraries in your skectch by including them this way.
-```c++
-#include "LoadCell.h"
-#include "LoadCellController.h"
+```sh
+arduino-cli upload --fqbn esp32:esp32:firebeetle32 \
+  -p /dev/cu.usbserial-XX --upload-property upload.speed=115200 \
+  Firmware/STUAART
 ```
 
-### Sketch examples
-Many useful sketches are saved in this folder. Find it in Loadcell > ArduinoLibraries > SketchExamples. 
+`SPIFFS Mount Failed` on a brand-new FireBeetle : run `Loadcell/SketchExamples/FormatSPIFFS/FormatSPIFFS.ino` once on the new board.
 
+## A minimal load cell read
 
-## Load cell drift test
-Many tests were done to characterize the drift of a load cell. All the Arduino [sketches](Loadcell/LoadcellDriftTest/ArduinoSketch) used for different tests are listed by date in the repo. The small data files are also [here](Loadcell/LoadcellDriftTest/Data).
-
-### What to do when I have these errors? 
-
-#### ```A fatal error occurred: Unable to verify flash chip connection (Serial data stream stopped: Possible serial noise or corruption.).```
-
-The upload speed is too fast. Go in _Tools_ > _Upload Speed_ and change it to a slower speed. 
-
-#### ```SPIFFS Mount Failed```
-
-This happens often when you are using a new Firebeetle ESP-32. Run the script SPIFFS.ino once on the new board. 
-
-## Lab notes:
-Lot of tests were done to characterize the drift behavior of a loadcell. Every test is detailled in the following document along with
-with the main conclusions about it.
-
-Document: [Lab notes](https://www.overleaf.com/read/vvxvjbdjmgmg)
-
-
-## Capacitive sensor:
-An Arduino sketch [example](CapacitiveSensor/CapacitiveSensorSketchExample/CapacitiveSensorSketchExample.ino) is available to get started
-
-A short [guide](CapacitiveSensor/GuideCapacitiveSensorWithArduino.pdf) is also available to understand everything about capacitive sensors. It also contains all to links to the Arduino library for installation and the documentation.
-
-## Code for a quick start with one loadcell
-```
+```cpp
 #include "LoadCell.h"
 #include "LoadCellController.h"
-#include <SPI.h>
 
-LoadCell loadcell; // name the loadcell
-LoadCellController loadcell_controller; // create the loadcell controller, one per cage with many loadcells 
+LoadCell loadcell;
+LoadCellController controller;
 
 void setup() {
-  // 1. Set the serial communication.
-  // 2. Add the loadcells individually.
-  // 3. Easy start 
-  // possibility to saves variables on the EEPROM. The loadcell #1 always has the slot #1 on the EEPROM. 
-
-Serial.begin(9600);
-  loadcell_controller.add_loadcell(loadcell); // add individual loadcells. One add_loadcell and easy_start per loadcell
-  soleil_controller.easy_start_with_params(
-                                    1,         // loadcell_number
-                                    8,         // dout pin
-                                    9,         // sck pin
-                                    true,      // calibrate offset
-                                    true,      // calibrate scale
-                                    false,     // read offset to memory
-                                    false,     // read scale to memory
-                                    true,      // save offset to memory
-                                    true,      // save scale to memory
-                                    0,         // tare offset manually, no specification if 0
-                                    0,         // scale coeff manually, no specification if 0
-                                    128        // gain, don't change! 
-                                    );                                   
+  Serial.begin(115200);
+  controller.add_loadcell(loadcell);
+  controller.easy_start_with_params(
+      1,        // loadcell number
+      27,       // DOUT pin (avoid GPIO 6-11, those are the flash bus)
+      17,       // SCK pin
+      true,     // calibrate offset
+      true,     // calibrate scale
+      false,    // read offset from memory
+      false,    // read scale from memory
+      true,     // save offset to memory
+      true,     // save scale to memory
+      0,        // manual tare offset (0 = not specified)
+      0,        // manual scale coeff (0 = not specified)
+      128       // gain, do not change
+  );
 }
 
 void loop() {
-  loadcell_controller.wait_ready_timeout(1, 1000); // reads if something is measured by the loadcell. If not, takes a measure every 1 second (1000 ms). 1 = loadcell number
-  float reading = loadcell_controller.get_weight(1); // 1 = loadcell number
+  controller.wait_ready_timeout(1, 1000);
+  float reading = controller.get_weight(1);
   Serial.println(reading);
 }
 ```
 
-## How to generate documentation with Doxygen
+## Known hardware issue : GPIO 9 / flash conflict on PCB V2
 
-First of all, you need to download Doxygen and LaTex on your computer.
+On the production PCB (V2), cell 1 DOUT is routed to FireBeetle pin **D5 (GPIO 9)**. On the ESP32-D0WD chip used in this FireBeetle revision, GPIO 9 is bonded to the external flash SPI bus (data line SD2). The flash controller drives this line continuously while code executes, so the HX711 output and the flash bus collide on the same wire — cell 1 readings on V2 are intermittently corrupted (most of the time the chip returns 0xFFFFFF, which after offset scaling shows up as a constant ~−160 g spike).
 
-After that, you need to open a terminal where your code is stored to generate a Doxyfile. Run the following command
-```console
-doxygen -g
-```
-Next, you can open the generated Doxyfile in your folder to change the RECURSIVE parameter. Set it to YES. This way dpxygen will search are code files that are inside the current repository to generate your documentation.
-Alternatively, you can also specify sub-folders path at the INPUT parameter in the Doxyfile.
+The firmware has a defensive patch in `LoadCell::safe_read()` that detects and retries the most common corruption signatures (raw == −1, 0x800000, 0x7FFFFF), but software cannot fully compensate for the bus contention. **The proper fix is mechanical** : lift D5 from the FireBeetle socket (or cut the trace) and add a strap from the U1-DAT pad to a free GPIO. **D2 (GPIO 25)** and **D3 (GPIO 26)** are unconnected on PCB V2 and ideal for this rework. Then change `controller.add_loadcell(loadCell1, 9, 17)` to `controller.add_loadcell(loadCell1, 25, 17)` (or `26`).
 
-Now, with the Doxyfile, you can generate html and latex folders with the following command
-```console
-doxygen Doxyfile
+## Lab notes
+
+Drift, linearity and outlier characterization are documented in the lab-notes Overleaf document : <https://www.overleaf.com/read/vvxvjbdjmgmg>.
+
+## Documentation
+
+The Doxygen-generated PDF for `LoadCell` and `LoadCellController` is at [`Firmware/docs/LoadCell-API-V2.02.pdf`](Firmware/docs/LoadCell-API-V2.02.pdf).
+
+To regenerate it from current sources :
+
+```sh
+cd Firmware/STUAART
+doxygen -g                                  # creates a Doxyfile
+# edit Doxyfile : set RECURSIVE = YES
+doxygen Doxyfile                             # produces html/ and latex/
+cd latex && pdflatex refman.tex              # produces refman.pdf
 ```
-You will see the html and latex folders appear in the folder where the Doxyfile is. If you open the index.html file in the html folder, you'll be accessible to see the documentation on your web browser.
-You can also generate a pdf of the documentation using the latex folder. Open a new terminal in this folder and run the following command
-```console
-pdflatex refman.tex
-```
-This will generate a file named refman.pdf in the latex folder, it is the documentation. You can rename and move this file.
