@@ -63,18 +63,19 @@ void LoadCellController::add_loadcell(
 // but cannot cure an intermediate bit-pattern that just looks plausible.
 void LoadCellController::tare_all_loadcells(bool wait_for_user)
 {
-    bool _resume;
+    // Initialise _resume from wait_for_user directly so the compiler
+    // can prove the variable is always written before read. The previous
+    // `bool _resume; if (x == true) ... else if (x == false) ...` form
+    // triggered an "uninitialised use" warning because the compiler
+    // cannot exhaustively prove a bool is either true or false through
+    // an else-if chain (it is, but the proof is not local).
+    bool _resume = !wait_for_user;
     Serial.println(F("Taring of all loadcells"));
 
-    if (wait_for_user == true)
+    if (wait_for_user)
     {
         Serial.println(F("Remove any load applied to the loadcell."));
         Serial.println(F("Send 't' from serial monitor when ready."));
-        _resume = false;
-    }
-    else if (wait_for_user == false)
-    {
-        _resume = true;
     }
 
     while (_resume == false)
@@ -306,7 +307,13 @@ void LoadCellController::easy_start_with_questions(
     byte pd_sck,
     byte gain)
 {
-    // not implemented
+    // Stub : flagged as @todo in the header. Cast each parameter to
+    // void so the compiler does not warn about unused arguments while
+    // we keep the prototype for a future implementation.
+    (void) loadcell_num;
+    (void) dout;
+    (void) pd_sck;
+    (void) gain;
 }
 
 void LoadCellController::easy_handle_exceptions(
@@ -1229,8 +1236,11 @@ float LoadCellController::get_weight_with_auto_recalibration(byte loadcell_num, 
     bool tare = true;
     float weight;
 
-    // average tare_n_readings for mesurements of new tare offset
-    for (i; i < loadcell_ptr->get_tare_n_readings(); i++) 
+    // average tare_n_readings for mesurements of new tare offset.
+    // (i was initialised to 0 a few lines above ; the empty init
+    // expression here is on purpose. The previous `i;` form was an
+    // unused expression and triggered a warning.)
+    for (; i < loadcell_ptr->get_tare_n_readings(); i++)
     {
     reading = loadcell_ptr->read();
 
