@@ -59,10 +59,19 @@ bool bufferFull = false;
 static char today[16];
 static char yesterday[16];
 
-/*
-This function tries to connect to the wifi using the SSID and the PASSWORD.
-Retries every 500 milliseconds until it succeeds and then prints the local IP.
-*/
+/**
+ * @brief Try to connect to WiFi using the hardcoded SSID and PASSWORD.
+ *
+ * Retries every 500 ms until the chip reports `WL_CONNECTED` or the
+ * configured `WIFI_CONNECT_TIMEOUT_MS` (15 s) elapses, whichever comes
+ * first. On success, sets the global `wifiConnected = true`, starts the
+ * HTTP `server`, and blinks `pinLED2` three times. On timeout, sets
+ * `wifiConnected = false` and continues without network ; the firmware
+ * keeps logging to SD and (if enabled) Serial.
+ *
+ * Called once from @ref setup and again on a 1-hour interval from
+ * @ref loop, so a transient outage recovers automatically.
+ */
 void connectToWifi()
 {
   Serial.print("Connecting to ");
@@ -93,6 +102,17 @@ void connectToWifi()
 
 
 
+/**
+ * @brief Fetch the current local time from timeapi.io over HTTPS.
+ *
+ * Issues a GET to `https://timeapi.io/api/Time/current/zone?timeZone=America/Toronto`,
+ * parses the JSON response with ArduinoJson, and reads the `datetime`
+ * field. Currently the result is not pushed to the RTC (the JSON is
+ * extracted but the assignment is commented out) ; this function is a
+ * stub for future synchronization.
+ *
+ * Requires WiFi to be connected. Logs an error otherwise.
+ */
 void getTimeHTTP() {
   if ((WiFi.status() == WL_CONNECTED)) {
     HTTPClient http;
@@ -128,6 +148,18 @@ void getTimeHTTP() {
 
 
 
+/**
+ * @brief Initialize the PCF8523 real-time clock and seed it with the
+ * compile-time date and time.
+ *
+ * Halts the firmware in an infinite loop if `rtc.begin()` fails (no
+ * RTC found on the I2C bus). On success, calls `rtc.adjust()` with
+ * the `__DATE__`/`__TIME__` macros so the clock is at least roughly
+ * correct after a flash, and `rtc.start()` to clear any STOP bit.
+ *
+ * The compile-time seed is a coarse fallback ; for accurate time use
+ * the `time YYYY-MM-DD HH:MM:SS` serial command after boot.
+ */
 void startRealTimeClock(){
   // Wait for serial port to connect. Needed for native USB port only
   #ifndef ESP8266
@@ -146,9 +178,14 @@ void startRealTimeClock(){
   rtc.start(); // Ensure the RTC is running (clears the STOP bit if necessary)
 }
 
-/*
-Gets through the time server today's date.
-*/
+/**
+ * @brief Format today's date as a CSV filename in the global `today[]`
+ * buffer, e.g. `/2026.05.06.csv`.
+ *
+ * Reads the current time from the PCF8523 RTC and writes the formatted
+ * string into `today[]` via `snprintf`. Used by @ref saveData to pick
+ * the destination file on the SD card.
+ */
 void getTodaysDate(){
   DateTime now = rtc.now(); // Get the current date and time from the RTC
   int year = now.year();
@@ -159,9 +196,13 @@ void getTodaysDate(){
 } 
 
 
-/*
-Gets through the time server yesterday's date.
-*/
+/**
+ * @brief Format yesterday's date as a CSV filename in the global
+ * `today[]` buffer (sic ; the function reuses the same buffer).
+ *
+ * @warning Naive implementation : subtracts 1 from `now.day()` without
+ * handling month / year roll-over. Fails on the first of any month.
+ */
 void getYesterdaysDate(){
   DateTime now = rtc.now(); // Get the current date and time from the RTC
   int year = now.year();
@@ -172,10 +213,19 @@ void getYesterdaysDate(){
 }
 
 
-/*
-Writes a file in the SD card at the specified path. Puts in the specified message.
-Writes in the serial consol error if it doesn't succeed.
-*/
+/**
+ * @brief Buffer one CSV line, flush to SD when the in-memory ring fills.
+ *
+ * The firmware accumulates up to `BUFFER_SIZE` (1000) lines in RAM
+ * via @ref addToBuffer. When the ring becomes full, this function
+ * opens the daily file, calls @ref flushBufferToSD to drain the ring,
+ * appends the new line, closes the file, and blinks `pinLED1`. This
+ * batched write avoids opening the SD card on every sample at 80 Hz.
+ *
+ * @param path Destination filename on the SD card (e.g. `/2026.05.06.csv`).
+ * @param message Null-terminated CSV line, including trailing `\n`.
+ * @param mode `FILE_WRITE` (overwrite) or `FILE_APPEND`.
+ */
 void writeFile(const char *path, const char *message, const char *mode){
   if (bufferFull == false){
     addToBuffer(message);
@@ -207,6 +257,18 @@ void writeFile(const char *path, const char *message, const char *mode){
 }
 }
 
+/**
+ * @brief Create or truncate a file on the SD card and write a single
+ * line to it.
+ *
+ * Used by @ref writeFileHeader to drop the CSV header at the top of a
+ * new daily file. No-op if `sdInitialized` is `false`.
+ *
+ * @param path Destination filename on the SD card.
+ * @param message Null-terminated text written via `myFile.println()`
+ * (a `\n` is appended automatically).
+ * @param mode Typically `FILE_WRITE` (truncates).
+ */
 void createFile(const char *path, const char *message, const char *mode){
   if (!sdInitialized) return;
   myFile = SD.open(path, mode);
@@ -219,6 +281,17 @@ void createFile(const char *path, const char *message, const char *mode){
 }
 
 
+/**
+ * @brief Append a CSV line to the in-RAM ring buffer.
+ *
+ * Copies up to `LINE_LENGTH - 1` characters from `message` into
+ * `buffer[head]`, ensures null termination, and advances `head` modulo
+ * `BUFFER_SIZE`. When `head` catches up to `tail`, sets the
+ * `bufferFull` flag so @ref writeFile knows to flush.
+ *
+ * @param message Null-terminated CSV line (truncated if longer than
+ * `LINE_LENGTH - 1` bytes).
+ */
 void addToBuffer(const char *message){
   strncpy(buffer[head], message, LINE_LENGTH - 1);
   buffer[head][LINE_LENGTH - 1] = '\0';  // ensure null-termination
@@ -232,6 +305,16 @@ void addToBuffer(const char *message){
 }
 
 
+/**
+ * @brief Drain the in-RAM ring buffer to the currently open SD file.
+ *
+ * Called from @ref writeFile while `myFile` is open. Iterates from
+ * `tail` to `head` and writes each buffered line via `myFile.print()`.
+ * Resets the `bufferFull` flag and appends a sentinel marker line
+ * `--, --, --, --` so a downstream reader can spot a flush boundary.
+ *
+ * @pre `myFile` must already be open in the caller.
+ */
 void flushBufferToSD(){
   while (head != tail || bufferFull) {
     myFile.print(buffer[tail]);
@@ -243,17 +326,40 @@ void flushBufferToSD(){
 
 
 
-/*
-Writes a clean file header for csv file.
-*/
+/**
+ * @brief Write the 7-column CSV header at the top of a new daily file.
+ *
+ * Header :
+ * `time (ms), reading 1, reading 2, reading 3, raw 1, raw 2, raw 3`
+ *
+ * The `reading` wording is preserved so existing post-processing scripts
+ * that match on those names keep working ; the three `raw` columns are
+ * the new signed 24-bit HX711 counts.
+ *
+ * @param file_name Destination CSV path on the SD card.
+ */
 void writeFileHeader(char *file_name) {
   createFile(file_name, "time (ms), reading 1, reading 2, reading 3, raw 1, raw 2, raw 3", FILE_WRITE);
 }
 
 
-/*
-This method will be where we save the real data. For now it creates fake data.
-*/
+/**
+ * @brief Sample the 3 load cells once and persist the row.
+ *
+ * Reads the raw 24-bit count from each cell via `read_raw_average()`
+ * and converts each one to grams via `mass_from_raw()`, so the weight
+ * and raw on the same line come from the *same* HX711 conversion (no
+ * double read). Builds a 7-field CSV line :
+ *
+ * `time(ms), w1, w2, w3, raw1, raw2, raw3\n`
+ *
+ * If the SD card is initialised, the line is appended to today's file
+ * (creating it with a header if needed). If `streamOn` is true, the
+ * same line is mirrored on Serial.
+ *
+ * Called every iteration of @ref loop ; throughput is bounded by the
+ * HX711 conversion rate (~80 Hz on STUAART hardware).
+ */
 void saveData()
 {
   // Read raws once and derive weights from them, so the two values on the
@@ -285,20 +391,135 @@ void saveData()
 
 
 
-// ============================================================================
-// Serial command interface
-//
-// CSV streaming on Serial is OFF by default. After boot, type 'help' to see
-// the list of commands. Destructive commands (tare, save, reset) require a
-// y/n confirmation on the next line.
-// ============================================================================
+/**
+ * @page serial_commands STUAART Serial Command Interface
+ *
+ * @section serial_overview Overview
+ *
+ * The STUAART firmware exposes an interactive command interface on the
+ * USB serial port at 115200 baud. After boot the firmware prints a hint
+ * pointing at `help` and waits for input. CSV streaming on Serial is
+ * **OFF by default** ; type `stream on` to start it.
+ *
+ * The line accumulator is non-blocking : the firmware keeps reading the
+ * load cells at 80 Hz while you type. Each command is terminated by `\n`
+ * or `\r` (Enter). A typed line is echoed back as `> <cmd>` for
+ * confirmation.
+ *
+ * @section destructive Destructive command confirmation
+ *
+ * Commands that modify state (tare, save, reset) ask a `y/n` confirmation
+ * on the next line :
+ *
+ * @code
+ * > tare
+ * confirm 'tare' ? (y/n)
+ * > y
+ * taring all cells
+ * offset cell 1 = -1212208.00
+ * ...
+ * @endcode
+ *
+ * Any reply other than `y` or `Y` cancels.
+ *
+ * @section commands Command reference
+ *
+ * | Command                       | Confirm? | Effect                                                                       |
+ * | ---                           | ---      | ---                                                                          |
+ * | `help`, `?`                   | no       | List all commands                                                            |
+ * | `info`                        | no       | Show WiFi / SD / RTC / streaming / calibration state                         |
+ * | `read`                        | no       | One immediate read : weights and raws of all 3 cells                         |
+ * | `raw`                         | no       | One immediate read : raw 24-bit signed counts only                           |
+ * | `stats`                       | no       | Per-cell HX711 read counts and corruption rates                              |
+ * | `reset stats`                 | no       | Zero the corruption counters on all 3 cells                                  |
+ * | `stream on`                   | no       | Start CSV streaming on Serial (`time, w1, w2, w3, raw1, raw2, raw3`)         |
+ * | `stream off`, `quiet`         | no       | Stop streaming                                                               |
+ * | `tare`                        | yes      | Re-tare all 3 cells (reads current raw as new zero)                          |
+ * | `tare <n>`                    | yes      | Re-tare cell `n` (1, 2 or 3) only                                            |
+ * | `cal <n> <w>`                 | no       | Place reference weight `w` grams on cell `n`, recompute its scale            |
+ * | `set offset <n> <v>`          | no       | Force the offset of cell `n` to `v` (RAM only ; use `save` to persist)       |
+ * | `set scale <n> <v>`           | no       | Force the scale of cell `n` to `v` (RAM only ; `v` must be non-zero)         |
+ * | `save`                        | yes      | Write all offsets and scales to SPIFFS                                       |
+ * | `load`                        | no       | Reload all offsets and scales from SPIFFS                                    |
+ * | `wifi`                        | no       | Retry WiFi connection (15 s timeout)                                         |
+ * | `time YYYY-MM-DD HH:MM:SS`    | no       | Set the PCF8523 RTC                                                          |
+ * | `reset`                       | yes      | Soft reboot the firmware                                                     |
+ *
+ * @section workflow Typical bench workflow
+ *
+ * Calibrate cell 1 with a 100 g reference weight :
+ *
+ * @code
+ * > tare
+ * confirm 'tare' ? (y/n)
+ * > y                          # cells must be empty at this point
+ * taring all cells
+ * offset cell 1 = -1212208.00
+ *
+ *                              # place 100 g on cell 1
+ * > cal 1 100.0
+ * scale cell 1 = -15701.53
+ *
+ * > save
+ * confirm 'save' ? (y/n)
+ * > y
+ * calibration saved to SPIFFS
+ * @endcode
+ *
+ * Observe live readings :
+ *
+ * @code
+ * > stream on
+ * streaming ON
+ * 16365,11.22,0.05,-0.02,-2475471,-1212268,-1213545
+ * 16372,11.21,0.09, 0.04,-2476234,-1212156,-1213402
+ * ...
+ * @endcode
+ *
+ * Reset cell 1 to a known offset and scale (e.g. when boot tare was
+ * polluted by GPIO 9 corruption) :
+ *
+ * @code
+ * > set offset 1 -1212208
+ * offset cell 1 = -1212208.00
+ * > set scale 1 -15701.53
+ * scale cell 1 = -15701.53
+ * > save
+ * @endcode
+ *
+ * @section impl Implementation notes
+ *
+ * - `readSerialLine()` accumulates bytes into a 64-byte buffer
+ *   `cmdBuf` and returns `true` only when a complete line is received.
+ *   Called once per `loop()` iteration.
+ * - `executeCommand()` dispatches a finished line. Non-destructive
+ *   commands run inline ; destructive ones go through `confirmAndRun()`
+ *   which stores the request in `pendingCmd` and prompts for `y/n`.
+ * - `runImmediate()` executes a (possibly confirmed) command. Used both
+ *   for direct non-destructive commands and after `y` confirmation.
+ * - `processSerialInput()` is the main entry point called from `loop()`.
+ *
+ * @section notes Notes on persistence
+ *
+ * `set offset` and `set scale` modify only the RAM state. Use `save` to
+ * persist the values to SPIFFS. Note that the firmware boot path in auto
+ * mode currently re-tares (overwriting any saved offset on the next
+ * reboot). The scale survives. Future improvement : read offset from
+ * SPIFFS at boot if `controller` has a saved value.
+ */
 
+/**
+ * @brief Print the list of supported serial commands and a one-line
+ * description of each.
+ */
 void printHelp() {
   Serial.println(F("--- STUAART serial commands ---"));
   Serial.println(F("help, ?         this list"));
   Serial.println(F("info            WiFi, SD, RTC, calibration state"));
   Serial.println(F("read            one immediate read (weights + raws) of all 3 cells"));
   Serial.println(F("raw             one immediate read of raw counts only"));
+  Serial.println(F("stats           per-cell HX711 read counts and corruption rates"));
+  Serial.println(F("reset stats     zero the corruption counters"));
   Serial.println(F("stream on       start CSV streaming on Serial"));
   Serial.println(F("stream off      stop streaming (alias: quiet)"));
   Serial.println(F("tare            re-tare all 3 cells (asks confirmation)"));
@@ -313,6 +534,11 @@ void printHelp() {
   Serial.println(F("reset           soft reboot (asks confirmation)"));
 }
 
+/**
+ * @brief Print a status summary on Serial : WiFi state and IP, SD card
+ * presence, streaming state, mode-pin state, and per-cell offsets and
+ * scales.
+ */
 void printInfo() {
   Serial.println(F("--- STUAART status ---"));
   Serial.print(F("WiFi      : "));
@@ -334,6 +560,13 @@ void printInfo() {
   }
 }
 
+/**
+ * @brief Read all 3 cells once and print both the calibrated weights
+ * (in grams) and the underlying raw 24-bit signed counts. The weight
+ * and raw on the same line come from the same HX711 conversion, so
+ * the user can verify the calibration formula directly :
+ * `weight = (raw - offset) / scale`.
+ */
 void readOnce() {
   long r1 = controller.read_raw_average(1);
   long r2 = controller.read_raw_average(2);
@@ -348,6 +581,54 @@ void readOnce() {
   Serial.println(r3);
 }
 
+/**
+ * @brief Print per-cell HX711 read statistics.
+ *
+ * For each of the three cells, prints :
+ *   - the lifetime count of HX711 conversions consumed by `safe_read`
+ *   - the per-signature corruption counts (`0xFFFFFF`, `0x800000`,
+ *     `0x7FFFFF`)
+ *   - the total corruption count and the rate as a percentage
+ *
+ * The counters accumulate from the firmware boot until either a soft
+ * reset or a `reset stats` command. Use them to compare cells before
+ * and after a hardware change (e.g. before / after the GPIO 9 strap).
+ */
+void printStats() {
+  LoadCell* cells[3] = { &loadCell1, &loadCell2, &loadCell3 };
+  Serial.println(F("--- HX711 read statistics ---"));
+  for (byte i = 0; i < 3; i++) {
+    LoadCell* c = cells[i];
+    unsigned long n = c->total_reads;
+    unsigned long bad = c->total_corrupted();
+    float rate = n > 0 ? (100.0f * bad / n) : 0.0f;
+    Serial.print(F("cell ")); Serial.print(i + 1);
+    Serial.print(F(" : reads=")); Serial.print(n);
+    Serial.print(F(", 0xFFFFFF=")); Serial.print(c->corrupted_neg1);
+    Serial.print(F(", 0x800000=")); Serial.print(c->corrupted_negsat);
+    Serial.print(F(", 0x7FFFFF=")); Serial.print(c->corrupted_possat);
+    Serial.print(F(", total_bad=")); Serial.print(bad);
+    Serial.print(F(" ("));          Serial.print(rate, 4);
+    Serial.println(F(" %)"));
+  }
+}
+
+/**
+ * @brief Zero the four corruption counters on each cell.
+ */
+void resetStats() {
+  loadCell1.reset_stats();
+  loadCell2.reset_stats();
+  loadCell3.reset_stats();
+  Serial.println(F("statistics reset"));
+}
+
+/**
+ * @brief Read all 3 cells once and print only the raw 24-bit signed
+ * counts (no calibration applied). Useful for diagnosing HX711
+ * corruption signatures by eye : `0xFFFFFF` (-1) means the read was
+ * corrupted by flash bus contention or by an interrupt.
+ */
 void readRaw() {
   Serial.print(F("raws    : "));
   Serial.print(controller.read_raw_average(1)); Serial.print(F(", "));
@@ -355,8 +636,19 @@ void readRaw() {
   Serial.println(controller.read_raw_average(3));
 }
 
-// Execute a command without further prompting. Used both for direct
-// non-destructive commands and after a confirmed destructive one.
+/**
+ * @brief Execute a command immediately, without further prompting.
+ *
+ * Called both for direct non-destructive commands (cal, set offset,
+ * set scale, load, time) and from `processSerialInput()` once the
+ * user has confirmed a destructive command with `y`.
+ *
+ * Recognised commands : `tare [n]`, `cal <n> <w>`, `set offset <n> <v>`,
+ * `set scale <n> <v>`, `save`, `load`, `time YYYY-MM-DD HH:MM:SS`,
+ * `reset`. See @ref serial_commands for the user-facing reference.
+ *
+ * @param cmd Null-terminated command line, without trailing newline.
+ */
 void runImmediate(const char* cmd) {
   if (strncmp(cmd, "tare", 4) == 0) {
     int n = 0;
@@ -430,19 +722,42 @@ void runImmediate(const char* cmd) {
   }
 }
 
+/**
+ * @brief Stage a destructive command and prompt for `y/n` confirmation.
+ *
+ * Stores the command in the global `pendingCmd[]` buffer and prints
+ * the prompt. The next line received by `processSerialInput()` is
+ * interpreted as the confirmation : `y` or `Y` runs the staged command
+ * via `runImmediate()`, anything else cancels.
+ *
+ * @param cmd The command to stage. Copied into `pendingCmd[]`.
+ */
 void confirmAndRun(const char* cmd) {
   strncpy(pendingCmd, cmd, CMD_BUF_SIZE - 1);
   pendingCmd[CMD_BUF_SIZE - 1] = '\0';
   Serial.print(F("confirm '")); Serial.print(cmd); Serial.println(F("' ? (y/n)"));
 }
 
-// Dispatch a finished command line. Pure routing : non-destructive commands
-// run immediately ; destructive ones go through confirmAndRun().
+/**
+ * @brief Dispatch a finished command line.
+ *
+ * Pure routing : recognises the leading token and either runs the
+ * command directly via `runImmediate()` (or inline for the
+ * non-state-changing commands `help`, `info`, `read`, `raw`,
+ * `stream on/off`, `wifi`) or stages it for confirmation via
+ * `confirmAndRun()` (`tare`, `save`, `reset`).
+ *
+ * Unknown commands trigger an error message pointing at `help`.
+ *
+ * @param cmd Null-terminated command line, without trailing newline.
+ */
 void executeCommand(const char* cmd) {
   if (strcmp(cmd, "help") == 0 || strcmp(cmd, "?") == 0)              printHelp();
   else if (strcmp(cmd, "info") == 0)                                   printInfo();
   else if (strcmp(cmd, "read") == 0)                                   readOnce();
   else if (strcmp(cmd, "raw") == 0)                                    readRaw();
+  else if (strcmp(cmd, "stats") == 0)                                  printStats();
+  else if (strcmp(cmd, "reset stats") == 0)                            resetStats();
   else if (strcmp(cmd, "stream on") == 0)                              { streamOn = true;  Serial.println(F("streaming ON")); }
   else if (strcmp(cmd, "stream off") == 0 || strcmp(cmd, "quiet") == 0) { streamOn = false; Serial.println(F("streaming OFF")); }
   else if (strncmp(cmd, "cal ", 4) == 0)                               runImmediate(cmd);
@@ -460,8 +775,20 @@ void executeCommand(const char* cmd) {
   }
 }
 
-// Non-blocking : read available bytes, return true only when a full line
-// (terminated by \n or \r) has been accumulated in cmdBuf.
+/**
+ * @brief Non-blocking line accumulator.
+ *
+ * Reads whatever bytes are currently available on `Serial` and appends
+ * them to `cmdBuf[]` (capped at `CMD_BUF_SIZE - 1` to leave room for
+ * the null terminator). Returns `true` only when a complete line has
+ * been received (terminated by `\n` or `\r`). Empty lines are ignored.
+ *
+ * Designed to be called once per `loop()` iteration so the firmware
+ * can keep sampling the load cells while the user types.
+ *
+ * @return `true` if a full line is now in `cmdBuf` and ready for
+ * dispatch ; `false` otherwise.
+ */
 bool readSerialLine() {
   while (Serial.available()) {
     char c = Serial.read();
@@ -478,6 +805,18 @@ bool readSerialLine() {
   return false;
 }
 
+/**
+ * @brief Main entry point of the serial command interface, called once
+ * per `loop()` iteration.
+ *
+ * If `readSerialLine()` has not yet accumulated a full line, returns
+ * immediately. Otherwise echoes the line (`> <cmd>`) and routes :
+ *
+ * - if a destructive command is currently staged in `pendingCmd[]`,
+ *   the line is interpreted as a `y/n` confirmation : `y` or `Y` runs
+ *   it via `runImmediate()`, anything else cancels.
+ * - otherwise, the line is dispatched via `executeCommand()`.
+ */
 void processSerialInput() {
   if (!readSerialLine()) return;
   Serial.print(F("> ")); Serial.println(cmdBuf);
@@ -493,9 +832,31 @@ void processSerialInput() {
   }
 }
 
-/*
-Initializes console, connects to the wifi, the local time and creates the initial test data.
-*/
+/**
+ * @brief Arduino entry point : initialize peripherals and choose mode.
+ *
+ * Order :
+ * 1. Open Serial at 115200 baud.
+ * 2. Configure the four LED pins as outputs.
+ * 3. Initialize the SD card (`SD.begin`) once. Set `sdInitialized` to
+ *    track success ; subsequent SD operations no-op gracefully if it
+ *    failed.
+ * 4. Try WiFi via @ref connectToWifi (15 s timeout).
+ * 5. Configure the mode pin (`MODE_PIN`, GPIO 13) as `INPUT_PULLDOWN`
+ *    and register the three load cells with the controller.
+ * 6. Branch on `MODE_PIN` :
+ *    - LOW (SW1 OFF) : auto mode. Tare all cells live (compensates
+ *      drift) and load scale coefficients from SPIFFS.
+ *    - HIGH (SW1 ON) : manual calibration mode. Interactive tare and
+ *      scale calibration via the legacy LoadCellController prompts on
+ *      Serial.
+ * 7. Start the PCF8523 RTC.
+ * 8. Print a hint pointing at `help` and exit to @ref loop.
+ *
+ * @note In auto mode, the boot tare overwrites any offset previously
+ * persisted to SPIFFS. To force a known offset, use
+ * `set offset <n> <v>` then `save` *after* boot.
+ */
 void setup()
 {
   Serial.begin(115200);
@@ -543,11 +904,26 @@ void setup()
 }
 
 
-/*
-Loops, waiting for a client connection.
-When there is a client, reads the connection data, then sends either yesterday's data or today's.
-Sends today's if the REFRESH_CODE is present in the connection data.
-*/
+/**
+ * @brief Arduino main loop : sample the cells and service the IO interfaces.
+ *
+ * Each iteration runs four steps :
+ *
+ * 1. **Serial command interface** (@ref processSerialInput) : checks
+ *    Serial for a finished command line and dispatches it.
+ * 2. **Local data save** (@ref saveData) : reads the 3 cells once and
+ *    writes the row to SD (and Serial if `streamOn`). The pacing
+ *    `if (currentMillis - saveTimestamp >= SAVE_DATA_INTERVAL)` is
+ *    effectively unbounded since `SAVE_DATA_INTERVAL = 0` ; throughput
+ *    is bounded by the HX711 80 Hz conversion rate.
+ * 3. **WiFi reconnection** : on a 1-hour interval
+ *    (`RECONNECT_WIFI_INTERVAL = 3600000`), retry @ref connectToWifi
+ *    so a transient network outage recovers automatically.
+ * 4. **HTTP server** : if a client is connected, parse the GET line,
+ *    open the requested CSV from SD (default = today's), and stream
+ *    it back over the socket in 128-byte chunks. The client uses this
+ *    to pull data without a USB connection.
+ */
 void loop() {
   unsigned long currentMillis = millis();
 

@@ -1,0 +1,148 @@
+/**
+ * @page architecture System architecture
+ *
+ * @section arch_overview Overview
+ *
+ * STUAART is built around a single FireBeetle ESP32 V1 (DFRobot DFR0478,
+ * based on the Espressif ESP32-D0WD die) that reads three independent
+ * load cells, persists each sample to a microSD card, and exposes a
+ * minimal HTTP server for remote retrieval. A PCF8523 RTC keeps wall
+ * time across power cycles. An interactive Serial command interface
+ * (115200 baud) allows on-bench calibration and diagnostics.
+ *
+ * @dot
+ * digraph stuaart_block {
+ *   graph [rankdir=LR, fontname="Helvetica", fontsize=10, splines=true];
+ *   node  [fontname="Helvetica", fontsize=10, shape=box, style=rounded];
+ *   edge  [fontname="Helvetica", fontsize=9];
+ *
+ *   subgraph cluster_cage {
+ *     label = "Cage";
+ *     style = dashed;
+ *     LC1 [label="Load cell 1\n1 kg, gain 128"];
+ *     LC2 [label="Load cell 2\n1 kg, gain 128"];
+ *     LC3 [label="Load cell 3\n1 kg, gain 128"];
+ *     HX1 [label="HX711 #1\nADC 24-bit\n80 Hz"];
+ *     HX2 [label="HX711 #2"];
+ *     HX3 [label="HX711 #3"];
+ *     LC1 -> HX1 [label="A+/A-\nE+/E-"];
+ *     LC2 -> HX2;
+ *     LC3 -> HX3;
+ *   }
+ *
+ *   ESP [label="FireBeetle ESP32\nDFR0478", shape=box3d];
+ *   RTC [label="PCF8523 RTC\nI2C", shape=box];
+ *   SD  [label="microSD card", shape=cylinder];
+ *   USB [label="USB-Serial\n115200 baud", shape=ellipse];
+ *   WIFI [label="WiFi\nHTTP :80", shape=ellipse];
+ *
+ *   HX1 -> ESP [label="DOUT, SCK"];
+ *   HX2 -> ESP [label="DOUT, SCK"];
+ *   HX3 -> ESP [label="DOUT, SCK"];
+ *   ESP -> RTC [label="I2C"];
+ *   ESP -> SD  [label="SPI"];
+ *   ESP -> USB [label="bench"];
+ *   ESP -> WIFI [label="lab"];
+ * }
+ * @enddot
+ *
+ * @section arch_pinmap Pin mapping (V2 PCB in production)
+ *
+ * | Function     | FireBeetle silkscreen | ESP32 GPIO |
+ * | ---          | ---                   | ---        |
+ * | Cell 1 DOUT  | D5                    | **9** (flash bus, see @ref corruption) |
+ * | Cell 1 SCK   | LRCK                  | 17         |
+ * | Cell 2 DOUT  | D4                    | 27         |
+ * | Cell 2 SCK   | D1                    | 16         |
+ * | Cell 3 DOUT  | D8                    | 5          |
+ * | Cell 3 SCK   | D2                    | 25         |
+ * | SD card SS   | D8 alias              | 5          |
+ * | RTC SDA/SCL  | SDA / SCL             | 21 / 22    |
+ * | Mode switch  | D7                    | 13         |
+ * | Status LEDs  | D6, D9, A4, D8        | 10, 2, 15, 5 |
+ *
+ * @section arch_modes Boot modes
+ *
+ * The mode pin (`MODE_PIN = GPIO 13`, `INPUT_PULLDOWN`) selects the boot
+ * behaviour through the SW1 switch on the PCB :
+ *
+ * - **SW1 OFF (LOW = auto)** : the firmware boots quietly, tares all
+ *   cells live, loads the scale coefficients from SPIFFS, and starts
+ *   the data acquisition loop. Used in production.
+ * - **SW1 ON (HIGH = manual cal)** : the firmware enters an interactive
+ *   calibration sequence on Serial, prompting the user to remove the
+ *   load (`'t'` to confirm tare), then to place known reference weights
+ *   for each cell. Persists everything to SPIFFS.
+ *
+ * @dot
+ * digraph boot_modes {
+ *   graph [fontname="Helvetica", fontsize=10, rankdir=TB];
+ *   node  [fontname="Helvetica", fontsize=10, shape=box, style=rounded];
+ *
+ *   start [label="Power-on / reset", shape=ellipse];
+ *   boot  [label="setup()"];
+ *   sd    [label="SD.begin()"];
+ *   wifi  [label="connectToWifi()\n15 s timeout"];
+ *   addlc [label="add_loadcell x3"];
+ *   mode  [label="digitalRead(MODE_PIN)", shape=diamond];
+ *
+ *   auto_tare [label="tare_all_loadcells(false)"];
+ *   auto_load [label="read_all_scale_coeff_from_persistent_memory()"];
+ *
+ *   manu_tare [label="tare_all_loadcells(true)\n(asks 't' on Serial)"];
+ *   manu_cal  [label="calibrate_all_loadcells()\n(prompts for weights)"];
+ *
+ *   rtc   [label="startRealTimeClock()"];
+ *   loop  [label="loop()", shape=octagon];
+ *
+ *   start -> boot -> sd -> wifi -> addlc -> mode;
+ *   mode  -> auto_tare [label="LOW (auto)"];
+ *   mode  -> manu_tare [label="HIGH (manual cal)"];
+ *   auto_tare -> auto_load -> rtc;
+ *   manu_tare -> manu_cal -> rtc;
+ *   rtc -> loop;
+ * }
+ * @enddot
+ *
+ * @section arch_loop Main loop
+ *
+ * Each iteration of `loop()` runs four steps :
+ *
+ * 1. `processSerialInput()` reads available bytes from `Serial`. If a
+ *    full line is ready, it is dispatched to a command handler (see
+ *    @ref serial_commands). Non-blocking, so it does not impede the
+ *    sampling rate.
+ * 2. `saveData()` reads each of the 3 cells once via
+ *    `read_raw_average()`, derives weights via `mass_from_raw()`, and
+ *    writes one CSV row to SD (and Serial, if `streamOn = true`).
+ * 3. Once an hour, `connectToWifi()` is retried so a transient outage
+ *    does not permanently disable the HTTP server.
+ * 4. If a TCP client is connected, the GET line is parsed, the
+ *    requested CSV is opened from SD (default = today's), and streamed
+ *    back in 128-byte chunks.
+ *
+ * @section arch_throughput Throughput
+ *
+ * The loop rate is bounded by the HX711 conversion rate, not the CPU.
+ * STUAART boards have the HX711 RATE pin tied to VCC, configuring the
+ * chip for 80 Hz conversions (12.5 ms per sample). With three cells
+ * sampled in series and `weight_n_readings = 1`, the loop sustains
+ * **~85 Hz** in production. Each row in today's CSV therefore
+ * represents ~12 ms of physical time.
+ *
+ * @section arch_data CSV data format
+ *
+ * Daily files are named `/YYYY.MM.DD.csv` on the SD card, with a
+ * 7-column header :
+ *
+ * @verbatim
+ * time (ms), reading 1, reading 2, reading 3, raw 1, raw 2, raw 3
+ * @endverbatim
+ *
+ * Each subsequent row is the millisecond timestamp since boot, three
+ * weights in grams, and three signed 24-bit raw HX711 counts. Weight
+ * and raw on the same row come from the same conversion (see
+ * `saveData()`). The raw columns are useful for diagnosing corruption
+ * directly without going through the calibration pipeline ; see the
+ * `add_binary_columns.py` post-processing script.
+ */

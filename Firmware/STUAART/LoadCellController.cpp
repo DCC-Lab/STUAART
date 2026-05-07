@@ -1,9 +1,35 @@
+// ============================================================================
+// LoadCellController : implementation
+//
+// Public API is documented in LoadCellController.h via @brief Doxygen blocks.
+// This .cpp file mostly contains the corresponding implementations ; inline
+// comments below highlight the non-obvious bits.
+//
+// HARDWARE NOTE — GPIO 9 / cell 1 corruption (STUAART V2 PCB) :
+// On the production V2 board, cell 1 DOUT is wired to FireBeetle pin D5
+// which maps to ESP32 GPIO 9. That pad is bonded internally to the ESP32
+// flash SPI bus, so the flash controller drives the line in parallel with
+// the HX711 every time the CPU reads code from flash. The two drivers fight
+// and reads on cell 1 are corrupted ~1 in 1100 samples (and the boot tare
+// can be poisoned outright). The LoadCell::safe_read() filter below catches
+// the three known corruption signatures (0xFFFFFF, 0x800000, 0x7FFFFF) ;
+// see LoadCell.cpp for details. The proper fix is a hardware strap rerouting
+// cell 1 DOUT to D2 (GPIO 25) or D3 (GPIO 26).
+// ============================================================================
+
 #include "LoadCellController.h"
 
 LoadCellController::LoadCellController()
 {
 }
 
+// Two add_loadcell overloads :
+//   - the no-pin version registers a cell that the caller has already
+//     initialized via loadcell.begin() ;
+//   - the (dout, sck, gain) version registers and initializes in one call.
+// On STUAART, the sketch uses the (dout, sck) form. The dout argument for
+// cell 1 was historically `9` on the V2 PCB (GPIO 9 = flash bus). Boards
+// reworked with the strap should pass `25` or `26` instead.
 void LoadCellController::add_loadcell(LoadCell &loadcell)
 {
     loadcells[n_loadcell] = &loadcell;
@@ -22,6 +48,19 @@ void LoadCellController::add_loadcell(
     loadcell.begin(dout, sck, gain);
 }
 
+// Tare every registered cell. In auto mode, called with `wait_for_user =
+// false` from setup() : runs unattended. In manual cal mode, called with
+// `true` : prints a hint and busy-waits on Serial for the user to send 't'
+// before reading. Each tare is persisted to SPIFFS automatically — but
+// note that a fresh boot tare in auto mode will OVERWRITE this saved value
+// next time, unless the boot path is changed to `read_offset_from_persistent_memory`.
+//
+// On STUAART V2, the tare for cell 1 is the most exposed to GPIO 9
+// corruption. With tare_n_readings = 2 (sketch default) and at least one
+// corrupted sample, the resulting offset can land far off the true zero,
+// shifting subsequent weight readings by tens of grams. The safe_read
+// filter in read_tare_average() drops the obvious corruption signatures
+// but cannot cure an intermediate bit-pattern that just looks plausible.
 void LoadCellController::tare_all_loadcells(bool wait_for_user)
 {
     bool _resume;
@@ -68,6 +107,11 @@ void LoadCellController::tare_all_loadcells(bool wait_for_user)
     Serial.println();
 }
 
+// Walk every registered cell and run the interactive scale-coefficient
+// calibration : prompts the user to place a known reference weight on
+// each cell in turn, reads the raw output averaged over
+// scale_coeff_n_readings samples (default 50), computes the scale, and
+// persists it to SPIFFS. Used in manual cal mode (SW1 ON at boot).
 void LoadCellController::calibrate_all_loadcells()
 {
     Serial.println(F("Start of all LoadCells calibration"));
@@ -88,6 +132,12 @@ void LoadCellController::calibrate_all_loadcells()
     Serial.println();
 }
 
+// In auto mode, the boot path tares cells live but does NOT re-tare from
+// SPIFFS — it does call this function to load the scale coefficients.
+// Asymmetric on purpose : the offset is expected to drift with temperature
+// and creep in the printed platforms, so re-taring at every boot makes
+// sense ; the scale coefficient is a property of the load cell + amplifier
+// chain and only changes when calibration is intentionally redone.
 void LoadCellController::read_all_scale_coeff_from_persistent_memory()
 {
     Serial.println(F("Reading all scale coefficients from persistent memory"));
@@ -354,6 +404,21 @@ void LoadCellController::easy_handle_exceptions(
             ;
     }
 }
+
+// ----------------------------------------------------------------------------
+// Persistent memory : SPIFFS on ESP32, EEPROM on Arduino Uno (ATmega328p).
+//
+// The library compiles for both targets, with the storage backend selected
+// by #ifdef on the chip. Each load cell N gets two slots :
+//   - offset : EEPROM addresses get_offset_eeprom_adress(N), or SPIFFS file
+//     /offsetN.txt
+//   - scale  : EEPROM addresses get_scale_coeff_eeprom_adress(N), or SPIFFS
+//     file /scaleN.txt
+//
+// On STUAART (FireBeetle ESP32), only the SPIFFS branch ever executes.
+// The EEPROM branch is kept compiled-out for portability with the legacy
+// Arduino Uno proto.
+// ----------------------------------------------------------------------------
 
 #if defined(__AVR_ATmega328P__)
 void LoadCellController::save_offset_to_persistent_memory(byte loadcell_num)

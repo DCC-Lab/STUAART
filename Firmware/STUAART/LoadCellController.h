@@ -125,7 +125,7 @@ protected:
         * The LoadCellController.
         * 
         * Default is 20 gramms.
-        * This parameter can be used as a threshold for recalibration in @ref easy_get_weight_with_auto_recalibration()
+        * This parameter can be used as a threshold for recalibration in `get_weight_with_auto_recalibration()`
         */
         float mouse_weight = 20;
 
@@ -141,7 +141,7 @@ protected:
         * 
         * @param loadcell_num Number of the LoadCell.
         * @param cal_tare Boolean telling if the offset should be calibrated.
-        * @param save_scale Boolean telling if the scale coefficient should be calibrated.
+        * @param cal_scale Boolean telling if the scale coefficient should be calibrated.
         */
         void easy_calibration_with_params(
                                         byte loadcell_num,
@@ -277,7 +277,7 @@ public:
         * 
         * @param loadcell LoadCell object added to the LoadCellController.
         * @param dout Digital pin (or analog) connected to the DOUT output pin of the HX711.
-        * @param pd_sck Digital pin (or analog) connected to the SCK output of the HX711.
+        * @param sck Digital pin (or analog) connected to the SCK output of the HX711.
         * @param gain Gain of the HX711. Default is 128.
         */
         void add_loadcell(
@@ -439,7 +439,7 @@ public:
         * @brief Proceed to the calibration of both parameters and set them for a LoadCell.
         *
         * This function begins the calibration of both offset and scale coefficient by calling
-        * the member functions @ref calibrate_offset() and @ref calibrate_scale_coeff() that interact
+        * the member functions `calibrate_tare_offset()` and @ref calibrate_scale_coeff() that interact
         * with the user to determine and set both calibration parameters.
         * 
         * @param loadcell_num Number of the LoadCell.
@@ -769,9 +769,9 @@ public:
 
 
         /**
-        * @brief Read the output of the LoadCell and average @ref weight_n_readings readings.
+        * @brief Read the output of the LoadCell and average `weight_n_readings` readings.
         *
-        * This function does @ref weight_n_readings readings of the raw output of the LoadCell and 
+        * This function does `weight_n_readings` readings of the raw output of the LoadCell and 
         * calculates their average before returning the average raw output.
         * 
         * @param loadcell_num Number of the LoadCell.
@@ -782,9 +782,9 @@ public:
 
 
         /**
-        * @brief Read the output of the LoadCell and average @ref tare_n_readings readings.
+        * @brief Read the output of the LoadCell and average `tare_n_readings` readings.
         *
-        * This function does @ref tare_n_readings readings of the raw output of the LoadCell and 
+        * This function does `tare_n_readings` readings of the raw output of the LoadCell and 
         * calculates their average before returning the average raw output. It is useful inside calibration scripts.
         * 
         * @param loadcell_num Number of the LoadCell.
@@ -794,9 +794,9 @@ public:
         long read_tare_average(byte loadcell_num);
 
         /**
-        * @brief Read the output of the LoadCell and average @ref scale_coeff_n_readings readings.
+        * @brief Read the output of the LoadCell and average `scale_coeff_n_readings` readings.
         *
-        * This function does @ref scale_coeff_n_readings readings of the raw output of the LoadCell and 
+        * This function does `scale_coeff_n_readings` readings of the raw output of the LoadCell and 
         * calculates their average before returning the average raw output. It is useful inside calibration scripts.
         * 
         * @param loadcell_num Number of the LoadCell.
@@ -810,7 +810,7 @@ public:
         * @brief Read the raw output of the LoadCell and substracts the offset.
         *
         * This function reads the average of readings of the LoadCell raw output with 
-        * @ref read_raw_average() then substracts the offset accessed with @ref get_offset().
+        * @ref read_raw_average() then substracts the offset accessed with `HX711::get_offset()`.
         * 
         * @param loadcell_num Number of the LoadCell.
         * 
@@ -872,7 +872,7 @@ public:
         * @brief Read the raw output of the LoadCell and set this value to the offset
         *
         * This function does tare_n_reading readings to get the average for the offset. 
-        * It then sets this value to the member varibale @ref OFFSET. 
+        * It then sets this value to the member varibale `OFFSET`. 
         * 
         * @param loadcell_num Number of the LoadCell.
         */
@@ -927,8 +927,9 @@ public:
         * @warning Using this function can completely stop the code execution if a technical problem
         * happens with a HX711. It is safer to handle the retrieval of a reading with @ref wait_ready_retry()
         * or @ref wait_ready_timeout()
-        * 
+        *
         * @param loadcell_num Number of the LoadCell.
+        * @param delay_ms Delay between two readiness checks of the HX711, in milliseconds. Default is 0.
         */
 	void wait_ready(
                         byte loadcell_num,
