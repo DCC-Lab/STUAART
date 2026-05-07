@@ -26,10 +26,12 @@ const int MODE_PIN = 13; //Switch pin allowing to put in setup mode.
 File myFile;           // initialize the file
 const int SS_PIN = 5; // seule pin de carte SD à spécifier
 
-// const char *SSID = "TP-Link_37E9"; // of the router
-// const char *PASSWORD = "15351210"; // password of the router
-const char *SSID = "INTERNET-EQUIPEMENTS";
-const char *PASSWORD = "ihe5hj29";
+// Compiled-in defaults. Overridden at boot by /wifi.txt on SPIFFS if
+// present. Use the `wifi set <ssid> <password>` serial command to
+// change them at runtime ; the new values are persisted to SPIFFS so
+// they survive reboots.
+char ssid[64]     = "INTERNET-EQUIPEMENTS";
+char password[64] = "ihe5hj29";
 WiFiServer server(80);             // créer un serveur qui écoute les clients qui veulent s'y connecter
 
 const char *REFRESH_CODE = "refresh"; // must be the same as in the python code, otherwise they won't be able to recognize one another
@@ -75,8 +77,8 @@ static char yesterday[16];
 void connectToWifi()
 {
   Serial.print("Connecting to ");
-  Serial.println(SSID);
-  WiFi.begin(SSID, PASSWORD);
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
   unsigned long start = millis();
   while (WiFi.status() != WL_CONNECTED && (millis() - start) < WIFI_CONNECT_TIMEOUT_MS)
   {
@@ -100,7 +102,56 @@ void connectToWifi()
   }
 }
 
+/**
+ * @brief Load WiFi credentials from `/wifi.txt` on SPIFFS into the
+ * global `ssid` and `password` buffers.
+ *
+ * File format : two lines, SSID then PASSWORD, each terminated by a
+ * newline. If the file is absent, malformed, or SPIFFS itself fails
+ * to mount, the compiled-in defaults are kept untouched. Called once
+ * from setup() before the first connectToWifi() attempt.
+ */
+void loadWifiConfig() {
+  if (!SPIFFS.begin(true)) return;
+  File f = SPIFFS.open("/wifi.txt", FILE_READ);
+  if (!f) return;
+  String s = f.readStringUntil('\n'); s.trim();
+  String p = f.readStringUntil('\n'); p.trim();
+  f.close();
+  if (s.length() > 0 && s.length() < sizeof(ssid))     strcpy(ssid, s.c_str());
+  if (p.length() > 0 && p.length() < sizeof(password)) strcpy(password, p.c_str());
+  Serial.print(F("Loaded WiFi SSID from SPIFFS: "));
+  Serial.println(ssid);
+}
 
+/**
+ * @brief Persist the current `ssid` and `password` buffers to
+ * `/wifi.txt` on SPIFFS so they survive a reboot.
+ *
+ * @return true if the file was written successfully.
+ */
+bool saveWifiConfig() {
+  if (!SPIFFS.begin(true)) return false;
+  File f = SPIFFS.open("/wifi.txt", FILE_WRITE);
+  if (!f) return false;
+  f.println(ssid);
+  f.println(password);
+  f.close();
+  return true;
+}
+
+/**
+ * @brief Print the current WiFi SSID on Serial. The password is NEVER
+ * printed (anyone with access to the bench Serial port could read it).
+ */
+void printWifiConfig() {
+  Serial.print(F("SSID     : ")); Serial.println(ssid);
+  Serial.print(F("password : (not shown ; "));
+  Serial.print(strlen(password));
+  Serial.println(F(" chars stored)"));
+  Serial.print(F("connected: "));
+  Serial.println(wifiConnected ? "yes" : "no");
+}
 
 /**
  * @brief Fetch the current local time from timeapi.io over HTTPS.
@@ -442,6 +493,8 @@ void saveData()
  * | `save`                        | yes      | Write all offsets and scales to SPIFFS                                       |
  * | `load`                        | no       | Reload all offsets and scales from SPIFFS                                    |
  * | `wifi`                        | no       | Retry WiFi connection (15 s timeout)                                         |
+ * | `wifi show`                   | no       | Show current SSID (password not displayed)                                   |
+ * | `wifi set <ssid> <password>`  | no       | Change credentials, persist to SPIFFS, reconnect                             |
  * | `time YYYY-MM-DD HH:MM:SS`    | no       | Set the PCF8523 RTC                                                          |
  * | `reset`                       | yes      | Soft reboot the firmware                                                     |
  *
@@ -530,6 +583,8 @@ void printHelp() {
   Serial.println(F("save            write offsets+scales to SPIFFS (asks confirmation)"));
   Serial.println(F("load            reload offsets+scales from SPIFFS"));
   Serial.println(F("wifi            retry WiFi connection (15 s timeout)"));
+  Serial.println(F("wifi show       show current SSID (password not displayed)"));
+  Serial.println(F("wifi set <ssid> <password>   change credentials, save to SPIFFS, reconnect"));
   Serial.println(F("time YYYY-MM-DD HH:MM:SS    set RTC"));
   Serial.println(F("reset           soft reboot (asks confirmation)"));
 }
@@ -719,6 +774,21 @@ void runImmediate(const char* cmd) {
     Serial.println(F("rebooting..."));
     delay(100);
     ESP.restart();
+  } else if (strncmp(cmd, "wifi set ", 9) == 0) {
+    char new_ssid[64], new_pwd[64];
+    if (sscanf(cmd, "wifi set %63s %63s", new_ssid, new_pwd) == 2) {
+      strcpy(ssid, new_ssid);
+      strcpy(password, new_pwd);
+      if (saveWifiConfig()) {
+        Serial.println(F("WiFi credentials saved to SPIFFS"));
+      } else {
+        Serial.println(F("WiFi credentials updated in RAM only (SPIFFS write failed)"));
+      }
+      Serial.println(F("Reconnecting..."));
+      connectToWifi();
+    } else {
+      Serial.println(F("usage: wifi set <ssid> <password>  (no spaces inside either)"));
+    }
   }
 }
 
@@ -766,6 +836,8 @@ void executeCommand(const char* cmd) {
   else if (strncmp(cmd, "tare", 4) == 0)                               confirmAndRun(cmd);
   else if (strcmp(cmd, "save") == 0)                                   confirmAndRun(cmd);
   else if (strcmp(cmd, "load") == 0)                                   runImmediate(cmd);
+  else if (strncmp(cmd, "wifi set ", 9) == 0)                          runImmediate(cmd);
+  else if (strcmp(cmd, "wifi show") == 0)                              printWifiConfig();
   else if (strcmp(cmd, "wifi") == 0)                                   connectToWifi();
   else if (strncmp(cmd, "time ", 5) == 0)                              runImmediate(cmd);
   else if (strcmp(cmd, "reset") == 0)                                  confirmAndRun(cmd);
@@ -873,6 +945,7 @@ void setup()
     Serial.println("SD card not found, data goes to Serial only");
   }
 
+  loadWifiConfig();
   connectToWifi();
 
   pinMode(MODE_PIN, INPUT_PULLDOWN);
