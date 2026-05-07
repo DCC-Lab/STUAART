@@ -110,6 +110,61 @@ test(counters_increment_on_real_reads) {
     assertMore(loadCell2.total_reads, before);
 }
 
+// Helper : a value that matches one of the three known HX711 corruption
+// signatures. Mirrors the static hx711_corrupted() in LoadCell.cpp.
+static inline bool is_corrupted_signature(long raw) {
+    return raw == -1L || raw == -8388608L || raw == 8388607L;
+}
+
+test(safe_read_reduces_corruption_rate_vs_raw_read) {
+    // Compare two strategies on the SAME physical cell (cell 1, GPIO 9) :
+    //   - raw read() : the inherited HX711 method, no retry, no filter
+    //   - safe_read() : retry up to 3x on each corruption signature
+    // The expectation is that safe_read drops the observed corruption
+    // rate substantially. On the bench, cell 1 typically shows ~1-2 %
+    // raw corruption ; after safe_read it should be much lower.
+    //
+    // The test asserts safe_corrupted <= raw_corrupted (safe never
+    // makes things worse) AND, when raw_corrupted > 0, safe_corrupted
+    // must be strictly smaller (the retry must recover at least some
+    // cases). On a perfectly clean cell both rates are 0 and the
+    // strict-less assertion is skipped.
+    const int N = 200;
+
+    int raw_corrupted = 0;
+    for (int i = 0; i < N; i++) {
+        long r = loadCell1.read();          // bypass safe_read
+        if (is_corrupted_signature(r)) raw_corrupted++;
+    }
+
+    int safe_corrupted = 0;
+    for (int i = 0; i < N; i++) {
+        long r = loadCell1.safe_read();     // with retry
+        if (is_corrupted_signature(r)) safe_corrupted++;
+    }
+
+    Serial.print(F("[info] cell 1 raw read corruption: "));
+    Serial.print(raw_corrupted);
+    Serial.print(F("/")); Serial.print(N);
+    Serial.print(F(" = "));
+    Serial.print(100.0f * raw_corrupted / N, 2);
+    Serial.println(F(" %"));
+    Serial.print(F("[info] cell 1 safe_read corruption: "));
+    Serial.print(safe_corrupted);
+    Serial.print(F("/")); Serial.print(N);
+    Serial.print(F(" = "));
+    Serial.print(100.0f * safe_corrupted / N, 2);
+    Serial.println(F(" %"));
+
+    // Invariant : safe_read never increases the corruption rate.
+    assertLessOrEqual(safe_corrupted, raw_corrupted);
+
+    // If raw read saw corruption, safe_read must have caught some of it.
+    if (raw_corrupted > 0) {
+        assertLess(safe_corrupted, raw_corrupted);
+    }
+}
+
 test(corrupt_count_on_cell1_GPIO9_baseline) {
     // Cell 1 is on GPIO 9 → expect at least some corruption over many
     // reads. NOT an assertion of correctness ; this test always passes
