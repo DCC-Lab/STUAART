@@ -884,8 +884,13 @@ bool readSerialLine() {
   while (Serial.available()) {
     char c = Serial.read();
     if (c == '\n' || c == '\r') {
-      Serial.write('\n');                 // echo newline
-      if (cmdLen == 0) return false;
+      // Most terminals send CRLF for Enter ; without this guard the
+      // second char of the pair would trigger an extra echoed newline
+      // AFTER the `> ` prompt, leaving a blank line before the user's
+      // next input. We ignore EOL chars that arrive while the buffer
+      // is empty (= we already processed an Enter).
+      if (cmdLen == 0) continue;
+      Serial.write('\n');                 // echo newline once
       cmdBuf[cmdLen] = '\0';
       cmdLen = 0;
       return true;
