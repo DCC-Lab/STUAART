@@ -60,8 +60,10 @@ public:
 
 class Stream : public Print {
 public:
-    int  available() { return 0; }
-    int  read()      { return -1; }
+    int   available()  { return 0; }
+    int   read()       { return -1; }
+    long  parseInt()   { return 0;  }
+    float parseFloat() { return 0.f; }
 };
 
 // Mock Serial just so LoadCellController error paths compile if a test
