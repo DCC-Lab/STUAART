@@ -98,6 +98,14 @@ static inline bool hx711_corrupted(long raw) {
   return raw == -1L || raw == -8388608L || raw == 8388607L;
 }
 
+// Helper : increment the matching corruption counter for a value that
+// already failed hx711_corrupted().
+inline void LoadCell_count_corruption(LoadCell* self, long raw) {
+  if      (raw == -1L)        self->corrupted_neg1++;
+  else if (raw == -8388608L)  self->corrupted_negsat++;
+  else if (raw == 8388607L)   self->corrupted_possat++;
+}
+
 long LoadCell::safe_read(byte max_retries) {
   // First read. If it matches a known corruption signature, retry up to
   // max_retries times. read() blocks until the HX711 has a fresh sample
@@ -105,9 +113,22 @@ long LoadCell::safe_read(byte max_retries) {
   // period. We do NOT add an extra wait_ready_timeout here : a previous
   // version did, and it dragged the loop rate from ~85 Hz to ~1 Hz when
   // cell 1 was corrupted on every iteration.
+  //
+  // Every read() call counts toward total_reads ; every observed
+  // corruption signature (whether on the initial read or a retry)
+  // increments the matching corrupted_* counter, so the lifetime stats
+  // give a faithful corruption rate per cell.
   long raw = read();
-  for (byte i = 0; hx711_corrupted(raw) && i < max_retries; i++) {
+  total_reads++;
+  while (hx711_corrupted(raw) && max_retries > 0) {
+    LoadCell_count_corruption(this, raw);
     raw = read();
+    total_reads++;
+    max_retries--;
+  }
+  // If we are exiting with a still-corrupt value, count it once more.
+  if (hx711_corrupted(raw)) {
+    LoadCell_count_corruption(this, raw);
   }
   return raw;
 }

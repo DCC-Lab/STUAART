@@ -516,6 +516,8 @@ void printHelp() {
   Serial.println(F("info            WiFi, SD, RTC, calibration state"));
   Serial.println(F("read            one immediate read (weights + raws) of all 3 cells"));
   Serial.println(F("raw             one immediate read of raw counts only"));
+  Serial.println(F("stats           per-cell HX711 read counts and corruption rates"));
+  Serial.println(F("reset stats     zero the corruption counters"));
   Serial.println(F("stream on       start CSV streaming on Serial"));
   Serial.println(F("stream off      stop streaming (alias: quiet)"));
   Serial.println(F("tare            re-tare all 3 cells (asks confirmation)"));
@@ -575,6 +577,48 @@ void readOnce() {
   Serial.print(r1); Serial.print(F(", "));
   Serial.print(r2); Serial.print(F(", "));
   Serial.println(r3);
+}
+
+/**
+ * @brief Print per-cell HX711 read statistics.
+ *
+ * For each of the three cells, prints :
+ *   - the lifetime count of HX711 conversions consumed by `safe_read`
+ *   - the per-signature corruption counts (`0xFFFFFF`, `0x800000`,
+ *     `0x7FFFFF`)
+ *   - the total corruption count and the rate as a percentage
+ *
+ * The counters accumulate from the firmware boot until either a soft
+ * reset or a `reset stats` command. Use them to compare cells before
+ * and after a hardware change (e.g. before / after the GPIO 9 strap).
+ */
+void printStats() {
+  LoadCell* cells[3] = { &loadCell1, &loadCell2, &loadCell3 };
+  Serial.println(F("--- HX711 read statistics ---"));
+  for (byte i = 0; i < 3; i++) {
+    LoadCell* c = cells[i];
+    unsigned long n = c->total_reads;
+    unsigned long bad = c->total_corrupted();
+    float rate = n > 0 ? (100.0f * bad / n) : 0.0f;
+    Serial.print(F("cell ")); Serial.print(i + 1);
+    Serial.print(F(" : reads=")); Serial.print(n);
+    Serial.print(F(", 0xFFFFFF=")); Serial.print(c->corrupted_neg1);
+    Serial.print(F(", 0x800000=")); Serial.print(c->corrupted_negsat);
+    Serial.print(F(", 0x7FFFFF=")); Serial.print(c->corrupted_possat);
+    Serial.print(F(", total_bad=")); Serial.print(bad);
+    Serial.print(F(" ("));          Serial.print(rate, 4);
+    Serial.println(F(" %)"));
+  }
+}
+
+/**
+ * @brief Zero the four corruption counters on each cell.
+ */
+void resetStats() {
+  loadCell1.reset_stats();
+  loadCell2.reset_stats();
+  loadCell3.reset_stats();
+  Serial.println(F("statistics reset"));
 }
 
 /**
@@ -710,6 +754,8 @@ void executeCommand(const char* cmd) {
   else if (strcmp(cmd, "info") == 0)                                   printInfo();
   else if (strcmp(cmd, "read") == 0)                                   readOnce();
   else if (strcmp(cmd, "raw") == 0)                                    readRaw();
+  else if (strcmp(cmd, "stats") == 0)                                  printStats();
+  else if (strcmp(cmd, "reset stats") == 0)                            resetStats();
   else if (strcmp(cmd, "stream on") == 0)                              { streamOn = true;  Serial.println(F("streaming ON")); }
   else if (strcmp(cmd, "stream off") == 0 || strcmp(cmd, "quiet") == 0) { streamOn = false; Serial.println(F("streaming OFF")); }
   else if (strncmp(cmd, "cal ", 4) == 0)                               runImmediate(cmd);

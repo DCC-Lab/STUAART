@@ -142,6 +142,34 @@ protected:
        byte weight_n_readings = 5;
 public:
        /**
+        * @brief Lifetime counter of HX711 conversions consumed by
+        * @ref safe_read (initial reads + retries).
+        *
+        * Use as denominator when computing the corruption rate :
+        * `rate = total_corrupted() / total_reads`.
+        */
+       unsigned long total_reads = 0;
+
+       /**
+        * @brief Lifetime count of reads that returned `0xFFFFFF` (-1L).
+        * Dominant signature on STUAART V2 cell 1 due to GPIO 9 / flash
+        * bus contention.
+        */
+       unsigned long corrupted_neg1 = 0;
+
+       /**
+        * @brief Lifetime count of reads that returned `0x800000`
+        * (-8388608L, 24-bit negative saturation).
+        */
+       unsigned long corrupted_negsat = 0;
+
+       /**
+        * @brief Lifetime count of reads that returned `0x7FFFFF`
+        * (+8388607L, 24-bit positive saturation).
+        */
+       unsigned long corrupted_possat = 0;
+
+       /**
         * @brief Construct a LoadCell object.
         */
        LoadCell();
@@ -157,8 +185,32 @@ public:
         * these can occur during normal operation of a mouse-scale load cell.
         * Returns the last raw value; callers should treat -1L as invalid
         * (returned only if every retry was still corrupt).
+        *
+        * Increments @ref total_reads on every internal `read()` call,
+        * and the appropriate `corrupted_*` counter every time a
+        * corruption signature is observed (initial read or any retry).
         */
        long safe_read(byte max_retries = 3);
+
+
+       /**
+        * @brief Sum of the three per-signature corruption counters.
+        * @return `corrupted_neg1 + corrupted_negsat + corrupted_possat`.
+        */
+       unsigned long total_corrupted() const {
+           return corrupted_neg1 + corrupted_negsat + corrupted_possat;
+       }
+
+
+       /**
+        * @brief Zero all four read-statistics counters.
+        */
+       void reset_stats() {
+           total_reads = 0;
+           corrupted_neg1 = 0;
+           corrupted_negsat = 0;
+           corrupted_possat = 0;
+       }
 
 
        /**
