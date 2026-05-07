@@ -53,7 +53,7 @@
  * }
  * @endcode
  *
- * @section corruption HX711 corruption handling
+ * @section mp_corruption HX711 corruption handling
  *
  * The HX711 24-bit ADC can return three values that are physically
  * impossible during normal operation of a strain-gauge load cell :

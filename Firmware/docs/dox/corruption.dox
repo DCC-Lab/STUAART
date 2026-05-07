@@ -1,0 +1,172 @@
+/**
+ * @page corruption HX711 corruption on STUAART V2 (GPIO 9 / flash bus)
+ *
+ * @section corr_summary Summary
+ *
+ * On the STUAART V2 PCB, cell 1 DOUT is routed to FireBeetle pin **D5**,
+ * which maps to **ESP32 GPIO 9**. On the ESP32-D0WD die used by this
+ * FireBeetle revision, GPIO 9 is bonded internally to the external SPI
+ * flash bus. The flash controller drives that pad on every CPU cache
+ * miss, in parallel with the HX711 driving its DOUT to the same node.
+ * The two drivers fight, and a fraction of cell 1 reads come out
+ * corrupted.
+ *
+ * Statistical analysis of the production CSV from 2026-03-10
+ * (4.25 M rows over 13 hours) shows :
+ *
+ * | Cell | DOUT pin | Outliers | Dominant value | % corruption |
+ * | ---  | ---      | ---      | ---            | ---          |
+ * | 1    | GPIO 9   | 2868     | -160.68 g      | ~0.066 %     |
+ * | 2    | GPIO 27  | 450      | -78.45 g       | ~0.011 %     |
+ * | 3    | GPIO 16  | < 50     | scattered      | < 0.001 %    |
+ *
+ * The −160.68 g spike on cell 1 maps exactly to a raw HX711 reading of
+ * `0xFFFFFF` (= `-1L` after sign extension), the signature of a DOUT
+ * line held HIGH throughout the 24-bit shift. ~98 % of cell 1 outliers
+ * are this exact value.
+ *
+ * @section corr_pad The shared pad : two drivers on one wire
+ *
+ * Each pad on the ESP32-D0WD is a multiplexer between several internal
+ * functions and the external pin. For GPIO 6 to 11, one of those
+ * functions is the dedicated flash SPI controller, hardwired to the
+ * pad. `pinMode(9, INPUT)` from the user code only affects the GPIO
+ * matrix function ; it does NOT disconnect the flash function, which
+ * is implemented in fixed silicon logic.
+ *
+ * @dot
+ * digraph pad_share {
+ *   graph [fontname="Helvetica", fontsize=10, rankdir=LR];
+ *   node  [fontname="Helvetica", fontsize=10, style=rounded];
+ *
+ *   subgraph cluster_die {
+ *     label = "ESP32-D0WD die";
+ *     style = dashed;
+ *     gpio   [label="GPIO matrix\n(pinMode INPUT)", shape=box];
+ *     flash  [label="Flash SPI\ncontroller\n(hardware path)", shape=box, color=red, fontcolor=red];
+ *   }
+ *
+ *   pad    [label="GPIO 9\n(physical pad)", shape=box, style="rounded,filled", fillcolor=lightyellow];
+ *   chip   [label="External\nflash chip", shape=cylinder];
+ *   hx     [label="HX711 cell 1\nDOUT", shape=box];
+ *
+ *   gpio  -> pad [label="reads only\n(weak)"];
+ *   flash -> pad [label="drives\n(strong)", color=red, fontcolor=red];
+ *   pad   -> chip [label="SD2 / WP", color=red, fontcolor=red];
+ *   hx    -> pad [label="drives\n(strong)", dir=forward];
+ * }
+ * @enddot
+ *
+ * The flash bus toggles at multi-MHz whenever the CPU executes from
+ * flash (which is essentially always). When the user code does
+ * `digitalRead(9)` to clock in a HX711 bit, the pad voltage at that
+ * instant is whichever driver is winning. If the flash signal is HIGH
+ * for the full duration of the shift (which happens during a multi-byte
+ * burst), all 24 bits read back as 1 → `0xFFFFFF`.
+ *
+ * @section corr_signatures The three known signatures
+ *
+ * The library recognises three values that cannot occur during normal
+ * operation of a strain-gauge load cell :
+ *
+ * | Signature  | Meaning                              | Cause                                   |
+ * | ---        | ---                                  | ---                                     |
+ * | `0xFFFFFF` (`-1L`)         | DOUT held HIGH throughout the read | Interrupt during SCK pulse > 60 us, OR flash bus contention on GPIO 6-11 |
+ * | `0x800000` (`-8388608L`)   | 24-bit negative saturation         | Boot tare hits a fully-corrupted read   |
+ * | `0x7FFFFF` (`+8388607L`)   | 24-bit positive saturation         | Mirror image of negative saturation     |
+ *
+ * @section corr_safe_read safe_read() : retry on corruption
+ *
+ * @ref LoadCell::safe_read calls `read()` and, if the result matches
+ * one of the three signatures, retries up to three times. Each retry
+ * costs exactly one HX711 conversion (12.5 ms at 80 Hz), so the
+ * worst-case overhead per cell is ~37 ms. In practice cells 2 and 3
+ * almost never trigger retries, and cell 1 retries succeed on the
+ * second attempt about half the time.
+ *
+ * @dot
+ * digraph safe_read_flow {
+ *   graph [fontname="Helvetica", fontsize=10, rankdir=TB];
+ *   node  [fontname="Helvetica", fontsize=10, shape=box, style=rounded];
+ *
+ *   start  [label="caller", shape=ellipse];
+ *   read1  [label="raw = read()"];
+ *   chk1   [label="hx711_corrupted(raw) ?", shape=diamond];
+ *   retry  [label="raw = read()\n(up to 3 times)"];
+ *   chk2   [label="still corrupted ?", shape=diamond];
+ *   ret    [label="return raw\n(may be -1L)", shape=ellipse];
+ *
+ *   start -> read1 -> chk1;
+ *   chk1  -> ret    [label="no"];
+ *   chk1  -> retry  [label="yes"];
+ *   retry -> chk2;
+ *   chk2  -> retry  [label="yes,\nattempts left"];
+ *   chk2  -> ret    [label="no, or budget spent"];
+ * }
+ * @enddot
+ *
+ * The averaging methods (@ref LoadCell::read_raw_average,
+ * @ref LoadCell::read_tare_average, @ref LoadCell::read_scale_coeff_average)
+ * call `safe_read()` and then exclude any sample that still looks
+ * corrupted from the mean. The divisor is the count of GOOD samples,
+ * not the requested `n_readings`, so a single bad read does not pull
+ * the average toward `0xFFFFFF`.
+ *
+ * @section corr_limits Limits of the software fix
+ *
+ * The three signatures cover ~98 % of cell 1 corruption observed in
+ * production. The remaining 2 % are intermediate bit-patterns that
+ * happen when the flash bus is partway through a transition during
+ * the 24-bit shift : the read returns a plausible-looking value
+ * (e.g. `-2 477 564`) that is wrong but indistinguishable from a
+ * legitimate reading.
+ *
+ * No software primitive can detect these residual cases without
+ * external context (e.g. statistical comparison with neighbouring
+ * cells, or a median over a sliding window). A median filter over
+ * `weight_n_readings = 5` would catch most of them at the cost of
+ * dropping the effective sample rate to ~17 Hz — see the discussion
+ * in `Firmware/docs/improvements-to-port.md`.
+ *
+ * @section corr_hw_fix The hardware fix
+ *
+ * The proper resolution is to reroute cell 1 DOUT off GPIO 9. Two
+ * pins are unconnected on the V2 PCB and ideal for a strap :
+ *
+ * - **D2 = GPIO 25**
+ * - **D3 = GPIO 26**
+ *
+ * Recommended procedure :
+ *
+ * 1. Remove the FireBeetle from its socket on the PCB.
+ * 2. Bend the D5 leg outward so it cannot re-enter the socket. This
+ *    leaves the original PCB trace U1-DAT → D5 dangling but
+ *    electrically disconnected.
+ * 3. Solder a thin wire from the U1-DAT pad (DOUT pin of HX711 #1) to
+ *    the D2 or D3 socket pin (or directly to the matching FireBeetle
+ *    pad if more convenient).
+ * 4. Re-seat the FireBeetle.
+ * 5. In `STUAART.ino`, change `controller.add_loadcell(loadCell1, 9, 17)`
+ *    to `controller.add_loadcell(loadCell1, 25, 17)` (or `26, 17`).
+ *
+ * The strap is reversible (just bend the leg back and remove the wire)
+ * and avoids cutting any PCB trace. After rework, cell 1 corruption
+ * drops to the same baseline as cells 2 and 3 (~0.01 %, dominated by
+ * residual interrupt-induced cases that `safe_read` continues to
+ * filter).
+ *
+ * @section corr_diag Diagnosing corruption in CSV files
+ *
+ * The CSV format includes the raw 24-bit signed counts as the last
+ * three columns. To make the corruption signatures jump out, run the
+ * post-processing script :
+ *
+ * @code{.sh}
+ * python3 PostProcessingCode/add_binary_columns.py today.csv > today_with_bin.csv
+ * @endcode
+ *
+ * It appends three columns that show each raw value as its 24-bit
+ * two's-complement bit pattern. A row with `111111111111111111111111`
+ * in the cell 1 binary column is a `0xFFFFFF` corruption signature
+ * that escaped `safe_read` (which should not happen post-strap).
+ */
