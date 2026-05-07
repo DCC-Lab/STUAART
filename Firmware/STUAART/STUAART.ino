@@ -76,6 +76,16 @@ static char yesterday[16];
  */
 void connectToWifi()
 {
+  // Disconnect any previous attempt and clear the AP config so a fresh
+  // begin() does not collide with an in-flight state machine. Without
+  // this, calling connectToWifi a second time (e.g. after a `wifi set`
+  // command) triggers ESP-IDF :
+  //     E (xxxxx) wifi:sta is connecting, cannot set config
+  // even though the previous attempt has already timed out.
+  WiFi.disconnect(false, true);   // (wifioff=false, eraseap=true)
+  WiFi.mode(WIFI_STA);
+  delay(100);
+
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
