@@ -430,6 +430,8 @@ void saveData()
  * | `info`                        | no       | Show WiFi / SD / RTC / streaming / calibration state                         |
  * | `read`                        | no       | One immediate read : weights and raws of all 3 cells                         |
  * | `raw`                         | no       | One immediate read : raw 24-bit signed counts only                           |
+ * | `stats`                       | no       | Per-cell HX711 read counts and corruption rates                              |
+ * | `reset stats`                 | no       | Zero the corruption counters on all 3 cells                                  |
  * | `stream on`                   | no       | Start CSV streaming on Serial (`time, w1, w2, w3, raw1, raw2, raw3`)         |
  * | `stream off`, `quiet`         | no       | Stop streaming                                                               |
  * | `tare`                        | yes      | Re-tare all 3 cells (reads current raw as new zero)                          |

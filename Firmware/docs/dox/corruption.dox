@@ -169,4 +169,34 @@
  * two's-complement bit pattern. A row with `111111111111111111111111`
  * in the cell 1 binary column is a `0xFFFFFF` corruption signature
  * that escaped `safe_read` (which should not happen post-strap).
+ *
+ * @section corr_stats Live corruption statistics
+ *
+ * Each `LoadCell` instance keeps four lifetime counters incremented
+ * inside @ref LoadCell::safe_read :
+ *
+ * - `total_reads`      : every HX711 conversion consumed
+ * - `corrupted_neg1`   : count of `0xFFFFFF` (-1L) signatures
+ * - `corrupted_negsat` : count of `0x800000` (-8388608L) signatures
+ * - `corrupted_possat` : count of `0x7FFFFF` (+8388607L) signatures
+ *
+ * The counters survive across `safe_read` calls but reset on a
+ * power-cycle / soft reboot, or whenever the user issues a
+ * `reset stats` serial command.
+ *
+ * To inspect them at runtime, type `stats` on the serial port :
+ *
+ * @code
+ * > stats
+ * --- HX711 read statistics ---
+ * cell 1 : reads=85234, 0xFFFFFF=56, 0x800000=0, 0x7FFFFF=0, total_bad=56 (0.0657 %)
+ * cell 2 : reads=85234, 0xFFFFFF=9,  0x800000=0, 0x7FFFFF=0, total_bad=9  (0.0106 %)
+ * cell 3 : reads=85234, 0xFFFFFF=0,  0x800000=0, 0x7FFFFF=0, total_bad=0  (0.0000 %)
+ * @endcode
+ *
+ * Use case : compare cells before and after the GPIO 9 strap. Pre-strap
+ * cell 1 will show ~0.05-0.07 % corruption (essentially the production
+ * baseline) ; post-strap it should drop to the same low level as cells
+ * 2 and 3 (< 0.02 %, dominated by residual interrupt-induced cases that
+ * `safe_read` continues to filter).
  */
