@@ -208,6 +208,38 @@ TEST(get_n_readings_per_cell) {
     ASSERT_EQ(ctrl.get_tare_n_readings(2), 44);
 }
 
+TEST(tare_all_loadcells_auto_mode_initialises_resume) {
+    // Regression test for the previous `bool _resume; if/else-if` pattern
+    // in tare_all_loadcells that left _resume undefined if the compiler
+    // could not prove the bool was exhaustive. Calling with
+    // wait_for_user = false exercises the auto-mode path : _resume must
+    // be initialised to true so the busy-wait loop is skipped and every
+    // cell gets its tare read AND its persistence write call (stubbed).
+    LoadCellController ctrl;
+    LoadCell a, b, c;
+    a.mock_reset(); b.mock_reset(); c.mock_reset();
+    ctrl.add_loadcell(a);
+    ctrl.add_loadcell(b);
+    ctrl.add_loadcell(c);
+    a.set_tare_n_readings(1);
+    b.set_tare_n_readings(1);
+    c.set_tare_n_readings(1);
+    a.mock_push(111L);
+    b.mock_push(222L);
+    c.mock_push(333L);
+
+    ctrl.tare_all_loadcells(false);     // must NOT block on Serial
+
+    // Each cell got its scripted value as its new offset.
+    ASSERT_EQ(a.get_offset(), 111L);
+    ASSERT_EQ(b.get_offset(), 222L);
+    ASSERT_EQ(c.get_offset(), 333L);
+    // total_reads went up on each cell (tare reads).
+    ASSERT_EQ(a.total_reads, 1);
+    ASSERT_EQ(b.total_reads, 1);
+    ASSERT_EQ(c.total_reads, 1);
+}
+
 TEST(read_raw_average_propagates_corruption_handling) {
     LoadCellController ctrl;
     LoadCell a;
@@ -243,6 +275,7 @@ int main() {
     run_tare_per_cell_does_not_affect_other_cells();
     run_set_get_mouse_weight();
     run_get_n_readings_per_cell();
+    run_tare_all_loadcells_auto_mode_initialises_resume();
     run_read_raw_average_propagates_corruption_handling();
 
     printf("\n%d passed, %d failed\n", passes, failures);
