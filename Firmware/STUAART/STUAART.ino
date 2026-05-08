@@ -51,12 +51,20 @@ char cmdBuf[CMD_BUF_SIZE];              // accumulates one line of user input
 size_t cmdLen = 0;
 char pendingCmd[CMD_BUF_SIZE] = "";     // command awaiting y/n confirmation
 
+// Ring buffer of the last BUFFER_SIZE CSV lines, kept in RAM
+// independently of the SD card. The ring overwrites the oldest line
+// when full, so it always reflects the most recent ~12 s of data
+// (1000 samples / 80 Hz). Used both for batched SD writes and to back
+// the HTTP `/recent` endpoint.
 const int BUFFER_SIZE = 1000;
-const int LINE_LENGTH = 50;
+const int LINE_LENGTH = 64;        // max line for 7-column 7-field CSV
 char buffer[BUFFER_SIZE][LINE_LENGTH];
-int head = 0;
-int tail = 0;
+int  head = 0;                     // next slot to write
+int  tail = 0;                     // oldest slot (== head when full)
 bool bufferFull = false;
+unsigned long ringWrites    = 0;   // total adds since boot
+unsigned long ringSdFlushed = 0;   // number of writes already on SD
+const int SD_FLUSH_EVERY = 500;    // flush every ~6 s at 80 Hz
 
 //Buffer chars for saving files
 static char today[16];
@@ -276,49 +284,10 @@ void getYesterdaysDate(){
 }
 
 
-/**
- * @brief Buffer one CSV line, flush to SD when the in-memory ring fills.
- *
- * The firmware accumulates up to `BUFFER_SIZE` (1000) lines in RAM
- * via @ref addToBuffer. When the ring becomes full, this function
- * opens the daily file, calls @ref flushBufferToSD to drain the ring,
- * appends the new line, closes the file, and blinks `pinLED1`. This
- * batched write avoids opening the SD card on every sample at 80 Hz.
- *
- * @param path Destination filename on the SD card (e.g. `/2026.05.06.csv`).
- * @param message Null-terminated CSV line, including trailing `\n`.
- * @param mode `FILE_WRITE` (overwrite) or `FILE_APPEND`.
- */
-void writeFile(const char *path, const char *message, const char *mode){
-  if (bufferFull == false){
-    addToBuffer(message);
-  }
-  else
-    {
-      while (!Serial)
-    {
-      ; // wait for serial port to connect. Needed for native USB port only
-    }
-      // open the file. note that only one file can be open at a time,
-    myFile = SD.open(path, mode);
-    // if the file opened okay, write to it:
-    if (myFile)
-      {
-      // close the file:
-      flushBufferToSD();
-      myFile.print(message);
-      myFile.close();
-      digitalWrite(pinLED1, HIGH);
-      delay(50);
-      digitalWrite(pinLED1, LOW);
-      }
-    else
-      {
-      // if the file didn't open, print an error:
-      Serial.println("error opening file");
-      }
-}
-}
+// writeFile() / flushBufferToSD() are no longer used : the ring is now
+// always populated by addToBuffer() and the SD flush happens directly
+// from saveData() every SD_FLUSH_EVERY samples. See addToBuffer() and
+// saveData() below.
 
 /**
  * @brief Create or truncate a file on the SD card and write a single
@@ -345,46 +314,46 @@ void createFile(const char *path, const char *message, const char *mode){
 
 
 /**
- * @brief Append a CSV line to the in-RAM ring buffer.
+ * @brief Append a CSV line to the in-RAM ring buffer with overwrite-oldest
+ * semantics.
  *
  * Copies up to `LINE_LENGTH - 1` characters from `message` into
- * `buffer[head]`, ensures null termination, and advances `head` modulo
- * `BUFFER_SIZE`. When `head` catches up to `tail`, sets the
- * `bufferFull` flag so @ref writeFile knows to flush.
+ * `buffer[head]`, advances head modulo BUFFER_SIZE, and once the ring
+ * is full keeps `tail` glued to head so the oldest line is dropped on
+ * each new write. The ring therefore always reflects the most recent
+ * BUFFER_SIZE samples regardless of SD availability.
  *
  * @param message Null-terminated CSV line (truncated if longer than
  * `LINE_LENGTH - 1` bytes).
  */
-void addToBuffer(const char *message){
+void addToBuffer(const char *message) {
   strncpy(buffer[head], message, LINE_LENGTH - 1);
-  buffer[head][LINE_LENGTH - 1] = '\0';  // ensure null-termination
+  buffer[head][LINE_LENGTH - 1] = '\0';
   head = (head + 1) % BUFFER_SIZE;
-    if (head == tail) {
-    bufferFull = true;
+  if (bufferFull) {
+    tail = (tail + 1) % BUFFER_SIZE;     // drop oldest
+  } else if (head == tail) {
+    bufferFull = true;                   // first wrap : ring is now full
   }
-    if (head >= BUFFER_SIZE) {
-    bufferFull = true;
-  }
+  ringWrites++;
 }
 
-
 /**
- * @brief Drain the in-RAM ring buffer to the currently open SD file.
+ * @brief Stream the ring buffer contents (oldest to newest) to a Print
+ * target.
  *
- * Called from @ref writeFile while `myFile` is open. Iterates from
- * `tail` to `head` and writes each buffered line via `myFile.print()`.
- * Resets the `bufferFull` flag and appends a sentinel marker line
- * `--, --, --, --` so a downstream reader can spot a flush boundary.
+ * Used both for SD flushing and for the HTTP `/recent` endpoint. The
+ * ring itself is unchanged after the call : the data remains available
+ * for further consumers.
  *
- * @pre `myFile` must already be open in the caller.
+ * @param out Print target (File, WiFiClient, HardwareSerial, etc.).
  */
-void flushBufferToSD(){
-  while (head != tail || bufferFull) {
-    myFile.print(buffer[tail]);
-    tail = (tail + 1) % BUFFER_SIZE;
-    bufferFull = false;
+void streamRingTo(Print &out) {
+  int n     = bufferFull ? BUFFER_SIZE : head;
+  int start = bufferFull ? head : 0;     // when not full, oldest is slot 0
+  for (int i = 0; i < n; i++) {
+    out.print(buffer[(start + i) % BUFFER_SIZE]);
   }
-  myFile.print("--, --, --, -- \n");
 }
 
 
@@ -425,8 +394,8 @@ void writeFileHeader(char *file_name) {
  */
 void saveData()
 {
-  // Read raws once and derive weights from them, so the two values on the
-  // same line come from the SAME HX711 conversion (no double read).
+  // Read raws once and derive weights from them, so the two values on
+  // the same line come from the SAME HX711 conversion (no double read).
   long raw1 = controller.read_raw_average(1);
   long raw2 = controller.read_raw_average(2);
   long raw3 = controller.read_raw_average(3);
@@ -439,12 +408,31 @@ void saveData()
             + weight1 + "," + weight2 + "," + weight3 + ","
             + raw1 + "," + raw2 + "," + raw3 + "\n";
 
-  if (sdInitialized) {
+  // Always feed the ring : it backs the HTTP /recent endpoint and the
+  // SD flush below. Independent of sdInitialized.
+  addToBuffer(fileLine.c_str());
+
+  // Periodic SD flush : every SD_FLUSH_EVERY samples, append the most
+  // recent unflushed lines to today's file. Doing it in batches avoids
+  // opening / closing SD on every sample.
+  if (sdInitialized && (ringWrites - ringSdFlushed) >= (unsigned long) SD_FLUSH_EVERY) {
     getTodaysDate();
-    if (!SD.exists(today)) {
-      writeFileHeader(today);
+    if (!SD.exists(today)) writeFileHeader(today);
+
+    myFile = SD.open(today, FILE_APPEND);
+    if (myFile) {
+      int toWrite = (int) (ringWrites - ringSdFlushed);
+      if (toWrite > BUFFER_SIZE) toWrite = BUFFER_SIZE;   // cap to ring depth
+      int start = (head - toWrite + BUFFER_SIZE) % BUFFER_SIZE;
+      for (int i = 0; i < toWrite; i++) {
+        myFile.print(buffer[(start + i) % BUFFER_SIZE]);
+      }
+      myFile.close();
+      ringSdFlushed = ringWrites;
+      digitalWrite(pinLED1, HIGH); delay(2); digitalWrite(pinLED1, LOW);
+    } else {
+      Serial.println(F("SD append failed (will retry on next flush)"));
     }
-    writeFile(today, fileLine.c_str(), FILE_APPEND);
   }
 
   if (streamOn) {
@@ -1094,10 +1082,28 @@ void loop() {
             }
           }
 
+          // Special route : /recent serves the in-RAM ring buffer (last
+          // ~1000 samples ≈ 12 s of data) without touching the SD card.
+          // Useful for live monitoring even if no SD is present.
+          if (fileNameToOpen == "recent" || fileNameToOpen == "/recent") {
+            Serial.println(F("[Serveur] /recent : streaming ring buffer"));
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-Type: text/csv");
+            client.println("Connection: close");
+            client.println();
+            client.println("recent.csv");                   // first body line, like the file route
+            client.println("time (ms), reading 1, reading 2, reading 3, raw 1, raw 2, raw 3");
+            streamRingTo(client);
+            while (client.available()) client.read();
+            delay(15);
+            client.stop();
+            return;                                        // out of loop()
+          }
+
           // Si l'URL est vide ou juste "/", on donne le fichier d'aujourd'hui
           if (fileNameToOpen == "" || fileNameToOpen == "/") {
             getTodaysDate();
-            fileNameToOpen = today; 
+            fileNameToOpen = today;
           }
 
           // Nettoyage de sécurité : on s'assure d'avoir UN SEUL slash au début pour la SD
