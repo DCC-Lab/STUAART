@@ -483,8 +483,8 @@ void saveData()
  * | `raw`                         | no       | One immediate read : raw 24-bit signed counts only                           |
  * | `stats`                       | no       | Per-cell HX711 read counts and corruption rates                              |
  * | `reset stats`                 | no       | Zero the corruption counters on all 3 cells                                  |
- * | `stream on`                   | no       | Start CSV streaming on Serial (`time, w1, w2, w3, raw1, raw2, raw3`)         |
- * | `stream off`, `quiet`         | no       | Stop streaming                                                               |
+ * | `stream on`, `on`             | no       | Start CSV streaming on Serial (`time, w1, w2, w3, raw1, raw2, raw3`)         |
+ * | `stream off`, `off`, `quiet`  | no       | Stop streaming                                                               |
  * | `tare`                        | yes      | Re-tare all 3 cells (reads current raw as new zero)                          |
  * | `tare <n>`                    | yes      | Re-tare cell `n` (1, 2 or 3) only                                            |
  * | `cal <n> <w>`                 | no       | Place reference weight `w` grams on cell `n`, recompute its scale            |
@@ -573,8 +573,8 @@ void printHelp() {
   Serial.println(F("raw             one immediate read of raw counts only"));
   Serial.println(F("stats           per-cell HX711 read counts and corruption rates"));
   Serial.println(F("reset stats     zero the corruption counters"));
-  Serial.println(F("stream on       start CSV streaming on Serial"));
-  Serial.println(F("stream off      stop streaming (alias: quiet)"));
+  Serial.println(F("stream on, on   start CSV streaming on Serial"));
+  Serial.println(F("stream off, off, quiet   stop streaming"));
   Serial.println(F("tare            re-tare all 3 cells (asks confirmation)"));
   Serial.println(F("tare <n>        re-tare cell n=1..3 (asks confirmation)"));
   Serial.println(F("cal <n> <w>     reference weight w grams on cell n -> recompute scale"));
@@ -842,8 +842,8 @@ void executeCommand(const char* cmd) {
   else if (strcmp(cmd, "raw") == 0)                                    readRaw();
   else if (strcmp(cmd, "stats") == 0)                                  printStats();
   else if (strcmp(cmd, "reset stats") == 0)                            resetStats();
-  else if (strcmp(cmd, "stream on") == 0)                              { streamOn = true;  Serial.println(F("streaming ON")); }
-  else if (strcmp(cmd, "stream off") == 0 || strcmp(cmd, "quiet") == 0) { streamOn = false; Serial.println(F("streaming OFF")); }
+  else if (strcmp(cmd, "stream on") == 0  || strcmp(cmd, "on") == 0)                          { streamOn = true;  Serial.println(F("streaming ON")); }
+  else if (strcmp(cmd, "stream off") == 0 || strcmp(cmd, "off") == 0 || strcmp(cmd, "quiet") == 0) { streamOn = false; Serial.println(F("streaming OFF")); }
   else if (strncmp(cmd, "cal ", 4) == 0)                               runImmediate(cmd);
   else if (strncmp(cmd, "set offset ", 11) == 0)                       runImmediate(cmd);
   else if (strncmp(cmd, "set scale ", 10) == 0)                        runImmediate(cmd);
