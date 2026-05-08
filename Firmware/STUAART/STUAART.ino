@@ -44,6 +44,7 @@ const int RECONNECT_WIFI_INTERVAL = 3600000;
 const unsigned long WIFI_CONNECT_TIMEOUT_MS = 15000;
 bool wifiConnected = false;
 bool sdInitialized = false;
+bool webServerStarted = false;     // set when server.begin() succeeds
 bool streamOn = false;                  // CSV stream to Serial : OFF by default
 const size_t CMD_BUF_SIZE = 64;
 char cmdBuf[CMD_BUF_SIZE];              // accumulates one line of user input
@@ -102,6 +103,7 @@ void connectToWifi()
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
     server.begin();
+    webServerStarted = true;
     for (int i = 0; i < 3; i++) {
       digitalWrite(pinLED2, HIGH); delay(100);
       digitalWrite(pinLED2, LOW);  delay(100);
@@ -615,6 +617,16 @@ void printInfo() {
   if (wifiConnected) {
     Serial.print(F("IP        : "));
     Serial.println(WiFi.localIP());
+  }
+  Serial.print(F("Web srv   : "));
+  if (webServerStarted && wifiConnected) {
+    Serial.print(F("running at http://"));
+    Serial.print(WiFi.localIP());
+    Serial.println(F("/"));
+  } else if (webServerStarted) {
+    Serial.println(F("started but WiFi is down"));
+  } else {
+    Serial.println(F("not started (WiFi never came up since boot)"));
   }
   Serial.print(F("SD card   : "));
   Serial.println(sdInitialized ? "ready" : "not found");
