@@ -105,7 +105,10 @@
 #ifndef LoadCell_h
 #define LoadCell_h
 #include <Arduino.h>
-#include "HX711.h"
+// Vendored, patched copy of bogde HX711 (carries STUAART_v5_CORRUPTED_GPIO9
+// + IRAM_ATTR on read() / _shiftIn()). Use the explicit relative path so
+// arduino-cli does not fall back to the unpatched system library.
+#include "src/HX711/HX711.h"
 class LoadCell : public HX711 {
 
 protected:

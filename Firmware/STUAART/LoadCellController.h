@@ -83,7 +83,7 @@
 #ifndef LoadCellController_h
 #define LoadCellController_h
 #include <Arduino.h>
-#include "HX711.h"
+#include "src/HX711/HX711.h"
 #include "LoadCell.h"
 
 // Verify if the board is based on a ESP32 chip, like FireBeetle
