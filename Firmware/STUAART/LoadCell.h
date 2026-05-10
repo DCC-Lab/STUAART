@@ -163,6 +163,48 @@ public:
        LoadCell();
 
 
+#if defined(STUAART_v5_CORRUPTED_GPIO9)
+       /**
+        * @brief DOUT pin saved at begin() time. The bogde HX711
+        * library keeps `_dataPin` private, so we mirror it here for
+        * @ref needs_flash_collision_protection to inspect.
+        *
+        * Only declared when the PCB is known to have the GPIO 9 bug
+        * (`STUAART_v5_CORRUPTED_GPIO9` defined in HX711.h). On clean
+        * PCBs this field, the @ref begin override and
+        * @ref needs_flash_collision_protection are all compiled out.
+        */
+       uint8_t pin_dout = 255;
+
+
+       /**
+        * @brief Override of `HX711::begin` that mirrors the DOUT pin
+        * number into @ref pin_dout before delegating to the bogde
+        * implementation. We need our own copy because the bogde class
+        * keeps `_dataPin` private and `safe_read()` must know whether
+        * this cell sits on a flash-bus GPIO.
+        */
+       void begin(uint8_t dout, uint8_t sck, uint8_t gain = 128);
+
+
+       /**
+        * @brief True iff this LoadCell's DOUT lands on one of the six
+        * GPIOs (6..11) that the ESP32 reuses as the on-package SPI
+        * flash bus. These pins suffer from the flash-bus contention
+        * documented in @ref corruption : every flash transaction
+        * drives the pad and corrupts the HX711 read window. STUAART
+        * V5 has cell 1 wired to GPIO 9 by mistake, which is why this
+        * protection exists at all. PCB revisions that route DOUT off
+        * GPIO 6-11 should `#undef STUAART_v5_CORRUPTED_GPIO9` in
+        * HX711.h, after which this method (and the entire mitigation
+        * machinery) is no longer compiled in.
+        */
+       bool needs_flash_collision_protection() const {
+           return pin_dout >= 6 && pin_dout <= 11;
+       }
+#endif
+
+
        /**
         * @brief Read the HX711 with corruption detection and retry.
         *

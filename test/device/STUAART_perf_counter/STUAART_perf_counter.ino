@@ -1,56 +1,139 @@
-// Xtensa LX6 performance counter exploration on ESP32.
+// Test : SPI flash state machine register as a real-time flash-bus indicator.
 //
-// Goal : count flash bus / cache miss events that overlap each HX711
-// read on cell 1 (GPIO 9 = flash bus pin), so we can discard reads
-// that coincide with bus activity instead of relying on retry-after-
-// corruption.
+// SPI0 is the flash master. Its EXT2 register (offset 0xF8 from the SPI0
+// base 0x3FF43000) exposes a 3-bit state field (SPI_ST). It is 0 when
+// the flash bus is idle and non-zero during a transaction.
 //
-// Uses the ESP-IDF `xtensa_perfmon_*` API (libperfmon.a from
-// tools/esp32-libs/3.3.8/lib). The relevant counter is
-// XTPERF_CNT_ICACHE_MISSES (0x8005) which counts the penalty cycles
-// caused by instruction-cache misses ; this is a direct measurement
-// of "how much the CPU stalled waiting for the flash bus" during the
-// window we monitor.
+// If this register actually changes during cache-miss / PROGMEM-fetch
+// activity, it gives us a direct way to detect "flash bus busy" without
+// any perfmon counter. We could then poll it just before each HX711
+// SCK pulse and skip the read if the bus is active.
+//
+// Test design : sample SPI_ST in a tight loop while running different
+// stress patterns. Count how often we observe a non-zero state during
+// each window. A high non-zero count during PROGMEM stress and a low
+// count during RAM/IRAM stress would confirm the register is useful.
 
-#include "LoadCell.h"
-#include "LoadCellController.h"
-extern "C" {
-  #include "xtensa_perfmon_access.h"
-  #include "xtensa/xt_perf_consts.h"
-  #include "xtensa_perfmon_masks.h"
-}
+#include <Arduino.h>
 
-LoadCell loadCell1;
-LoadCellController controller;
+static const uint32_t SPI0_BASE     = 0x3FF43000;
+static const uint32_t SPI0_EXT2_REG = SPI0_BASE + 0xF8;
+static const uint32_t SPI1_BASE     = 0x3FF42000;
+static const uint32_t SPI1_EXT2_REG = SPI1_BASE + 0xF8;
 
-static const byte CELL1_DOUT = 9;
-static const byte CELL1_SCK  = 17;
+static inline uint32_t spi0_st() { return (*(volatile uint32_t*)SPI0_EXT2_REG) & 0x7; }
+static inline uint32_t spi1_st() { return (*(volatile uint32_t*)SPI1_EXT2_REG) & 0x7; }
 
-// Provoke flash bus activity by reading PROGMEM data sequentially.
-static const uint8_t BIG_BLOB[8192] PROGMEM = {
-    #define X16 1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
-    #define X64 X16 X16 X16 X16
+// 64 KB PROGMEM blob.
+static const uint32_t BIG_FLASH_BLOB[16384] PROGMEM = {
+    #define X4   0xDEADBEEF, 0xCAFEBABE, 0x12345678, 0x87654321,
+    #define X16  X4 X4 X4 X4
+    #define X64  X16 X16 X16 X16
     #define X256 X64 X64 X64 X64
-    X256 X256 X256 X256
-    X256 X256 X256 X256
-    X256 X256 X256 X256
-    X256 X256 X256 X256
-    X256 X256 X256 X256
-    X256 X256 X256 X256
-    X256 X256 X256 X256
-    X256 X256 X256 X256
+    #define X1024 X256 X256 X256 X256
+    X1024 X1024 X1024 X1024
+    X1024 X1024 X1024 X1024
+    X1024 X1024 X1024 X1024
+    X1024 X1024 X1024 X1024
+    #undef X4
     #undef X16
     #undef X64
     #undef X256
+    #undef X1024
 };
-static volatile uint32_t blob_sink = 0;
+static uint32_t BIG_RAM_BLOB[8192];
+static volatile uint32_t sink = 0;
 
-static void thrash_cache_lines() {
-    uint32_t s = blob_sink;
-    for (size_t i = 0; i < sizeof(BIG_BLOB); i += 32) {
-        s += pgm_read_byte(BIG_BLOB + i);
+// Sample SPI0_ST while running a stress pattern.
+struct Result {
+    uint32_t cycles;
+    uint32_t samples;
+    uint32_t st_counts[8];
+    uint32_t spi0_busy;
+    uint32_t spi1_busy;
+};
+
+typedef void (*StressFn)();
+static Result probe(StressFn stress, int n_samples);
+static void print_result(const char* name, const Result& r);
+static Result probe(StressFn stress, int n_samples) {
+    Result r = {};
+    uint32_t c0 = ESP.getCycleCount();
+
+    // Run stress in parallel with sampling. We can't truly parallelize on a
+    // single core, so we interleave : sample, then a small chunk of stress,
+    // then sample again. To get high-res sampling we run a tight sampling
+    // loop and trigger stress in the middle.
+    //
+    // Strategy : kick off stress on a separate task on the other core.
+    // Simpler : do a few rounds of "stress + sample".
+    for (int i = 0; i < n_samples; i++) {
+        uint32_t s0 = spi0_st();
+        uint32_t s1 = spi1_st();
+        r.st_counts[s0]++;
+        if (s0 != 0) r.spi0_busy++;
+        if (s1 != 0) r.spi1_busy++;
+        if ((i & 0xFF) == 0) stress();   // run stress in chunks
     }
-    blob_sink = s;
+
+    r.cycles = ESP.getCycleCount() - c0;
+    r.samples = n_samples;
+    return r;
+}
+
+static void stress_progmem() {
+    uint32_t s = sink;
+    for (size_t i = 0; i < 256; i++) {
+        uint32_t w;
+        memcpy_P(&w, BIG_FLASH_BLOB + (i * 64), sizeof(w));
+        s += w;
+    }
+    sink = s;
+}
+
+static void stress_ram() {
+    uint32_t s = sink;
+    for (size_t i = 0; i < 256; i++) s += BIG_RAM_BLOB[i * 32];
+    sink = s;
+}
+
+static void stress_idle() {
+    // do nothing
+    (void)sink;
+}
+
+static void print_result(const char* name, const Result& r) {
+    Serial.print(name); Serial.print(F(":"));
+    Serial.print(F(" cycles=")); Serial.print(r.cycles);
+    Serial.print(F(" samples=")); Serial.print(r.samples);
+    Serial.print(F(" SPI0_busy=")); Serial.print(r.spi0_busy);
+    Serial.print(F(" ("));
+    Serial.print(100.0f * r.spi0_busy / r.samples, 2);
+    Serial.print(F("%) SPI1_busy=")); Serial.println(r.spi1_busy);
+    Serial.print(F("  state distribution :"));
+    for (int s = 0; s < 8; s++) {
+        if (r.st_counts[s] > 0) {
+            Serial.print(F(" ST=")); Serial.print(s);
+            Serial.print(':'); Serial.print(r.st_counts[s]);
+        }
+    }
+    Serial.println();
+}
+
+// Direct snapshot : just dump the raw register a few times to see if it's
+// even changing without us doing anything.
+static void raw_snapshot() {
+    Serial.println(F("Raw EXT2 snapshots over 1 ms (no stress) :"));
+    uint32_t end = micros() + 1000;
+    int n = 0;
+    while (micros() < end && n < 32) {
+        uint32_t v0 = *(volatile uint32_t*)SPI0_EXT2_REG;
+        uint32_t v1 = *(volatile uint32_t*)SPI1_EXT2_REG;
+        Serial.print(F("  SPI0_EXT2=0x")); Serial.print(v0, HEX);
+        Serial.print(F("  SPI1_EXT2=0x")); Serial.println(v1, HEX);
+        n++;
+        delayMicroseconds(30);
+    }
 }
 
 void setup() {
@@ -58,118 +141,24 @@ void setup() {
     while (!Serial) delay(10);
     delay(500);
     Serial.println();
-    Serial.println(F("=== Xtensa perf counter : ICACHE_MISSES window ==="));
+    Serial.println(F("=== SPI flash state machine probe ==="));
 
-    // Configure PM0 to count ICACHE miss penalty cycles. kernelcnt=0
-    // means count only in user mode (kernel mode is what FreeRTOS uses
-    // for ISRs and scheduler). tracelevel=15 means count at all levels.
-    // Sanity test : start with CYCLES which is guaranteed to count.
-    // If even this doesn't tick, the API is fundamentally not running.
-    esp_err_t r = xtensa_perfmon_init(
-        0,
-        XTPERF_CNT_CYCLES,            // 0 = every cycle
-        XTPERF_MASK_CYCLES,           // 0x0001
-        1,                            // kernelcnt = 1 : count in any mode
-        -1);                          // tracelevel : -1 = no filter
-    if (r != ESP_OK) {
-        Serial.print(F("perfmon_init failed : ")); Serial.println(r);
-        return;
-    }
-    xtensa_perfmon_start();
+    for (size_t i = 0; i < 8192; i++) BIG_RAM_BLOB[i] = i * 1664525u;
 
-    // Sanity : the counter should tick during a known cache thrashing
-    // operation. Print the value before and after.
-    xtensa_perfmon_reset(0);
-    uint32_t v_before = xtensa_perfmon_value(0);
-    thrash_cache_lines();
-    uint32_t v_after  = xtensa_perfmon_value(0);
-    Serial.print(F("Sanity check : counter went from "));
-    Serial.print(v_before); Serial.print(F(" to "));
-    Serial.print(v_after);  Serial.print(F(" during thrash (delta = "));
-    Serial.print(v_after - v_before); Serial.println(F(")"));
-    if (v_after == v_before) {
-        Serial.println(F("Counter not ticking ; perfmon may be disabled."));
-        return;
-    }
+    raw_snapshot();
+    Serial.println();
 
-    // Now run HX711 reads on cell 1, snapshot the counter immediately
-    // before and after each read, and correlate the delta with whether
-    // the read came back corrupted.
-    controller.add_loadcell(loadCell1, CELL1_DOUT, CELL1_SCK);
-    loadCell1.set_weight_n_readings(1);
-    loadCell1.reset_stats();
+    Serial.println(F("Sampling SPI0_ST 100k times under different stresses :"));
+    Result r_idle    = probe(stress_idle,    100000);
+    Result r_ram     = probe(stress_ram,     100000);
+    Result r_progmem = probe(stress_progmem, 100000);
 
-    const int N = 5000;
-    int corrupt_count = 0;
-    uint64_t sum_clean = 0, sum_corrupt = 0;
-    uint32_t max_clean = 0, min_corrupt = 0xFFFFFFFFu;
-    long hist_clean[10]   = {0};
-    long hist_corrupt[10] = {0};
+    print_result("idle    ", r_idle);
+    print_result("ram     ", r_ram);
+    print_result("progmem ", r_progmem);
 
     Serial.println();
-    Serial.print(F("Sampling ")); Serial.print(N);
-    Serial.println(F(" reads on cell 1, with cache thrash between each."));
-
-    for (int i = 0; i < N; i++) {
-        thrash_cache_lines();
-        xtensa_perfmon_reset(0);
-        long raw  = loadCell1.read();
-        uint32_t pm = xtensa_perfmon_value(0);
-        bool corrupt = (raw == -1L || raw == -8388608L || raw == 8388607L);
-
-        // bins of 100 cycles each, 0..900+
-        int bin = pm / 100;
-        if (bin >= 10) bin = 9;
-
-        if (corrupt) {
-            corrupt_count++;
-            sum_corrupt += pm;
-            if (pm < min_corrupt) min_corrupt = pm;
-            hist_corrupt[bin]++;
-            if (corrupt_count <= 20) {
-                Serial.print(F("[corrupt @ ")); Serial.print(i);
-                Serial.print(F("] raw=")); Serial.print(raw);
-                Serial.print(F(" miss_cycles=")); Serial.println(pm);
-            }
-        } else {
-            sum_clean += pm;
-            if (pm > max_clean) max_clean = pm;
-            hist_clean[bin]++;
-        }
-    }
-
-    long clean_count = N - corrupt_count;
-    Serial.println();
-    Serial.print(F("Total reads     : ")); Serial.println(N);
-    Serial.print(F("Total corrupt   : ")); Serial.println(corrupt_count);
-    if (clean_count > 0) {
-        Serial.print(F("clean   miss_cycles : avg="));
-        Serial.print((unsigned long)(sum_clean / clean_count));
-        Serial.print(F(" max=")); Serial.println(max_clean);
-    }
-    if (corrupt_count > 0) {
-        Serial.print(F("corrupt miss_cycles : avg="));
-        Serial.print((unsigned long)(sum_corrupt / corrupt_count));
-        Serial.print(F(" min=")); Serial.println(min_corrupt);
-    }
-
-    Serial.println();
-    Serial.println(F("Histogram of miss_cycles per read (bins of 100) :"));
-    Serial.println(F("bin    clean    corrupt"));
-    for (int b = 0; b < 10; b++) {
-        if (hist_clean[b] == 0 && hist_corrupt[b] == 0) continue;
-        if (b < 9) {
-            Serial.print(b * 100); Serial.print(F("-")); Serial.print(b * 100 + 99);
-        } else {
-            Serial.print(F("900+"));
-        }
-        Serial.print(F("\t"));
-        Serial.print(hist_clean[b]);   Serial.print(F("\t"));
-        Serial.println(hist_corrupt[b]);
-    }
-
-    Serial.println();
-    Serial.println(F("DONE. Reset to run again."));
+    Serial.println(F("DONE."));
 }
 
 void loop() {}

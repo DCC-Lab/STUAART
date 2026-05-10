@@ -61,77 +61,18 @@
 #endif
 
 
+// Forward declaration of the corruption-signature predicate. The full
+// implementation, together with all the GPIO 9 / flash-bus mitigation
+// machinery, lives at the bottom of this file (see "HX711 corruption
+// mitigation" section). The averaging methods below need this helper
+// to discard corrupted samples before they pollute the average, so it
+// has to be visible up here.
+static inline bool hx711_corrupted(long raw);
+
 
 LoadCell::LoadCell() {
 }
 
-// ----------------------------------------------------------------------------
-// HX711 corruption mitigation
-//
-// Background : the STUAART V2 PCB routes cell 1 DOUT to the FireBeetle pin
-// labelled D5 (= ESP32 GPIO 9). On the ESP32-D0WD die, GPIO 6 to 11 are
-// physically bonded to the external SPI flash bus. The flash controller
-// drives those pads on every CPU cache miss, in parallel with the HX711
-// pulling its DOUT to that same pad. The two drivers fight, and the read
-// occasionally samples the flash signal instead of the HX711 data.
-//
-// In ~98 % of the corrupted reads observed on STUAART production data the
-// HX711 returns 0xFFFFFF (= -1L after sign extension), the signature of a
-// DOUT held HIGH for the entire 24-bit shift. Two saturation values
-// (0x800000 and 0x7FFFFF) appear less frequently when the boot tare hits
-// a fully-corrupted read.
-//
-// The proper fix is a hardware strap rerouting cell 1 DOUT off GPIO 9 to
-// a free pin (D2 = GPIO 25 or D3 = GPIO 26 are unconnected on V2). Until
-// every board is reworked, this software mitigation drops the three known
-// corruption signatures so they never enter the data stream.
-// ----------------------------------------------------------------------------
-
-static inline bool hx711_corrupted(long raw) {
-  // 0xFFFFFF (-1) : DOUT held HIGH (interrupt, or flash-bus contention on
-  //                 GPIO 9 — the dominant case on STUAART V2).
-  // 0x800000 (-8388608) : 24-bit negative saturation, mostly seen when
-  //                       the boot tare hits a fully-corrupted read.
-  // 0x7FFFFF (+8388607) : 24-bit positive saturation, mirror image.
-  // None of these can physically occur during normal operation of a
-  // strain-gauge load cell weighing a 20-30 g mouse.
-  return raw == -1L || raw == -8388608L || raw == 8388607L;
-}
-
-// Helper : increment the matching corruption counter for a value that
-// already failed hx711_corrupted().
-inline void LoadCell_count_corruption(LoadCell* self, long raw) {
-  if      (raw == -1L)        self->corrupted_neg1++;
-  else if (raw == -8388608L)  self->corrupted_negsat++;
-  else if (raw == 8388607L)   self->corrupted_possat++;
-}
-
-long LoadCell::safe_read(byte max_retries) {
-  // First read. If it matches a known corruption signature, retry up to
-  // max_retries times. read() blocks until the HX711 has a fresh sample
-  // ready (~12.5 ms at 80 Hz) so each retry costs at most one conversion
-  // period. We do NOT add an extra wait_ready_timeout here : a previous
-  // version did, and it dragged the loop rate from ~85 Hz to ~1 Hz when
-  // cell 1 was corrupted on every iteration.
-  //
-  // Every read() call counts toward total_reads ; every observed
-  // corruption signature (whether on the initial read or a retry)
-  // increments the matching corrupted_* counter, so the lifetime stats
-  // give a faithful corruption rate per cell.
-  long raw = read();
-  total_reads++;
-  while (hx711_corrupted(raw) && max_retries > 0) {
-    LoadCell_count_corruption(this, raw);
-    raw = read();
-    total_reads++;
-    max_retries--;
-  }
-  // If we are exiting with a still-corrupt value, count it once more.
-  if (hx711_corrupted(raw)) {
-    LoadCell_count_corruption(this, raw);
-  }
-  return raw;
-}
 
 long LoadCell::read_raw_average() {
   // Average `weight_n_readings` reads, but exclude any sample that still
@@ -257,3 +198,127 @@ void LoadCell::set_weight_n_readings(int n_readings){
 int LoadCell::get_weight_n_readings(){
   return weight_n_readings;
 }
+
+
+// ============================================================================
+// HX711 corruption mitigation : everything below this banner exists solely to
+// work around the STUAART V2 PCB error that wires HX711 cell 1 DOUT to GPIO 9
+// (= ESP32 SD_DATA2 of the on-package SPI flash). On future PCB revisions
+// that route DOUT off GPIO 6-11 entirely, `needs_flash_collision_protection()`
+// returns false on every cell, `safe_read()` collapses to a direct call into
+// `HX711::read()`, and none of the machinery below is exercised at runtime.
+//
+// Background : on the ESP32-D0WD die, GPIO 6 to 11 are physically bonded to
+// the external SPI flash bus. The flash controller drives those pads on every
+// cache miss, in parallel with the HX711 pulling its DOUT to that same pad.
+// The two drivers fight, and the read occasionally samples the flash signal
+// instead of the HX711 data.
+//
+// In ~98 % of the corrupted reads observed on STUAART production data the
+// HX711 returns 0xFFFFFF (= -1L after sign extension), the signature of a
+// DOUT held HIGH for the entire 24-bit shift. Two saturation values
+// (0x800000 and 0x7FFFFF) appear less frequently when the boot tare hits a
+// fully-corrupted read. None of these values can physically occur during
+// normal operation of a strain-gauge load cell weighing a 20-30 g mouse, so
+// they make a reliable signature.
+//
+// Two layers of protection on cells whose DOUT lands on GPIO 6-11 :
+//
+//   1. `HX711::read()` and `HX711::_shiftIn()` are patched in the local copy
+//      of the bogde HX711 library to live in IRAM (`IRAM_ATTR`). Combined
+//      with arduino-esp32 already keeping `digitalRead` / `digitalWrite` /
+//      `delayMicroseconds` in IRAM (`ARDUINO_ISR_ATTR`), the entire HX711
+//      read path is now flash-free : no instruction fetched from flash
+//      during the 24-bit shift, no flash bus burst that could corrupt DOUT.
+//
+//   2. The actual `read()` call is wrapped in a `portENTER_CRITICAL` section
+//      so no FreeRTOS task switch and no ISR can interrupt the shift. ISR
+//      handlers usually live in flash and would themselves trigger a flash
+//      burst the moment they run.
+//
+// Layer 2 is gated by `needs_flash_collision_protection()` so it costs zero
+// on clean cells. Layer 1 is unconditional but is just code placement, no
+// runtime cost.
+//
+// `safe_read()` retries up to `max_retries` times when a known corruption
+// signature appears, and increments per-signature lifetime counters so the
+// corruption rate of each cell can be inspected at runtime via the `stats`
+// serial command.
+// ============================================================================
+
+static inline bool hx711_corrupted(long raw) {
+  // 0xFFFFFF (-1)        : DOUT held HIGH (interrupt running from flash, or
+  //                        flash-bus contention on GPIO 9 — the dominant
+  //                        case on STUAART V2).
+  // 0x800000 (-8388608)  : 24-bit negative saturation, mostly seen when the
+  //                        boot tare hits a fully-corrupted read.
+  // 0x7FFFFF (+8388607)  : 24-bit positive saturation, mirror image.
+  return raw == -1L || raw == -8388608L || raw == 8388607L;
+}
+
+// Helper : increment the matching corruption counter for a value that
+// already failed hx711_corrupted().
+inline void LoadCell_count_corruption(LoadCell* self, long raw) {
+  if      (raw == -1L)        self->corrupted_neg1++;
+  else if (raw == -8388608L)  self->corrupted_negsat++;
+  else if (raw == 8388607L)   self->corrupted_possat++;
+}
+
+#if defined(STUAART_v5_CORRUPTED_GPIO9)
+
+#include "freertos/FreeRTOS.h"
+
+// Override of `HX711::begin` that mirrors the DOUT pin into our public
+// `pin_dout` field so `needs_flash_collision_protection()` can inspect
+// it without touching the bogde private state.
+void LoadCell::begin(uint8_t dout, uint8_t sck, uint8_t gain) {
+    pin_dout = dout;
+    HX711::begin(dout, sck, gain);
+}
+
+static portMUX_TYPE _stuaart_hx_mux = portMUX_INITIALIZER_UNLOCKED;
+
+// Hardened read used only when DOUT lands on GPIO 6-11. Each underlying
+// HX711::read() runs inside a critical section so no ISR can fire mid
+// 24-bit shift, and the result is filtered against the three known
+// corruption signatures with up to `max_retries` retries.
+static long safe_read_hardened(LoadCell* self, byte max_retries) {
+    long raw;
+    portENTER_CRITICAL(&_stuaart_hx_mux);
+    raw = self->read();
+    portEXIT_CRITICAL(&_stuaart_hx_mux);
+    self->total_reads++;
+    while (hx711_corrupted(raw) && max_retries > 0) {
+        LoadCell_count_corruption(self, raw);
+        portENTER_CRITICAL(&_stuaart_hx_mux);
+        raw = self->read();
+        portEXIT_CRITICAL(&_stuaart_hx_mux);
+        self->total_reads++;
+        max_retries--;
+    }
+    if (hx711_corrupted(raw)) {
+        LoadCell_count_corruption(self, raw);
+    }
+    return raw;
+}
+
+// Public dispatcher. Clean cells (DOUT not on GPIO 6-11) get a direct
+// call into the bogde `HX711::read()` with zero overhead — no critical
+// section, no signature filter, no retry, no stats. Hardened cells go
+// through `safe_read_hardened()` above.
+long LoadCell::safe_read(byte max_retries) {
+    if (!needs_flash_collision_protection()) {
+        return read();
+    }
+    return safe_read_hardened(this, max_retries);
+}
+
+#else  // STUAART_v5_CORRUPTED_GPIO9 not defined : the PCB is clean,
+       // so safe_read collapses to a direct read() with zero overhead
+       // and `LoadCell::begin` is inherited from HX711 unchanged.
+
+long LoadCell::safe_read(byte /*max_retries*/) {
+    return read();
+}
+
+#endif
