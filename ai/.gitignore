@@ -17,6 +17,9 @@ env/
 Thumbs.db
 .idea/
 .vscode/
+._*
+.AppleDouble/
+.~lock.*#
 
 # Claude Code workspace state (project-private)
 .claude/
