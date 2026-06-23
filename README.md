@@ -39,6 +39,15 @@ arduino-cli upload --fqbn esp32:esp32:firebeetle32 \
 
 `SPIFFS Mount Failed` on a brand-new FireBeetle : run `Loadcell/SketchExamples/FormatSPIFFS/FormatSPIFFS.ino` once on the new board.
 
+If the **link** step fails with garbled errors like `DWARF error: could not find abbrev number`, `bad reloc symbol index`, or `orphan section ''` (often referencing `LoadCell.cpp.o`), the sketch did **not** change — the Arduino build cache is stale or corrupt. This commonly happens after switching git branches or changing the selected board, because the IDE reuses object files that no longer match. It is not a code error. Fix it by forcing a clean rebuild :
+
+```sh
+arduino-cli cache clean
+arduino-cli compile --clean --fqbn esp32:esp32:firebeetle32 Firmware/STUAART
+```
+
+In the Arduino IDE 2.x, the equivalent is to quit, delete `~/Library/Caches/arduino/sketches/` (macOS) / `%LOCALAPPDATA%\Temp\arduino\sketches\` (Windows), then Verify again. After the cache is cleared the firmware builds cleanly every time.
+
 ## A minimal load cell read
 
 ```cpp
