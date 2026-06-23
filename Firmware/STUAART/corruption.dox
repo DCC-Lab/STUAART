@@ -20,7 +20,7 @@
  * | 2    | GPIO 27  | 450      | -78.45 g       | ~0.011 %     |
  * | 3    | GPIO 16  | < 50     | scattered      | < 0.001 %    |
  *
- * The −160.68 g spike on cell 1 maps exactly to a raw HX711 reading of
+ * The -160.68 g spike on cell 1 maps exactly to a raw HX711 reading of
  * `0xFFFFFF` (= `-1L` after sign extension), the signature of a DOUT
  * line held HIGH throughout the 24-bit shift. ~98 % of cell 1 outliers
  * are this exact value.
@@ -62,7 +62,7 @@
  * `digitalRead(9)` to clock in a HX711 bit, the pad voltage at that
  * instant is whichever driver is winning. If the flash signal is HIGH
  * for the full duration of the shift (which happens during a multi-byte
- * burst), all 24 bits read back as 1 → `0xFFFFFF`.
+ * burst), all 24 bits read back as 1 -> `0xFFFFFF`.
  *
  * @section corr_signatures The three known signatures
  *
@@ -140,7 +140,7 @@
  *
  * 1. Remove the FireBeetle from its socket on the PCB.
  * 2. Bend the D5 leg outward so it cannot re-enter the socket. This
- *    leaves the original PCB trace U1-DAT → D5 dangling but
+ *    leaves the original PCB trace U1-DAT -> D5 dangling but
  *    electrically disconnected.
  * 3. Solder a thin wire from the U1-DAT pad (DOUT pin of HX711 #1) to
  *    the D2 or D3 socket pin (or directly to the matching FireBeetle

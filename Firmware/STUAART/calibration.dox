@@ -31,14 +31,14 @@
  *
  * `scale` can be either positive or negative depending on the polarity
  * of the load cell wiring. The HX711 measures the differential
- * voltage `V(A+) − V(A-)`. Swapping the A+ and A- leads inverts the
+ * voltage `V(A+) - V(A-)`. Swapping the A+ and A- leads inverts the
  * sign of every conversion, which translates to a negative `scale`
  * in the linear model.
  *
  * On STUAART production data we observe :
  *
- * - cell 2 scale ≈ −15 700 counts/g
- * - cell 3 scale ≈ −14 700 counts/g
+ * - cell 2 scale ~ -15 700 counts/g
+ * - cell 3 scale ~ -14 700 counts/g
  *
  * Both negative because the cells were wired with the same convention.
  * Cell 1 in some calibrations shows a positive scale (~+143 000) which
