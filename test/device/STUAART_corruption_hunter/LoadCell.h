@@ -1,1 +1,0 @@
-../../../Firmware/STUAART/LoadCell.h
