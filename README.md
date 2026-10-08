@@ -97,3 +97,29 @@ doxygen -g                                  # creates a Doxyfile
 doxygen Doxyfile                             # produces html/ and latex/
 cd latex && pdflatex refman.tex              # produces refman.pdf
 ```
+
+## Mass time series analysis
+
+Each step of the post-processing analysis can be performed using notebooks run via Google Colaboratory. To begin, the raw mass time series must be uploaded to the user's personal Google Drive. We also recommend that users save a personal copy of each notebook to their own Google Drive by clicking on *File > Save a copy in Drive* once opened via the links below. Users are free to modify their own versions of the notebooks as desired. 
+
+1. **Remove buffer flush indicators from the raw mass time series** : String such as "--, --, --, -- \n" are saved in the raw data to indicate the moments when the buffer flushed its contents onto the SD card. This data can be used to evaluate the time it takes to flush all data and how many times the buffer flushes the data over a given period. For further analysis, these indicators nust be removed. You can do this using this notebook :
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Remove_buffer_flush_indicators_in_raw_data_Time_from_Real_time_Clock.ipynb)
+
+
+2. **Correct for baseline shift and remove outliers** : This step is the most computationally intensive. Longitudinal mass time series are affected by mechanical and thermal drifts that alter the value of the initial tare and shift the measured mass by multiple grams, which must be corrected to ensure accuracte evaluation. Additionally, transient spikes can occur and should be filtered out. Users can choose whether to remove outliers and select which baseline correction algorithm best suits their data. Four baseline correction algorithms are provided : density-based spatial clustering of applications with noise (DBSCAN), kernel-density estimation (KDE), Gaussian mixture model (GMM) and a custom rolling-mean filtering. As presented in the main manuscript, the authors achieved optimal results with DBSCAN, while the custom rolling-mean filtering performs well for more stable data sets. We also provide a graphical user interface (GUI) for manual baseline fine-tuning and quick data visualization. We suggest testing different algorithms and using the notebook *Compute_metrics.ipnyb* to evaluate quantitatively the accuracy and precision of the baseline-corrected mass compared to ground-truth mass measurements. If ground-truth data was not acquired, a simple visual inspection of the baseline-corrected mass time series can guide algorithm selection. More information is available in the supplementary information document and within the notebook :
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Correct_mass_time_series_for_baseline_shift.ipynb)
+
+3. **Display mass time series and compute mass per time bin** : After baseline correction and outlier removal, the users can display the mass time series for visual evaluation. The data can be displayed per scale, for the overall measured mass of the system (summed mass time series per timepoint) and by the relative mass change (where the mass at time = 0 hour is 0%). The users can also obtain the mass per time bin. 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Display_mass_data_and_compute_average_mass_One_cage.ipynb)
+
+4. **Compute metrics** : Quantitative evaluation of the mass compared to ground-truth measurements can be obtained via this notebook : 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Compute_metrics.ipynb)
+
+5. **Evaluate location, grid-hanging and active state behaviors** : Three additional notebooks are provided to identify and evaluate the spatial occupancy of each scale, the grid-hanging behavior and the active VS inactive states over time. 
+   - [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Identify_location_One_cage.ipynb)
+   - [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Identify_hanging_One_cage.ipynb)
+   - [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Identify_active_VS_inactive_One_cage.ipynb)
+
+
+
+
