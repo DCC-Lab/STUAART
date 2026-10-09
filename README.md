@@ -22,11 +22,12 @@ STUAART is an automated weighing system for mice that tracks individual weights 
 
 1. Install Arduino IDE 2.x or `arduino-cli`.
 2. Add the Espressif boards URL in Preferences and install the `esp32` core (board package). 
-4. Copy and save files in folder *Arduino* on your computer. 
-3. If you are using a new Firebeetle ESP-32 board, run `Arduino/FormatSPIFFS/FormatSPIFFS.ino` (prevent error `SPIFFS Mount Failed`). Otherwise, go to the next step. 
-4. Open `Arduino/STUAART/STUAART.ino`.
-4. Download third-party libraries in the Arduino IDE. See section *Required third-party libraries*.
-5. In the Arduino IDE, pick board `FireBeetle-ESP32` (`esp32:esp32:firebeetle32`) in  Tools -> Port, pick the USB serial port, then Verify and Upload.
+3. Copy and save files in folder `Arduino` on your computer. 
+4. Copy and save the Python script in `FlaskServer` in your local NAS and run it. 
+5. If you are using a new Firebeetle ESP-32 board, run `Arduino/FormatSPIFFS/FormatSPIFFS.ino` (prevent error `SPIFFS Mount Failed`). Otherwise, go to the next step. 
+6. Open `Arduino/STUAART/STUAART.ino`.
+7. Download third-party libraries in the Arduino IDE. See section *Required third-party libraries*.
+8. In the Arduino IDE, pick board `FireBeetle-ESP32` (`esp32:esp32:firebeetle32`) in  Tools -> Port, pick the USB serial port, then Verify and Upload.
 
 
 
