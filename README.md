@@ -1,6 +1,7 @@
 # STUAART
 
-Repo of the STUAART project, created July 12 2023 by Nathan Bérubé. Continued by Valérie Pineau Noël and Daniel C. Côté (DCC/M Lab, Université Laval / CERVO).
+Repository of the STUAART project. 
+Authors of this README : Valérie Pineau Noël, Nathan Bérubé and Daniel C. Côté (DCC/M-lab, CERVO brain research center, Université Laval)
 
 ## Overview
 
@@ -10,34 +11,34 @@ STUAART is an automated weighing system for mice that tracks individual weights 
 
 | Folder | What's there |
 |---|---|
-| **`Firmware/`** | The production firmware : sketch + custom libraries, a docs folder with the Doxygen-generated PDF, and a README that explains compile/upload. **Start here.** |
-| `Loadcell/` | Historical drift / linearity / mouse-experiment material, plus standalone example sketches. See `Loadcell/README.md`. |
-| `KiCAD/` | Three PCB revisions : `Version1/`, `V2/` (currently in production), `V3/` (newer revision, not deployed). |
-| `CAD/` | Mechanical 3D files for the scale platforms (Mireille manages the Fusion360 team for the rest). Print with high infill density to keep stiffness and reduce creep. |
-| `CapacitiveSensor/` | Example sketch and a guide PDF for the capacitive sensor used to detect mouse presence. |
-| `CageServer/` | Code for a host-side server (separate from the microcontroller HTTP server). |
-| `PostProcessingCode/` | Python scripts used after data collection. |
-| `Presentations/` | Talk slides on the project. |
+| `Arduino/` | Custom libraries and scripts to run the STUAART. |
+| `KiCAD/` | PCB schematic and design mde on KiCAD (version 10.0.7). |
+| `CAD/` | Mechanical 3D files for the scale platforms. Print the top platform with high infill density to keep stiffness and reduce creep. |
+| `FlaskServer/` | Python script used to catch the data and save on a local NAS. |
+| `Notebooks/` | Notebooks that users can run in Google Colaboratory for data post-processing. |
+
 
 ## Getting started with the firmware
 
-See [Firmware/README.md](Firmware/README.md) for the full procedure. Summary :
-
 1. Install Arduino IDE 2.x or `arduino-cli`.
-2. Add the Espressif boards URL in Preferences and install the `esp32` core (board package).
-3. Library Manager : install **HX711 by Bogde**, **RTClib by Adafruit**, and **ArduinoJson by bblanchon**. Tested versions are listed in `Firmware/README.md`.
-4. Open `Firmware/STUAART/STUAART.ino`. The custom libraries (`LoadCell.{h,cpp}` and `LoadCellController.{h,cpp}`) sit beside the `.ino` and compile automatically as part of the sketch — no copying to `~/Documents/Arduino/libraries/`.
-5. Pick board `FireBeetle-ESP32` (`esp32:esp32:firebeetle32`), pick the USB serial port, then Verify and Upload.
+2. Add the Espressif boards URL in Preferences and install the `esp32` core (board package). 
+4. Copy and save files in folder *Arduino* on your computer. 
+3. If you are using a new Firebeetle ESP-32 board, run `Arduino/FormatSPIFFS/FormatSPIFFS.ino` (prevent error `SPIFFS Mount Failed`). Otherwise, go to the next step. 
+4. Open `Arduino/STUAART/STUAART.ino`.
+4. Download third-party libraries in the Arduino IDE. See section *Required third-party libraries*.
+5. In the Arduino IDE, pick board `FireBeetle-ESP32` (`esp32:esp32:firebeetle32`) in  Tools -> Port, pick the USB serial port, then Verify and Upload.
 
-If `arduino-cli` complains during upload with *Unable to verify flash chip connection*, the default upload speed of 921600 baud is too fast for the CH340 USB-serial chip on the FireBeetle. Force 115200 :
 
-```sh
-arduino-cli upload --fqbn esp32:esp32:firebeetle32 \
-  -p /dev/cu.usbserial-XX --upload-property upload.speed=115200 \
-  Firmware/STUAART
-```
 
-`SPIFFS Mount Failed` on a brand-new FireBeetle : run `Loadcell/SketchExamples/FormatSPIFFS/FormatSPIFFS.ino` once on the new board.
+## Required third-party libraries
+
+Install these via Arduino IDE Library Manager (Sketch -> Include Library -> Manage Libraries):
+
+| Library | Author | Tested version |
+|---|---|---|
+| HX711 | Bogdan Necula (bogde) | 0.7.5 |
+| RTClib | Adafruit | 2.1.4 |
+| ArduinoJson | Benoit Blanchon | 7.0.4 |
 
 ## A minimal load cell read
 
@@ -74,30 +75,6 @@ void loop() {
 }
 ```
 
-## Known hardware issue : GPIO 9 / flash conflict on PCB V2
-
-On the production PCB (V2), cell 1 DOUT is routed to FireBeetle pin **D5 (GPIO 9)**. On the ESP32-D0WD chip used in this FireBeetle revision, GPIO 9 is bonded to the external flash SPI bus (data line SD2). The flash controller drives this line continuously while code executes, so the HX711 output and the flash bus collide on the same wire — cell 1 readings on V2 are intermittently corrupted (most of the time the chip returns 0xFFFFFF, which after offset scaling shows up as a constant ~−160 g spike).
-
-The firmware has a defensive patch in `LoadCell::safe_read()` that detects and retries the most common corruption signatures (raw == −1, 0x800000, 0x7FFFFF), but software cannot fully compensate for the bus contention. **The proper fix is mechanical** : lift D5 from the FireBeetle socket (or cut the trace) and add a strap from the U1-DAT pad to a free GPIO. **D2 (GPIO 25)** and **D3 (GPIO 26)** are unconnected on PCB V2 and ideal for this rework. Then change `controller.add_loadcell(loadCell1, 9, 17)` to `controller.add_loadcell(loadCell1, 25, 17)` (or `26`).
-
-## Lab notes
-
-Drift, linearity and outlier characterization are documented in the lab-notes Overleaf document : <https://www.overleaf.com/read/vvxvjbdjmgmg>.
-
-## Documentation
-
-The Doxygen-generated PDF for `LoadCell` and `LoadCellController` is at [`Firmware/docs/LoadCell-API-V2.02.pdf`](Firmware/docs/LoadCell-API-V2.02.pdf).
-
-To regenerate it from current sources :
-
-```sh
-cd Firmware/STUAART
-doxygen -g                                  # creates a Doxyfile
-# edit Doxyfile : set RECURSIVE = YES
-doxygen Doxyfile                             # produces html/ and latex/
-cd latex && pdflatex refman.tex              # produces refman.pdf
-```
-
 ## Mass time series analysis
 
 Each step of the post-processing analysis can be performed using notebooks run via Google Colaboratory. To begin, the raw mass time series must be uploaded to the user's personal Google Drive. We also recommend that users save a personal copy of each notebook to their own Google Drive by clicking on *File > Save a copy in Drive* once opened via the links below. Users are free to modify their own versions of the notebooks as desired. 
@@ -120,6 +97,13 @@ Each step of the post-processing analysis can be performed using notebooks run v
    - [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Identify_hanging_One_cage.ipynb)
    - [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Identify_active_VS_inactive_One_cage.ipynb)
 
+## Error management 
+
+- `Unable to verify flash chip connection` : the default upload speed of 921600 baud is too fast for the CH340 USB-serial chip on the FireBeetle. Set 115200. 
+
+- `SPIFFS Mount Failed` : Run the script in `Arduino/FormatSPIFFS/FormatSPIFFS.ino`. 
+
+- The "GPIO 9 = flash" issue on cell 1 is the root cause of corrupted readings (raw == 0xFFFFFF returned as -160.68 g). A defensive software patch in `LoadCell.cpp` rejects this signature, but the long-term fix is to reroute that DOUT to GPIO 25 or 26 (silkscreen D2 or D3).
 
 
 
