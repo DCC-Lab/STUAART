@@ -99,9 +99,9 @@ Each step of the post-processing analysis can be performed using notebooks run v
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Compute_metrics.ipynb)
 
 5. **Evaluate location, grid-hanging and active state behaviors** : Three additional notebooks are provided to identify and evaluate the spatial occupancy of each scale, the grid-hanging behavior and the active VS inactive states over time. 
-   - [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Identify_location_One_cage.ipynb)
-   - [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Identify_hanging_One_cage.ipynb)
-   - [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Identify_active_VS_inactive_One_cage.ipynb)
+   - Location : [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Identify_location_One_cage.ipynb)
+   - Hanging : [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Identify_hanging_One_cage.ipynb)
+   - Activity : [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DCC-Lab/STUAART/blob/master/Identify_active_VS_inactive_One_cage.ipynb)
 
 ## Error management 
 
