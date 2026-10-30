@@ -30,7 +30,6 @@ STUAART is an automated weighing system for mice that tracks individual weights 
 8. In the Arduino IDE, pick board `FireBeetle-ESP32` (`esp32:esp32:firebeetle32`) in  Tools -> Port, pick the USB serial port, then Verify and Upload.
 
 
-
 ## Required third-party libraries
 
 Install these via Arduino IDE Library Manager (Sketch -> Include Library -> Manage Libraries):
@@ -40,6 +39,7 @@ Install these via Arduino IDE Library Manager (Sketch -> Include Library -> Mana
 | HX711 | Bogdan Necula (bogde) | 0.7.5 |
 | RTClib | Adafruit | 2.1.4 |
 | ArduinoJson | Benoit Blanchon | 7.0.4 |
+
 
 ## A minimal load cell read
 
@@ -75,6 +75,11 @@ void loop() {
   Serial.println(reading);
 }
 ```
+
+## Manual calibration mode VS Automatic mode
+
+STUAART has a switch that dictates the mode at reboot. Manual calibration mode is used to save new persistent parameters (tare offset and scale coefficients) in the SPIFFS. These parameters are used to convert digital signals received from the HX711 amplifier to mass values in grams. For this step, objects of known mass must be used. The users can use as many objects of known mass as they want for calibration. Automatic mode is used when the users want to use the parameters previously saved in the SPIFFS. The authors suggest to start with the manual calibration mode when starting a new experiment. Connecting the STUAART to a computer will allow the users to make sure that everything is working well and save new calibration parameters. Then, for continuous, longitudinal measurements, the automatic mode can be turned on and the system can be powered via a standard wall adaptor. 
+
 
 ## Mass time series analysis
 
